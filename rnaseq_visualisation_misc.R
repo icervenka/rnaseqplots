@@ -6,6 +6,7 @@ library(viridis)
 library(ggplot2)
 library(ggrepel)
 library(VennDiagram)
+library(ComplexHeatmap)
 library(pheatmap)
 library(cummeRbund)
 library(DESeq2)
@@ -20,8 +21,6 @@ library(dplyr)
 #library(psych)
 #library(clusterProfiler)
 #library(ggfortify)
-
-
 
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
 .addFeatures<-function(object,features,level="genes",...){
@@ -220,93 +219,53 @@ plot_dire_labeled = function(df, occurrence_threshold = 0.05,
                      size = dot_size)
   return(p)
 }
-# dire_up <- read_excel("E:/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/ko_vs_wt_diffexp.xlsx",
-#                       sheet = "dire_up") %>% select(-`#`)
-# 
-# dire_down <- read_excel("E:/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/ko_vs_wt_diffexp.xlsx",
-#                         sheet = "dire_down") %>% select(-`#`)
-# 
-# dire_all <- read_excel("E:/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/ko_vs_wt_diffexp.xlsx",
-#                        sheet = "dire_all") %>% select(-`#`)
-# 
-# dire = list("up" = dire_up, "down" = dire_down, "all" = dire_all)
-
-
-# setwd("E:/OneDrive/under_development/labmeeting/")
-# 
-# dire_up %>%
-#   ggplot(aes(x = Occurrence, y = Importance)) +
-#   geom_point(size = 4, alpha = 0.5, color = "darkred") +
-#   theme_bw() +
-#   geom_label_repel(data = . %>% filter(Occurrence > 0.09 | Importance > 0.08), 
-#                    aes(x = Occurrence, y = Importance, label = `Transcription Factor`),
-#                    size = 3.5)
-# ggsave("dire_up.png",  device = "png", units = "cm", dpi = 600, width = 12, height = 12)
-# 
-# 
-# dire_down %>%
-#   ggplot(aes(x = Occurrence, y = Importance)) +
-#   geom_point(size = 4, alpha = 0.5, color = "steelblue") +
-#   theme_bw() +
-#   geom_label_repel(data = . %>% filter(Occurrence > 0.08 | Importance > 0.08),
-#                    aes(x = Occurrence, y = Importance, label = `Transcription Factor`),
-#                    size = 3.5)
-# ggsave("dire_down.png",  device = "png", units = "cm", dpi = 600, width = 12, height = 12)
-# 
-# dire_all %>%
-#   ggplot(aes(x = Occurrence, y = Importance)) +
-#   geom_point(size = 4, alpha = 0.5, color = "gray30") +
-#   theme_bw() +
-#   geom_label_repel(data = . %>% filter(Occurrence > 0.07 | Importance > 0.04),
-#                    aes(x = Occurrence, y = Importance, label = `Transcription Factor`),
-#                    size = 3.5)
-# ggsave("dire_all.png",  device = "png", units = "cm", dpi = 600, width = 12, height = 12)
-
-
-
-
 
 # heatmap all
-
-plot_sample_heatmap = function(expression_data, metadata) {
-  expr = sample_expression %>%
-    select(matches("E\\d{3}")) %>% as.matrix
-  
-  p = expr[order(rowVars(expr)),][1:5000,] %>%
-    # select(matches("E\\d{3}")) %>%
+plot_heatmap = function(expression_data, metadata, palette = "RdBu") {
+  expression_data %>%
     pheatmap(scale = "row",
              color = colorRampPalette(rev(RColorBrewer::brewer.pal(
-               n = 7, name = "RdBu")))(100),
+               n = 7, name = palette)))(100),
              cluster_cols = T,
              show_rownames = F,
-             cellwidth = 10,
+             cellwidth = 20,
              border_color = "white",
              treeheight_row = 15,
              treeheight_col = 20,
-             annotation_col = metadata %>% column_to_rownames("sample"))
+             annotation_col = metadata %>% 
+               tibble::column_to_rownames("sample"))
+  return(p)
 }
 
-plot_diffexp_heatmap = function(expression_data, metadata) {
-  p = sample_expression %>%
-    filter(ENSEMBL %in% (ko_vs_wt_all %>% 
-                           filter (padj < 0.05) %>% 
-                           pull(ENSEMBL))) %>%
+plot_sample_heatmap = function(..., num_genes = 5000) {
+  dots = list(...)
+  expression_data = dots[1]
+  metadata = dots[2]
+  palette = dots[3]
+  
+  expr = expression_data %>%
+    select(matches(metadata$sample)) %>% as.matrix
+  
+  p = plot_heatmap(expr[order(rowVars(expr)),][1:num_genes,],
+                   metadata,
+                   palette)
+  return(p)
+}
+
+plot_diffexp_heatmap = function(..., geneid_colname, padj_colname) {
+  dots = list(...)
+  expression_data = dots[1]
+  metadata = dots[2]
+  palette = dots[3]
+  
+  p = expression_data %>%
+    filter(!!as.symbol(geneid_colname) %in% (expression_data %>% 
+                           filter (!!as.symbol(padj_colname) < 0.05) %>% 
+                           pull(!!as.symbol(geneid_colname)))) %>%
     select(matches(metadata$sample)) %>%
-    pheatmap(scale = "row",
-             color = colorRampPalette(rev(RColorBrewer::brewer.pal(
-               n = 7, name = "RdBu")))(100),
-             cluster_cols = F,
-             show_rownames = F,
-             cellwidth = 10,
-             border_color = "white",
-             treeheight_row = 15,
-             treeheight_col = 20,
-             annotation_col = metadata %>% column_to_rownames("sample"))
+    plot_heatmap(metadata, palette)
+  return(p)
 }
-
-
-
-
 
 # # ma plot
 # ko_vs_wt_all %>%
@@ -326,115 +285,182 @@ plot_volcano = function(fc_data,
                         fc_colname = "log2FoldChange", 
                         pval_colname = "pvalue", 
                         padj_colname = "padj") {
-  ko_vs_wt_all %>%
-    mutate(padj = ifelse(is.na(padj), 1, padj)) %>%
+  fc_data %>%
+    mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)), 1, !!as.symbol(padj_colname))) %>%
+    mutate(log2FoldChange = !!as.symbol(fc_colname)) %>%
     mutate(significant = as.factor(case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
                                              padj < 0.05 & log2FoldChange < 0 ~ 2,
-                                             TRUE ~ 0))) %>%
-    ggplot(aes(x = log2FoldChange, y = -log10(pvalue), color = significant)) +
+                                             TRUE ~ 0)))
+  
+  max_fc = max(fc_data$log2FoldChange)
+  min_fc = min(fc_data$log2FoldChange)
+  max_padj = max(-log10(padj))
+  
+  num_genes_up = fc_data %>% 
+    filter(padj < 0.05 & log2FoldChange > 0) %>% 
+    nrow()
+  num_genes_down = fc_data %>% 
+    filter(padj < 0.05 & log2FoldChange < 0) %>% 
+    nrow()
+  
+  fc_data %>%
+    ggplot(aes(x = log2FoldChange, 
+               y = -log10(!!as.symbol(pval_colname)), 
+               color = significant)) +
     geom_point(size = 2, alpha = 0.4) +
+    geom_text(aes(x = max_fc, 
+                  y = max_padj, 
+                  label = paste0("\U1F815 ",num_genes_up)),
+              color = "steelblue") + 
+    geom_text(aes(x = min_fc, 
+                  y = max_padj, 
+                  label = paste0("\U1F817 ",num_genes_down)), 
+              color = "darkred") +            
     scale_color_discrete(type = c("gray60", "darkred", "steelblue")) +
     theme_bw() + 
     theme(legend.position = "none")
 }
 
-
-plot_volcano = function(fc_data,
-                        gene_labels,
-                        fc_colname = "log2FoldChange", 
-                        pval_colname = "pvalue", 
-                        padj_colname = "padj") {
-  df %>%
-    mutate(padj = ifelse(is.na(padj), 1, padj)) %>%
-    mutate(significant = as.factor(case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
-                                             padj < 0.05 & log2FoldChange < 0 ~ 2,
-                                             TRUE ~ 0))) %>%
-    ggplot(aes(x = log2FoldChange, y = -log10(pvalue), color = significant)) +
-    geom_point(size = 2, alpha = 0.4) +
-    ggrepel::geom_label_repel(data = . %>% filter(SYMBOL %in% gene_labels),
-                              aes(label = SYMBOL),
-                              color = "black",
-                              max.overlaps = 20) + 
-    scale_color_discrete(type = c("gray60", "darkred", "steelblue")) + 
-    theme_bw() + 
-    theme(legend.position = "none")
-}
-
-# heatmaps selected gene lists
-
-plot_gene_heatmap = function(df, metadata, gene_labels) {
-  df %>%
-    filter(SYMBOL %in% gene_labels) %>%
-    select(SYMBOL, matches(metadata$sample)) %>%
-    column_to_rownames("SYMBOL") %>%
-    pheatmap(scale = "row",
-             color = colorRampPalette(rev(RColorBrewer::brewer.pal(
-               n = 7, name = "RdBu")))(100),
-             cluster_cols = F,
-             show_rownames = F,
-             show_colnames = F,
-             cellwidth = 13,
-             cellheight = 13,
-             border_color = "white",
-             treeheight_row = 15,
-             annotation_col = metadata %>% column_to_rownames("sample"))
-}
-
-plot_heatmap_fc = function(df, heatmap) {
-  labels = heatmap$tree_row$labels[heatmap$tree_row$order]
+plot_volcano_labeled = function(fc_data, gene_labels, symbol_colname = "SYMBOL", ...) {
+  dots = list(...)
+  fc_colname = dots[1]
+  pval_colname = dots[2]
+  padj_colname = dots[3]
   
-  df = df %>%
-    filter(SYMBOL %in% p$tree_row$labels[p$tree_row$order]) %>%
-    mutate(SYMBOL = factor(SYMBOL, levels = rev(p$tree_row$labels[p$tree_row$order])))
-  
-  df %>%
-    ggplot(aes(x = "gene", y = SYMBOL, fill = log2FoldChange, size = -log10(padj))) +
-    geom_point(shape = 21, color = "black") +
-    scale_fill_distiller(palette = "RdBu", limits = c(-1,1)*max(abs(df$log2FoldChange))) + 
-    theme_bw() + 
-    scale_y_discrete(position = "right") + 
-    xlab("") +
-    ylab("") + 
-    theme(axis.text.x = element_blank()) 
+  plot_volcano(fc_data, fc_colname, pval_colname, padj_colname) + 
+    geom_label_repel(data = . %>% 
+                       filter(!!as.symbol(symbol_colname) %in% gene_labels),
+                     aes(label = !!as.symbol(symbol_colname)),
+                     color = "black",
+                     max.overlaps = 15)
 }
 
-unified_names = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",	"p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
-all_pathways = map_dfr(pathway_files, function(x) {
-  read_delim(paste0(pathway_files_basepath, x),
-             delim = "\t", escape_double = FALSE,
-             trim_ws = TRUE)  %>% 
-    setNames(unified_names) %>%
-    mutate(source = gsub("_contrast.txt", "", x),
-           ID = as.character(ID)) %>%
-    #tidyr::separate(source, into = c("source", "sub", "analysis", "gene_list"), sep = "_") %>%
-    select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
-    unique()
-}) %>%
-  filter(p.adjust < 0.05)
+# # heatmaps selected gene lists
+# plot_gene_heatmap = function(df, metadata, gene_labels) {
+#   df %>%
+#     filter(SYMBOL %in% gene_labels) %>%
+#     select(SYMBOL, matches(metadata$sample)) %>%
+#     column_to_rownames("SYMBOL") %>%
+#     pheatmap(scale = "row",
+#              color = colorRampPalette(rev(RColorBrewer::brewer.pal(
+#                n = 7, name = "RdBu")))(100),
+#              cluster_cols = F,
+#              show_rownames = F,
+#              show_colnames = F,
+#              cellwidth = 13,
+#              cellheight = 13,
+#              border_color = "white",
+#              treeheight_row = 15,
+#              annotation_col = metadata %>% column_to_rownames("sample"))
+# }
+# 
+# plot_heatmap_fc = function(df, heatmap) {
+#   labels = heatmap$tree_row$labels[heatmap$tree_row$order]
+#   
+#   df = df %>%
+#     filter(SYMBOL %in% p$tree_row$labels[p$tree_row$order]) %>%
+#     mutate(SYMBOL = factor(SYMBOL, levels = rev(p$tree_row$labels[p$tree_row$order])))
+#   
+#   df %>%
+#     ggplot(aes(x = "gene", y = SYMBOL, fill = log2FoldChange, size = -log10(padj))) +
+#     geom_point(shape = 21, color = "black") +
+#     scale_fill_distiller(palette = "RdBu", limits = c(-1,1)*max(abs(df$log2FoldChange))) + 
+#     theme_bw() + 
+#     scale_y_discrete(position = "right") + 
+#     xlab("") +
+#     ylab("") + 
+#     theme(axis.text.x = element_blank()) 
+# }
 
-pathways_summary = all_pathways %>%
-  group_by(source) %>%
-  summarise(n_pathways = n(), mean_enrichment = mean(`GeneRatio/NES`)) 
+# all_pathways = map_dfr(pathway_files, function(x) {
+#   cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",	
+#                           "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
+#   
+#   read_delim(paste0(pathway_files_basepath, x),
+#              delim = "\t", escape_double = FALSE,
+#              trim_ws = TRUE)  %>% 
+#     setNames(cp_unified_colnames) %>%
+#     # TODO needs to be changed
+#     mutate(source = gsub("_contrast.txt", "", x),
+#            ID = as.character(ID)) %>%
+#     # might not reflect actual columns
+#     select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
+#     unique()
+# }) %>%
+#   filter(p.adjust < 0.05)
 
-pathways_summary %>%
-  ggplot() +
-  geom_histogram(aes(x = n_pathways), bins = 100, fill = "steelblue") + 
-  theme_bw()
+collate_pathways = function(pathway_files_basepath, pattern) {
+  pathway_files = list.files(pathway_files_basepath, 
+                             pattern = pattern,
+                             full.names = F)
+  
+  cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",	
+                          "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
+  
+  diffexp_pathways = map_dfr(pathway_files, function(x) {
+    read_delim(paste0(pathway_files_basepath, x),
+               delim = "\t", escape_double = FALSE,
+               trim_ws = TRUE)  %>% 
+      setNames(cp_unified_colnames) %>%
+      # TODO needs to be changed
+      mutate(source = gsub("_contrast.txt", "", x),
+             ID = as.character(ID)) %>%
+      # might not reflect actual columns
+      select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
+      unique()
+  }) %>%
+    filter(p.adjust < 0.05)
+  
+  return(diffexp_pathways)
+}
 
-plot_pathway_bargraph = function(data, pathway_source, top_n = 20) {
+
+plot_pathways_meta = function(df, top_pathways = 30) {
+  pathways_summary = all_pathways %>%
+    group_by(source) %>%
+    summarise(n_pathways = n(), mean_enrichment = mean(`GeneRatio/NES`)) 
+  
+  pathways_summary %>%
+    ggplot() +
+    geom_histogram(aes(x = n_pathways), bins = 100, fill = "steelblue") + 
+    theme_bw()
+  
+  # top pathway contributors
+  pathways_summary %>%
+    top_n(30, n_pathways) %>%
+    arrange(n_pathways) %>%
+    mutate(source = factor(source, levels = source)) %>%
+    ggplot(aes(x = n_pathways, y = source)) +
+    geom_bar(stat="identity", fill = "steelblue") + 
+    theme_bw()
+  
+  # bottom pathway contributors
+  pathways_summary %>%
+    top_n(30, -n_pathways) %>%
+    arrange(n_pathways) %>%
+    mutate(source = factor(source, levels = source)) %>%
+    ggplot(aes(x = n_pathways, y = source)) +
+    geom_bar(stat="identity", fill = "steelblue") + 
+    theme_bw()
+}
+
+
+plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc = 80) {
   data %>%
     filter(grepl(pathway_source, source)) %>%
     arrange(-abs(`GeneRatio/NES`)) %>%
     slice_head(n = top_n) %>%
     arrange(`GeneRatio/NES`) %>%
-    mutate(Description = stringr::str_trunc(Description, 80)) %>%
+    mutate(Description = stringr::str_trunc(Description, truncate_desc)) %>%
     mutate(Description = factor(Description, levels = (.) %>% pull(Description))) %>%
-    ggplot(aes(x = `GeneRatio/NES`, y = Description, color = -log10(p.adjust), fill = -log10(p.adjust))) +
+    ggplot(aes(x = `GeneRatio/NES`, 
+               y = Description, 
+               color = -log10(p.adjust), 
+               fill = -log10(p.adjust))) +
     geom_bar(stat="identity") + 
     ylab("") +
     theme_bw()
 }
-
 
 
 gene_lists = list(
@@ -465,8 +491,3 @@ pathways <- read_delim("D:/igor/labmeeting_20211117/output/csv/ko_wt/Pathways_Wi
 pathways2 <- read_delim("D:/igor/labmeeting_20211117/output/csv/ko_wt/Pathways_Wiki_ORA_all_contrast.txt",
                         delim = "\t", escape_double = FALSE,
                         trim_ws = TRUE)
-
-pathway_files_basepath = "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/pathways/output/csv/ko_wt/"
-pathway_files = list.files(pathway_files_basepath, 
-                           pattern = "_contrast",
-                           full.names = F)
