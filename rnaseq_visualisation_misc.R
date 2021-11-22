@@ -8,6 +8,8 @@ library(ggrepel)
 library(VennDiagram)
 library(ComplexHeatmap)
 library(pheatmap)
+library(cowplot)
+library(circlize)
 library(cummeRbund)
 library(DESeq2)
 library(limma)
@@ -335,6 +337,50 @@ plot_volcano_labeled = function(fc_data, gene_labels, symbol_colname = "SYMBOL",
                      max.overlaps = 15)
 }
 
+plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
+                           id_colname = "SYMBOL", fc_colname = "log2FoldChange",
+                           padj_colname = "padj") {
+  expression_data_fil = expression_data %>%
+    arrange(!!as.symbol(id_colname)) %>%
+    filter(!!as.symbol(id_colname) %in% gene_list) %>%
+    select(!!as.symbol(id_colname), matches(metadata$sample)) %>%
+    columns_to_rowname(id_colname)
+  
+  diffexp_data_fil = diffexp_data %>%
+    arrange(!!as.symbol(id_colname)) %>%
+    filter(!!as.symbol(id_colname) %in% gene_list)
+  
+  log2fc_vals = diffexp_data_fil %>%
+    pull(!!as.symbol(fc_colname))
+  log2fc_colors = ifelse(log2fc_vals < 0, "steelblue", "darkred")
+  
+  pvals = expression_data_fil %>%
+    pull(!!as.symbol(padj_colname))
+  pvals_colors = colorRamp2(c(-log10(0.05), max(pvals)), c("white", "steelblue"))
+  
+  har = rowAnnotation(pvalue = anno_simple(pvals, col = pvals_colors),
+                      log2fc = anno_barplot(seq(-5, 5), baseline = 0, gp = gpar(fill = log2fc_colors)),
+                      simple_anno_size = unit(0.5, "cm"), width = unit(2, "cm"),
+                      gap = unit(2, "mm"))
+  
+  hat = columnAnnotation(genotype = metadata$group)
+  
+  ht = Heatmap(expression_data_fil %>% 
+                 as.matrix %>% 
+                 t %>% 
+                 scale %>% 
+                 t,
+               name = "expression",
+               right_annotation = har,
+               top_annotation = hat,
+               cluster_columns = FALSE,
+               width = ncol(expression_data_fil)*unit(5, "mm"), 
+               height = nrow(expression_data_fil)*unit(5, "mm"))
+  
+  draw(ht, annotation_legend_list = list(pvalues_legend), merge_legends = TRUE)
+}
+
+
 # # heatmaps selected gene lists
 # plot_gene_heatmap = function(df, metadata, gene_labels) {
 #   df %>%
@@ -416,17 +462,20 @@ collate_pathways = function(pathway_files_basepath, pattern) {
 
 
 plot_pathways_meta = function(df, top_pathways = 30) {
-  pathways_summary = all_pathways %>%
+  pathways_summary = df %>%
     group_by(source) %>%
-    summarise(n_pathways = n(), mean_enrichment = mean(`GeneRatio/NES`)) 
+    summarise(n_pathways = n(), 
+              mean_enrichment = mean(`GeneRatio/NES`)) 
   
-  pathways_summary %>%
+  p1 = pathways_summary %>%
     ggplot() +
-    geom_histogram(aes(x = n_pathways), bins = 100, fill = "steelblue") + 
+    geom_histogram(aes(x = n_pathways), 
+                   bins = 100, 
+                   fill = "steelblue") + 
     theme_bw()
   
   # top pathway contributors
-  pathways_summary %>%
+  p2 = pathways_summary %>%
     top_n(30, n_pathways) %>%
     arrange(n_pathways) %>%
     mutate(source = factor(source, levels = source)) %>%
@@ -435,13 +484,15 @@ plot_pathways_meta = function(df, top_pathways = 30) {
     theme_bw()
   
   # bottom pathway contributors
-  pathways_summary %>%
+  p3 = pathways_summary %>%
     top_n(30, -n_pathways) %>%
     arrange(n_pathways) %>%
     mutate(source = factor(source, levels = source)) %>%
     ggplot(aes(x = n_pathways, y = source)) +
     geom_bar(stat="identity", fill = "steelblue") + 
     theme_bw()
+  
+  return(plot_grid(p1, p2, p3, nrow = 1))
 }
 
 
@@ -462,32 +513,3 @@ plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc
     theme_bw()
 }
 
-
-gene_lists = list(
-  myh3 = c("Myh3"),
-  tnn = c("Tnnc1", "Tnnc2", "Tnni1", "Tnni2", "Tnni3", "Tnnt1", "Tnnt2", "Tnnt3", "Tpm1", "Tpm2", "Tpm3", "Tpm4"),
-  mito_strict = c("ATP6", "ATP8", "COX1", "COX2", "COX3", "CYB", "ND1", "ND2", "ND3", "ND4", "ND4L", "ND5", "ND6"),
-  mito_assoc = c("Polrmt", "Tfam", "Tfb1m", "Tfb2m", "Mterf1a", "Mterf1b", "Mterf2", "Mterf3", "Mterf4", "Trmt10c", 
-                 "Hsd17b10", "Prorp", "Elac2", "Fastk", "Fastkd1", "Fastkd2", "Fastkd4", "Lrpprc", "Slirp"),
-  metabolism = c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Cox5a", "Atp5a1")
-)
-
-pathway_lists = list(
-  wp = c("WP1248", "WP295", "WP662", "WP434", "WP85", "WP6", "WP2185", "WP523", "WP113")
-)
-
-sample_expression <- read_delim("~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/sample_expression.csv",
-                                delim = "\t", escape_double = FALSE,
-                                trim_ws = TRUE)
-
-ko_vs_wt_all <- read_delim("~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/ko_vs_wt_all.txt",
-                           delim = "\t", escape_double = FALSE,
-                           trim_ws = TRUE)
-
-pathways <- read_delim("D:/igor/labmeeting_20211117/output/csv/ko_wt/Pathways_Wiki_GSEA_all_contrast.txt",
-                       delim = "\t", escape_double = FALSE,
-                       trim_ws = TRUE)
-
-pathways2 <- read_delim("D:/igor/labmeeting_20211117/output/csv/ko_wt/Pathways_Wiki_ORA_all_contrast.txt",
-                        delim = "\t", escape_double = FALSE,
-                        trim_ws = TRUE)
