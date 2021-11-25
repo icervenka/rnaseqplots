@@ -25,6 +25,15 @@ gg_color_hue = function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
+# save_plot = function(plot, savename, width, height, unit, dpi) {
+#     ggplot2::ggsave(savename,
+#                     p,
+#                     units = unit,
+#                     dpi = dpi,
+#                     width = width,
+#                     height = height)
+# }
+
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
 .addFeatures = function(object,features,level="genes",...){
   if(!is.data.frame(features)){
@@ -156,7 +165,7 @@ plot_pca_common = function(data, metadata, color_by = "group") {
   return(p)
 }
 
-plot_corr = function(gene_expr, param_values, param_values) {
+plot_corr = function(gene_expr, param_values) {
  p = cbind.data.frame(expr = gene_expr, 
                        param = param_values, 
                        color_by = param_values) %>%
@@ -178,20 +187,12 @@ plot_lfc_scatter = function(lfc_data) {
   return(p)
 }
 
-plot_volcano_cuffdiff = function(data, sample1, sample2, customization, savename = NULL,
-                                 width = 60, height = 65) {
+plot_volcano_cuffdiff = function(data, sample1, sample2, customization) {
   p = data %>% dplyr::filter(sample_1 == sample1 & sample_2 == sample2) %>%
     ggplot2::ggplot(aes(x = log2_fold_change, y = -log10(p_value))) +
     geom_point(aes(color = significant)) +
     customization
-  if(!is.null(savename)) {
-    ggplot2::ggsave(savename,
-                    p,
-                    units = "mm",
-                    dpi = 600,
-                    width = width,
-                    height = height)
-  }
+  return(p)
 }
 
 plot_venn2 = function(x, y, names, savename) {
