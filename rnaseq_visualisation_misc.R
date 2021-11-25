@@ -20,48 +20,52 @@ library(tibble)
 library(purrr)
 library(dplyr)
 
-
-#library(psych)
-#library(clusterProfiler)
-#library(ggfortify)
-
-gg_color_hue <- function(n) {
+gg_color_hue = function(n) {
   hues = seq(15, 375, length = n + 1)
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
-.addFeatures<-function(object,features,level="genes",...){
+.addFeatures = function(object,features,level="genes",...){
   if(!is.data.frame(features)){
     stop("features must be a data.frame")
   }
-  colnames(features)[1]<-slot(object,level)@idField
-  colnames(features)<-make.db.names(object@DB,colnames(features),unique=T)
-  dbWriteTable(object@DB,slot(object,level)@tables$featureTable,features,row.names=F,overwrite=T)
-  indexQuery<-paste("CREATE INDEX ",slot(object,level)@idField," ON ",
+  colnames(features)[1] = slot(object,level)@idField
+  colnames(features) = make.db.names(object@DB,colnames(features),unique=T)
+  DBI::dbWriteTable(object@DB,slot(object,level)@tables$featureTable,features,row.names=F,overwrite=T)
+  indexQuery = paste("CREATE INDEX ",slot(object,level)@idField," ON ",
                     slot(object,level)@tables$featureTable," (",slot(object,level)@idField,")",sep="")
-  res<-dbExecute(object@DB,indexQuery)
+  res = DBI::dbExecute(object@DB,indexQuery)
 }
 setMethod("addFeatures",signature(object="CuffSet"),.addFeatures)
 
 # user defined reading functions -----------------------------------------------
 read_cuffdiff_diff = function(dir) {
-  cuff = readCufflinks(dir)
-  annot = read.delim(paste0(dir,"/gene_exp.diff"), sep = "\t",header=T,na.string="-") %>%
+  cuff = cummeRbund::readCufflinks(dir)
+  annot = read.delim(paste0(dir,"/gene_exp.diff"), 
+                     sep = "\t", 
+                     header=T, 
+                     na.string="-") %>%
     dplyr::select(gene_id, gene)
-  addFeatures(cuff,annot,level="genes")
+  cummeRbund::addFeatures(cuff,annot,level="genes")
 
   # munging of differential expression data
-  diff = diffData(genes(cuff)) %>% as_tibble
-  diff = diff %>% dplyr::filter(value_1 > 0 & value_2 > 0) %>% dplyr::filter(status == "OK")
-  diff = diff %>% dplyr::mutate(comparison = paste0(sample_1, "_", sample_2))
-  diff = merge(diff, annot %>% unique)
+  diff = cummeRbund::diffData(genes(cuff)) %>% 
+    tibble::as_tibble()
+  diff = diff %>% 
+    dplyr::filter(value_1 > 0 & value_2 > 0) %>% 
+    dplyr::filter(status == "OK")
+  diff = diff %>% 
+    dplyr::mutate(comparison = paste0(sample_1, "_", sample_2)) %>%
+    dplyr::left_join(annot %>% unique())
   return(diff)
 }
 
 merge_cuffdiff_fc = function(x, y, annot, by = "gene") {
-  lfcs = merge(x %>% dplyr::select(gene, gene_id, log2_fold_change, q_value),
-               y %>% dplyr::select(gene, gene_id, log2_fold_change, q_value),
+  lfcs = merge(x %>% 
+                 dplyr::select(gene, gene_id, log2_fold_change, q_value),
+               y %>% 
+                 dplyr::select(gene, gene_id, log2_fold_change, q_value),
                by = by)
   lfcs = lfcs %>%
     # Fisher method of combining p-values
@@ -77,13 +81,12 @@ merge_cuffdiff_fc = function(x, y, annot, by = "gene") {
 
 read_dire = function(filename, sheet_name = "Sheet1") {
   if(grepl(".xlsx", filename)) {
-    data = read_excel(filename, sheet = sheet_name) %>%
+    data = readxl::read_excel(filename, sheet = sheet_name) %>%
       select(-`#`)
   } else {
-    data = read_delim(filename) %>%
+    data = readr::read_delim(filename) %>%
       select(-`#`)
   }
-
   return(data)
 }
 
@@ -101,9 +104,17 @@ plot_pca_deseq = function(dds, condition = "condition") {
   no_colors = pcaData[,condition] %>% unique() %>% length()
 
   p = pcaData %>%
-    ggplot2::ggplot(aes(PC1, PC2, color=!!as.symbol(condition), shape=!!as.symbol(condition))) +
+    ggplot2::ggplot(aes(PC1, 
+                        PC2, 
+                        color=!!as.symbol(condition), 
+                        shape=!!as.symbol(condition))) +
     geom_point(size=3) +
-    geom_segment(aes(x = PC1, y = PC2, xend = xend, yend = yend), size = 0.5, linetype = "dashed") +
+    geom_segment(aes(x = PC1, 
+                     y = PC2, 
+                     xend = xend, 
+                     yend = yend), 
+                 size = 0.5, 
+                 linetype = "dashed") +
     geom_point(data = segments, aes(x = xend, y = yend), size = 2) +
     xlab(paste0("PC1: ",percentVar[1],"% variance")) +
     ylab(paste0("PC2: ",percentVar[2],"% variance")) +
@@ -116,65 +127,75 @@ plot_pca_deseq = function(dds, condition = "condition") {
 
 plot_pca_common = function(data, metadata, color_by = "group") {
   pca = prcomp(t(data), scale = T)
-  pcaData <- as.data.frame(pca$x) %>% rownames_to_column("id")
+  pcaData = as.data.frame(pca$x) %>% rownames_to_column("id")
   pcaData = merge(pcaData, metadata, by.x = "id", by.y = "sample")
-  segments = pcaData %>% group_by(!!as.symbol(color_by)) %>% summarise(xend = mean(PC1), yend = mean(PC2))
+  segments = pcaData %>% 
+    dplyr::group_by(!!as.symbol(color_by)) %>% 
+    dplyr::summarise(xend = mean(PC1), yend = mean(PC2))
   pcaData = merge(pcaData, segments, by = color_by)
 
-  percentage <- round(pca$sdev / sum(pca$sdev) * 100, 2)
-  percentage <- paste0(colnames(pca), "(", paste(as.character(percentage), "%", ")", sep=""))
+  percentage = round(pca$sdev / sum(pca$sdev) * 100, 2)
+  percentage = paste0(colnames(pca), "(", paste(as.character(percentage), "%", ")", sep=""))
 
   no_colors = pcaData[,color_by] %>% unique() %>% length()
 
   p = pcaData %>%
-    ggplot(aes(PC1, PC2, color=!!as.symbol(color_by), shape=!!as.symbol(color_by))) +
+    ggplot2::ggplot(aes(PC1, 
+                        PC2, 
+                        color=!!as.symbol(color_by), 
+                        shape=!!as.symbol(color_by))) +
     geom_point(size=3) +
     geom_segment(aes(x = PC1, y = PC2, xend = xend, yend = yend), size = 0.75) +
     geom_point(data = segments, aes(x = xend, y = yend), size = 2) +
     xlab(paste0("PC1: ",percentage[1]," variance")) +
     ylab(paste0("PC2: ",percentage[2]," variance")) +
     theme_bw() +
-    scale_color_manual(values=viridis(no_colors+1)[-length(viridis(no_colors+1))]) +
+    scale_color_manual(values=viridis::viridis(no_colors+1)[-length(viridis::viridis(no_colors+1))]) +
     theme(legend.position = "top")
 
   return(p)
 }
 
 plot_corr = function(gene_expr, param_values, param_values) {
-  p = cbind.data.frame(expr = gene_expr, param = param_values, color_by = param_values) %>%
-    ggplot(aes(x = expr, y = param, color = color_by)) +
+ p = cbind.data.frame(expr = gene_expr, 
+                       param = param_values, 
+                       color_by = param_values) %>%
+    ggplot2::ggplot(aes(x = expr, y = param, color = color_by)) +
     geom_point()
-  p
+ return(p)
 }
 
 plot_lfc_scatter = function(lfc_data) {
   p = lfc_data %>%
     dplyr::filter(p_chi < 0.1) %>%
-    ggplot(aes(x = log2_fold_change.x, y = log2_fold_change.y, text = gene)) +
+    ggplot2::ggplot(aes(x = log2_fold_change.x, 
+                        y = log2_fold_change.y,
+                        text = gene)) +
     geom_point(aes(size = -log10(p_chi), color = err_sq)) +
-    scale_colour_continuous_sequential("viridis", rev = F) +
+    colorspace::scale_colour_continuous_sequential("viridis", rev = F) +
     theme_bw() +
     labs(size="-log10(p-value)", colour="squared\nerror")
   return(p)
 }
 
-plot_volcano_cuffdiff = function(data, sample1, sample2, customization, savename = NULL) {
+plot_volcano_cuffdiff = function(data, sample1, sample2, customization, savename = NULL,
+                                 width = 60, height = 65) {
   p = data %>% dplyr::filter(sample_1 == sample1 & sample_2 == sample2) %>%
-    ggplot(aes(x = log2_fold_change, y = -log10(p_value))) +
+    ggplot2::ggplot(aes(x = log2_fold_change, y = -log10(p_value))) +
     geom_point(aes(color = significant)) +
     customization
   if(!is.null(savename)) {
-    ggsave(savename,
-           p,
-           units = "mm",
-           dpi = 600,
-           width = 60,
-           height = 65)
+    ggplot2::ggsave(savename,
+                    p,
+                    units = "mm",
+                    dpi = 600,
+                    width = width,
+                    height = height)
   }
 }
 
 plot_venn2 = function(x, y, names, savename) {
-  venn.diagram(
+  VennDiagram::venn.diagram(
     x = list(tolower(x), tolower(y)),
     category.names = names,
     filename = savename,
@@ -210,7 +231,7 @@ plot_venn2 = function(x, y, names, savename) {
 
 plot_dire = function(df) {
   p = df %>%
-    ggplot(aes(x = Occurrence, y = Importance)) +
+    ggplot2::ggplot(aes(x = Occurrence, y = Importance)) +
     geom_point() +
     theme_bw()
   return(p)
@@ -231,17 +252,17 @@ plot_dire_labeled = function(df, occurrence_threshold = 0.05,
 # heatmap all
 plot_heatmap = function(expression_data, metadata, palette = "RdBu") {
   expression_data %>%
-    pheatmap(scale = "row",
-             color = colorRampPalette(rev(RColorBrewer::brewer.pal(
-               n = 7, name = palette)))(100),
-             cluster_cols = T,
-             show_rownames = F,
-             cellwidth = 20,
-             border_color = "white",
-             treeheight_row = 15,
-             treeheight_col = 20,
-             annotation_col = metadata %>%
-               tibble::column_to_rownames("sample"))
+    pheatmap::pheatmap(scale = "row",
+                       color = colorRampPalette(rev(RColorBrewer::brewer.pal(
+                         n = 7, name = palette)))(100),
+                         cluster_cols = T,
+                         show_rownames = F,
+                         cellwidth = 20,
+                         border_color = "white",
+                         treeheight_row = 15,
+                         treeheight_col = 20,
+                         annotation_col = metadata %>%
+                           tibble::column_to_rownames("sample"))
   return(p)
 }
 
@@ -252,7 +273,8 @@ plot_sample_heatmap = function(..., num_genes = 5000) {
   palette = dots[3]
 
   expr = expression_data %>%
-    select(matches(metadata$sample)) %>% as.matrix
+    dplyr::select(dplyr::matches(metadata$sample)) %>% 
+    as.matrix
 
   p = plot_heatmap(expr[order(rowVars(expr)),][1:num_genes,],
                    metadata,
@@ -266,11 +288,13 @@ plot_diffexp_heatmap = function(..., geneid_colname, padj_colname) {
   metadata = dots[2]
   palette = dots[3]
 
+  selected_genes = expression_data %>%
+    dplyr::filter (!!as.symbol(padj_colname) < 0.05) %>%
+    dplyr::pull(!!as.symbol(geneid_colname))
+  
   p = expression_data %>%
-    filter(!!as.symbol(geneid_colname) %in% (expression_data %>%
-                           filter (!!as.symbol(padj_colname) < 0.05) %>%
-                           pull(!!as.symbol(geneid_colname)))) %>%
-    select(matches(metadata$sample)) %>%
+    dplyr::filter(!!as.symbol(geneid_colname) %in% selected_genes) %>%
+    dplyr::select(dplyr::matches(metadata$sample)) %>%
     plot_heatmap(metadata, palette)
   return(p)
 }
@@ -294,27 +318,29 @@ plot_volcano = function(fc_data,
                         pval_colname = "pvalue",
                         padj_colname = "padj") {
   fc_data %>%
-    mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)), 1, !!as.symbol(padj_colname))) %>%
-    mutate(log2FoldChange = !!as.symbol(fc_colname)) %>%
-    mutate(significant = as.factor(case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
-                                             padj < 0.05 & log2FoldChange < 0 ~ 2,
-                                             TRUE ~ 0)))
+    dplyr::mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)), 
+                                1, 
+                                !!as.symbol(padj_colname))) %>%
+    dplyr::mutate(log2FoldChange = !!as.symbol(fc_colname)) %>%
+    dplyr::mutate(significant = as.factor(dplyr::case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
+                                                           padj < 0.05 & log2FoldChange < 0 ~ 2,
+                                                           TRUE ~ 0)))
 
   max_fc = max(fc_data$log2FoldChange)
   min_fc = min(fc_data$log2FoldChange)
   max_padj = max(-log10(padj))
 
   num_genes_up = fc_data %>%
-    filter(padj < 0.05 & log2FoldChange > 0) %>%
+    dplyr::filter(padj < 0.05 & log2FoldChange > 0) %>%
     nrow()
   num_genes_down = fc_data %>%
-    filter(padj < 0.05 & log2FoldChange < 0) %>%
+    dplyr::filter(padj < 0.05 & log2FoldChange < 0) %>%
     nrow()
 
   fc_data %>%
-    ggplot(aes(x = log2FoldChange,
-               y = -log10(!!as.symbol(pval_colname)),
-               color = significant)) +
+    ggplot2::ggplot(aes(x = log2FoldChange,
+                        y = -log10(!!as.symbol(pval_colname)),
+                        color = significant)) +
     geom_point(size = 2, alpha = 0.4) +
     geom_text(aes(x = max_fc,
                   y = max_padj,
@@ -337,7 +363,7 @@ plot_volcano_labeled = function(fc_data, gene_labels, symbol_colname = "SYMBOL",
 
   plot_volcano(fc_data, fc_colname, pval_colname, padj_colname) +
     geom_label_repel(data = . %>%
-                       filter(!!as.symbol(symbol_colname) %in% gene_labels),
+                       dplyr::filter(!!as.symbol(symbol_colname) %in% gene_labels),
                      aes(label = !!as.symbol(symbol_colname)),
                      color = "black",
                      max.overlaps = 15)
@@ -348,73 +374,67 @@ plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
                            padj_colname = "padj") {
 
   expression_data_fil = expression_data %>%
-    arrange(!!as.symbol(id_colname)) %>%
-    filter(!!as.symbol(id_colname) %in% gene_list) %>%
-    select(!!as.symbol(id_colname), matches(metadata$sample)) %>%
-    column_to_rownames(id_colname)
-  print(expression_data)
+    dplyr::arrange(!!as.symbol(id_colname)) %>%
+    dplyr::filter(!!as.symbol(id_colname) %in% gene_list) %>%
+    dplyr::select(!!as.symbol(id_colname), matches(metadata$sample)) %>%
+    tibble::column_to_rownames(id_colname)
 
   diffexp_data_fil = diffexp_data %>%
-    arrange(!!as.symbol(id_colname)) %>%
-    filter(!!as.symbol(id_colname) %in% gene_list)
+    dplyr::arrange(!!as.symbol(id_colname)) %>%
+    dplyr::filter(!!as.symbol(id_colname) %in% gene_list)
 
   log2fc_vals = diffexp_data_fil %>%
-    pull(!!as.symbol(fc_colname))
+    dplyr::pull(!!as.symbol(fc_colname))
   log2fc_colors = ifelse(log2fc_vals < 0, "steelblue", "darkred")
 
   pvals = diffexp_data_fil %>%
-    mutate(log_pval = -log10(!!as.symbol(padj_colname))) %>%
-    pull(log_pval)
-  pvals_colors = colorRamp2(c(-log10(0.05), max(pvals)), c("white", "steelblue"))
-  pvalues_legend = Legend(col_fun = pvals_colors, title = "-log10(p-value)")
+    dplyr::mutate(log_pval = -log10(!!as.symbol(padj_colname))) %>%
+    dplyr::pull(log_pval)
+  pvals_colors = circlize::colorRamp2(c(-log10(0.05), max(pvals)), 
+                                      c("white", "steelblue"))
+  pvalues_legend = ComplexHeatmap::Legend(col_fun = pvals_colors, 
+                                          title = "-log10(p-value)")
 
-  har = rowAnnotation(pvalue = anno_simple(pvals, col = pvals_colors, gp = gpar(col = "black", lwd = 1)),
-                      log2fc = anno_barplot(log2fc_vals, baseline = 0, bar_width = 0.9,
-                                            gp = gpar(fill = log2fc_colors, col = "white")),
-                      simple_anno_size = unit(0.5, "cm"), width = unit(2, "cm"),
-                      gap = unit(2, "mm"))
+  har = ComplexHeatmap::rowAnnotation(
+    pvalue = ComplexHeatmap::anno_simple(pvals,
+                                         col = pvals_colors,
+                                         gp = gpar(col = "black", lwd = 1)),
+    log2fc = ComplexHeatmap::anno_barplot(log2fc_vals,
+                                          baseline = 0,
+                                          bar_width = 0.9,
+                                          gp = gpar(fill = log2fc_colors, col = "white")),
+    simple_anno_size = unit(0.5, "cm"), width = unit(2, "cm"),
+    gap = unit(2, "mm"))
 
   col_colors = gg_color_hue(length(unique(metadata$group)))
   names(col_colors) = unique(metadata$group)
 
-  hat = columnAnnotation(genotype = metadata$group,
-                         col = list(genotype = col_colors),
-                         border = TRUE)
+  hat = ComplexHeatmap::columnAnnotation(
+    genotype = metadata$group,
+    col = list(genotype = col_colors),
+    border = TRUE)
 
-  ht = Heatmap(expression_data_fil %>%
-                 as.matrix %>%
-                 t %>%
-                 scale %>%
-                 t,
-               name = "expression",
-               right_annotation = har,
-               top_annotation = hat,
-               cluster_columns = FALSE,
-               show_column_names = FALSE,
-               border_gp = gpar(col = "black", lty = 1),
-               rect_gp = gpar(col = "black", lwd = 1),
-               width = ncol(expression_data_fil)*unit(5, "mm"),
-               height = nrow(expression_data_fil)*unit(5, "mm"))
+  ht = ComplexHeatmap::Heatmap(
+    expression_data_fil %>%
+      as.matrix %>%
+      t %>%
+      scale %>%
+      t,
+    name = "expression",
+    right_annotation = har,
+    top_annotation = hat,
+    cluster_columns = FALSE,
+    show_column_names = FALSE,
+    border_gp = gpar(col = "black", lty = 1),
+    rect_gp = gpar(col = "black", lwd = 1),
+    width = ncol(expression_data_fil)*unit(5, "mm"),
+    height = nrow(expression_data_fil)*unit(5, "mm"))
 
-  draw(ht, annotation_legend_list = list(pvalues_legend), merge_legends = TRUE)
+  ComplexHeatmap::draw(
+    ht, 
+    annotation_legend_list = list(pvalues_legend), 
+    merge_legends = TRUE)
 }
-
-# all_pathways = map_dfr(pathway_files, function(x) {
-#   cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",
-#                           "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
-#
-#   read_delim(paste0(pathway_files_basepath, x),
-#              delim = "\t", escape_double = FALSE,
-#              trim_ws = TRUE)  %>%
-#     setNames(cp_unified_colnames) %>%
-#     # TODO needs to be changed
-#     mutate(source = gsub("_contrast.txt", "", x),
-#            ID = as.character(ID)) %>%
-#     # might not reflect actual columns
-#     select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
-#     unique()
-# }) %>%
-#   filter(p.adjust < 0.05)
 
 collate_pathways = function(pathway_files_basepath, pattern) {
   pathway_files = list.files(pathway_files_basepath,
@@ -424,16 +444,16 @@ collate_pathways = function(pathway_files_basepath, pattern) {
   cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",
                           "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
 
-  diffexp_pathways = map_dfr(pathway_files, function(x) {
-    read_delim(paste0(pathway_files_basepath, x),
-               delim = "\t", escape_double = FALSE,
-               trim_ws = TRUE)  %>%
+  diffexp_pathways = purrr::map_dfr(pathway_files, function(x) {
+    readr::read_delim(paste0(pathway_files_basepath, x),
+                      delim = "\t", escape_double = FALSE,
+                      trim_ws = TRUE)  %>%
       setNames(cp_unified_colnames) %>%
       # TODO needs to be changed
-      mutate(source = gsub("_contrast.txt", "", x),
-             ID = as.character(ID)) %>%
+      dplyr::mutate(source = gsub("_contrast.txt", "", x),
+                    ID = as.character(ID)) %>%
       # might not reflect actual columns
-      select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
+      dplyr::select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
       unique()
   }) %>%
     filter(p.adjust < 0.05)
@@ -444,12 +464,12 @@ collate_pathways = function(pathway_files_basepath, pattern) {
 
 plot_pathways_meta = function(df, top_pathways = 30) {
   pathways_summary = df %>%
-    group_by(source) %>%
-    summarise(n_pathways = n(),
-              mean_enrichment = mean(`GeneRatio/NES`))
+    dplyr::group_by(source) %>%
+    dplyr::summarise(n_pathways = n(),
+                     mean_enrichment = mean(`GeneRatio/NES`))
 
   p1 = pathways_summary %>%
-    ggplot() +
+    ggplot2::ggplot() +
     geom_histogram(aes(x = n_pathways),
                    bins = 100,
                    fill = "steelblue") +
@@ -457,35 +477,34 @@ plot_pathways_meta = function(df, top_pathways = 30) {
 
   # top pathway contributors
   p2 = pathways_summary %>%
-    top_n(30, n_pathways) %>%
-    arrange(n_pathways) %>%
-    mutate(source = factor(source, levels = source)) %>%
-    ggplot(aes(x = n_pathways, y = source)) +
+    dplyr::top_n(30, n_pathways) %>%
+    dplyr::arrange(n_pathways) %>%
+    dplyr::mutate(source = factor(source, levels = source)) %>%
+    ggplot2::ggplot(aes(x = n_pathways, y = source)) +
     geom_bar(stat="identity", fill = "steelblue") +
     theme_bw()
 
   # bottom pathway contributors
   p3 = pathways_summary %>%
-    top_n(30, -n_pathways) %>%
-    arrange(n_pathways) %>%
-    mutate(source = factor(source, levels = source)) %>%
-    ggplot(aes(x = n_pathways, y = source)) +
+    dplyr::top_n(30, -n_pathways) %>%
+    dplyr::arrange(n_pathways) %>%
+    dplyr::mutate(source = factor(source, levels = source)) %>%
+    ggplot2::ggplot(aes(x = n_pathways, y = source)) +
     geom_bar(stat="identity", fill = "steelblue") +
     theme_bw()
 
   return(plot_grid(p1, p2, p3, nrow = 1))
 }
 
-
 plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc = 80) {
   data %>%
-    filter(grepl(pathway_source, source)) %>%
-    arrange(-abs(`GeneRatio/NES`)) %>%
-    slice_head(n = top_n) %>%
-    arrange(`GeneRatio/NES`) %>%
-    mutate(Description = stringr::str_trunc(Description, truncate_desc)) %>%
-    mutate(Description = factor(Description, levels = (.) %>% pull(Description))) %>%
-    ggplot(aes(x = `GeneRatio/NES`,
+    dplyr::filter(grepl(pathway_source, source)) %>%
+    dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
+    dplyr::slice_head(n = top_n) %>%
+    dplyr::arrange(`GeneRatio/NES`) %>%
+    dplyr::mutate(Description = stringr::str_trunc(Description, truncate_desc)) %>%
+    dplyr::mutate(Description = factor(Description, levels = (.) %>% pull(Description))) %>%
+    ggplot2::ggplot(aes(x = `GeneRatio/NES`,
                y = Description,
                color = -log10(p.adjust),
                fill = -log10(p.adjust))) +
@@ -493,3 +512,4 @@ plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc
     ylab("") +
     theme_bw()
 }
+
