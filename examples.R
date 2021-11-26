@@ -25,7 +25,7 @@ dds = readRDS(path_to_deseq_dds)
 cufdiff_diff = read_cuffdiff_diff(path_to_cuffdiff)
 dire = read_dire(path_to_dire, "dire_all")
 
-gene_list = c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1"))
+gene_list = c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1")
 gene_labels = c("Mb", "Mstn", "Cyc1", "Sln", "Myh3")
 
 pathway_source = "MeSH_g2p_C@gene2pubmed_GSEA_all"
@@ -56,9 +56,10 @@ plot_volcano_labeled(diffexp_data, gene_labels, symbol_colname = "SYMBOL")
 #plot_volcano_cuffdiff()
 
 # heatmaps
-plot_heatmap(expression_data, metadata)
+# plot_heatmap(expression_data, metadata)
+plot_heatmap_all(expression_data, metadata)
 plot_heatmap_topn(expression_data, metadata, n = 1000)
-plot_heatmap_diffexp(expression_data, metadata, pallete = "RdYlBu")
+plot_heatmap_diffexp(expression_data, diffexp_data, metadata, palette = "RdYlBu")
 plot_heatmap_fc(expression_data, diffexp_data, metadata, gene_list)
 
 # TF dire (dcode) plots

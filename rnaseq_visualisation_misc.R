@@ -272,54 +272,49 @@ plot_dire_labeled = function(df, occurrence_threshold = 0.05,
 }
 
 # heatmap all
-plot_heatmap = function(expression_data, metadata, palette = "RdBu") {
-  expression_data %>%
+plot_heatmap = function(expression_matrix, metadata, palette = "RdBu") {
+  p = expression_matrix %>%
     pheatmap::pheatmap(scale = "row",
                        color = colorRampPalette(rev(RColorBrewer::brewer.pal(
                          n = 7, name = palette)))(100),
-                         cluster_cols = T,
-                         show_rownames = F,
-                         cellwidth = 20,
-                         border_color = "white",
-                         treeheight_row = 15,
-                         treeheight_col = 20,
-                         annotation_col = metadata %>%
-                           tibble::column_to_rownames("sample"))
+                       cluster_cols = T,
+                       show_rownames = F,
+                       cellwidth = 20,
+                       border_color = "white",
+                       treeheight_row = 15,
+                       treeheight_col = 20,
+                       annotation_col = metadata %>%
+                         tibble::column_to_rownames("sample"))
   return(p)
 }
 
-plot_heatmap_topn = function(..., n = 5000, fun = matrixStats::rowVars) {
-  dots = list(...)
-  expression_data = dots[1]
-  metadata = dots[2]
-  palette = dots[3]
-  if(length(dots) < 3) {
-    palette = "RdBu"
-  } else {
-    palette = dots[3]
-  }
 
-  expr = expression_data %>%
+plot_heatmap_all = function(...) {
+  dots = list(...)
+  dots[[1]] = dots[[1]] %>%
     dplyr::select(dplyr::matches(metadata$sample)) %>%
     as.matrix
 
-  p = plot_heatmap(expr[order(fun(expr)),][1:n,],
-                   metadata,
-                   palette)
+  p = do.call(plot_heatmap, dots)
   return(p)
 }
 
-plot_heatmap_diffexp = function(..., geneid_colname = "SYMBOL", padj_colname = "padj") {
+plot_heatmap_topn = function(..., n = 1000, fun = matrixStats::rowVars) {
   dots = list(...)
-  expression_data = dots[1]
-  metadata = dots[2]
-  if(length(dots) < 3) {
-    palette = "RdBu"
-  } else {
-    palette = dots[3]
-  }
 
-  selected_genes = expression_data %>%
+  dots[[1]] = dots[[1]] %>%
+    dplyr::select(dplyr::matches(metadata$sample)) %>%
+    as.matrix
+  dots[[1]] = dots[[1]][order(fun(dots[[1]])),][1:n,]
+
+  p = do.call(plot_heatmap, dots)
+  return(p)
+}
+
+plot_heatmap_diffexp = function(expression_data, diffexp_data, metadata, palette = "RdBu",
+                                geneid_colname = "SYMBOL", padj_colname = "padj") {
+
+  selected_genes = diffexp_data %>%
     dplyr::filter(!!as.symbol(padj_colname) < 0.05) %>%
     dplyr::pull(!!as.symbol(geneid_colname))
 
@@ -357,10 +352,7 @@ plot_volcano = function(diffexp_data,
                                                            padj < 0.05 & log2FoldChange < 0 ~ 2,
                                                            TRUE ~ 0)))
 
-  max_x = max(diffexp_data$log2FoldChange)
-  min_x = min(diffexp_data$log2FoldChange)
-  # add 2 to print above the largest circle
-  max_y = max(-log10(diffexp_data[[pval_colname]])) + 2
+  max_y = max(-log10(diffexp_data[[pval_colname]]))
 
   num_genes_up = diffexp_data %>%
     dplyr::filter(padj < 0.05 & log2FoldChange > 0) %>%
@@ -374,14 +366,16 @@ plot_volcano = function(diffexp_data,
                         y = -log10(!!as.symbol(pval_colname)),
                         color = significant)) +
     geom_point(size = 2, alpha = 0.4) +
-    geom_text(aes(x = max_x,
+    geom_text(aes(x = 0.5,
                   y = max_y,
                   label = paste0("\u2191 ",num_genes_up)),
-              color = "steelblue") +
-    geom_text(aes(x = min_x,
+              color = "darkred",
+              size = 7) +
+    geom_text(aes(x = -0.5,
                   y = max_y,
                   label = paste0("\u2193 ",num_genes_down)),
-              color = "darkred") +
+              color = "steelblue",
+              size = 7) +
     scale_color_discrete(type = c("gray60", "darkred", "steelblue")) +
     theme_bw() +
     theme(legend.position = "none")
