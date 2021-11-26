@@ -51,29 +51,29 @@ setMethod("addFeatures",signature(object="CuffSet"),.addFeatures)
 # user defined reading functions -----------------------------------------------
 read_cuffdiff_diff = function(dir) {
   cuff = cummeRbund::readCufflinks(dir)
-  annot = read.delim(paste0(dir,"/gene_exp.diff"), 
-                     sep = "\t", 
-                     header=T, 
+  annot = read.delim(paste0(dir,"/gene_exp.diff"),
+                     sep = "\t",
+                     header=T,
                      na.string="-") %>%
     dplyr::select(gene_id, gene)
   cummeRbund::addFeatures(cuff,annot,level="genes")
 
   # munging of differential expression data
-  diff = cummeRbund::diffData(genes(cuff)) %>% 
+  diff = cummeRbund::diffData(genes(cuff)) %>%
     tibble::as_tibble()
-  diff = diff %>% 
-    dplyr::filter(value_1 > 0 & value_2 > 0) %>% 
+  diff = diff %>%
+    dplyr::filter(value_1 > 0 & value_2 > 0) %>%
     dplyr::filter(status == "OK")
-  diff = diff %>% 
+  diff = diff %>%
     dplyr::mutate(comparison = paste0(sample_1, "_", sample_2)) %>%
     dplyr::left_join(annot %>% unique())
   return(diff)
 }
 
 merge_cuffdiff_fc = function(x, y, annot, by = "gene") {
-  lfcs = merge(x %>% 
+  lfcs = merge(x %>%
                  dplyr::select(gene, gene_id, log2_fold_change, q_value),
-               y %>% 
+               y %>%
                  dplyr::select(gene, gene_id, log2_fold_change, q_value),
                by = by)
   lfcs = lfcs %>%
@@ -89,6 +89,22 @@ merge_cuffdiff_fc = function(x, y, annot, by = "gene") {
 }
 
 read_dire = function(filename, sheet_name = "Sheet1") {
+  
+  # dire_df = function(fl) {
+  #   conn = file(fl,open="r")
+  #   linn = readLines(conn)
+  #   linn =  matrix(linn, ncol = 4, byrow = T)
+  #   print(linn)
+  #   linn = data.frame(linn, stringsAsFactors = F)
+  #   linn[,1] = NULL
+  #   names(linn) = c("tf", "occurence", "importance")
+  #   linn$occurence = as.numeric(gsub("%", "", linn$occurence))
+  #   linn$importance = as.numeric(linn$importance)
+  #   close(conn)
+  #   return(linn)
+  # }
+  
+  
   if(grepl(".xlsx", filename)) {
     data = readxl::read_excel(filename, sheet = sheet_name) %>%
       select(-`#`)
@@ -100,29 +116,29 @@ read_dire = function(filename, sheet_name = "Sheet1") {
 }
 
 # user defined plotting functions ----------------------------------------------
-plot_pca_deseq = function(dds, condition = "condition") {
+plot_pca_deseq = function(dds, group = "group") {
   vsd = DESeq2::vst(dds, blind = F)
 
-  pcaData = DESeq2::plotPCA(vsd, intgroup=c(condition), returnData=TRUE)
+  pcaData = DESeq2::plotPCA(vsd, intgroup=c(group), returnData=TRUE)
   percentVar = round(100 * attr(pcaData, "percentVar"))
   segments = pcaData %>%
-    dplyr::group_by(!!as.symbol(condition)) %>%
+    dplyr::group_by(!!as.symbol(group)) %>%
     dplyr::summarise(xend = mean(PC1), yend = mean(PC2))
-  pcaData = merge(pcaData, segments, by = condition)
+  pcaData = merge(pcaData, segments, by = group)
 
-  no_colors = pcaData[,condition] %>% unique() %>% length()
+  no_colors = pcaData[,group] %>% unique() %>% length()
 
   p = pcaData %>%
-    ggplot2::ggplot(aes(PC1, 
-                        PC2, 
-                        color=!!as.symbol(condition), 
-                        shape=!!as.symbol(condition))) +
+    ggplot2::ggplot(aes(PC1,
+                        PC2,
+                        color=!!as.symbol(group),
+                        shape=!!as.symbol(group))) +
     geom_point(size=3) +
-    geom_segment(aes(x = PC1, 
-                     y = PC2, 
-                     xend = xend, 
-                     yend = yend), 
-                 size = 0.5, 
+    geom_segment(aes(x = PC1,
+                     y = PC2,
+                     xend = xend,
+                     yend = yend),
+                 size = 0.5,
                  linetype = "dashed") +
     geom_point(data = segments, aes(x = xend, y = yend), size = 2) +
     xlab(paste0("PC1: ",percentVar[1],"% variance")) +
@@ -134,12 +150,12 @@ plot_pca_deseq = function(dds, condition = "condition") {
   return(p)
 }
 
-plot_pca_common = function(data, metadata, color_by = "group") {
-  pca = prcomp(t(data), scale = T)
+plot_pca_common = function(expression_data, metadata, color_by = "group") {
+  pca = prcomp(t(expression_data %>% select(matches(metadata$sample))), scale = T)
   pcaData = as.data.frame(pca$x) %>% rownames_to_column("id")
   pcaData = merge(pcaData, metadata, by.x = "id", by.y = "sample")
-  segments = pcaData %>% 
-    dplyr::group_by(!!as.symbol(color_by)) %>% 
+  segments = pcaData %>%
+    dplyr::group_by(!!as.symbol(color_by)) %>%
     dplyr::summarise(xend = mean(PC1), yend = mean(PC2))
   pcaData = merge(pcaData, segments, by = color_by)
 
@@ -149,12 +165,17 @@ plot_pca_common = function(data, metadata, color_by = "group") {
   no_colors = pcaData[,color_by] %>% unique() %>% length()
 
   p = pcaData %>%
-    ggplot2::ggplot(aes(PC1, 
-                        PC2, 
-                        color=!!as.symbol(color_by), 
+    ggplot2::ggplot(aes(PC1,
+                        PC2,
+                        color=!!as.symbol(color_by),
                         shape=!!as.symbol(color_by))) +
     geom_point(size=3) +
-    geom_segment(aes(x = PC1, y = PC2, xend = xend, yend = yend), size = 0.75) +
+    geom_segment(aes(x = PC1,
+                     y = PC2,
+                     xend = xend,
+                     yend = yend),
+                 size = 0.5,
+                 linetype = "dashed") +
     geom_point(data = segments, aes(x = xend, y = yend), size = 2) +
     xlab(paste0("PC1: ",percentage[1]," variance")) +
     ylab(paste0("PC2: ",percentage[2]," variance")) +
@@ -166,8 +187,8 @@ plot_pca_common = function(data, metadata, color_by = "group") {
 }
 
 plot_corr = function(gene_expr, param_values) {
- p = cbind.data.frame(expr = gene_expr, 
-                       param = param_values, 
+ p = cbind.data.frame(expr = gene_expr,
+                       param = param_values,
                        color_by = param_values) %>%
     ggplot2::ggplot(aes(x = expr, y = param, color = color_by)) +
     geom_point()
@@ -177,7 +198,7 @@ plot_corr = function(gene_expr, param_values) {
 plot_lfc_scatter = function(lfc_data) {
   p = lfc_data %>%
     dplyr::filter(p_chi < 0.1) %>%
-    ggplot2::ggplot(aes(x = log2_fold_change.x, 
+    ggplot2::ggplot(aes(x = log2_fold_change.x,
                         y = log2_fold_change.y,
                         text = gene)) +
     geom_point(aes(size = -log10(p_chi), color = err_sq)) +
@@ -187,8 +208,8 @@ plot_lfc_scatter = function(lfc_data) {
   return(p)
 }
 
-plot_volcano_cuffdiff = function(data, sample1, sample2, customization) {
-  p = data %>% dplyr::filter(sample_1 == sample1 & sample_2 == sample2) %>%
+plot_volcano_cuffdiff = function(diffexp_data, sample1, sample2, customization) {
+  p = diffexp_data %>% dplyr::filter(sample_1 == sample1 & sample_2 == sample2) %>%
     ggplot2::ggplot(aes(x = log2_fold_change, y = -log10(p_value))) +
     geom_point(aes(color = significant)) +
     customization
@@ -267,32 +288,41 @@ plot_heatmap = function(expression_data, metadata, palette = "RdBu") {
   return(p)
 }
 
-plot_sample_heatmap = function(..., num_genes = 5000) {
+plot_heatmap_topn = function(..., n = 5000, fun = matrixStats::rowVars) {
   dots = list(...)
   expression_data = dots[1]
   metadata = dots[2]
   palette = dots[3]
+  if(length(dots) < 3) {
+    palette = "RdBu"
+  } else {
+    palette = dots[3]
+  }
 
   expr = expression_data %>%
-    dplyr::select(dplyr::matches(metadata$sample)) %>% 
+    dplyr::select(dplyr::matches(metadata$sample)) %>%
     as.matrix
 
-  p = plot_heatmap(expr[order(rowVars(expr)),][1:num_genes,],
+  p = plot_heatmap(expr[order(fun(expr)),][1:n,],
                    metadata,
                    palette)
   return(p)
 }
 
-plot_diffexp_heatmap = function(..., geneid_colname, padj_colname) {
+plot_heatmap_diffexp = function(..., geneid_colname = "SYMBOL", padj_colname = "padj") {
   dots = list(...)
   expression_data = dots[1]
   metadata = dots[2]
-  palette = dots[3]
+  if(length(dots) < 3) {
+    palette = "RdBu"
+  } else {
+    palette = dots[3]
+  }
 
   selected_genes = expression_data %>%
-    dplyr::filter (!!as.symbol(padj_colname) < 0.05) %>%
+    dplyr::filter(!!as.symbol(padj_colname) < 0.05) %>%
     dplyr::pull(!!as.symbol(geneid_colname))
-  
+
   p = expression_data %>%
     dplyr::filter(!!as.symbol(geneid_colname) %in% selected_genes) %>%
     dplyr::select(dplyr::matches(metadata$sample)) %>%
@@ -314,55 +344,57 @@ plot_diffexp_heatmap = function(..., geneid_colname, padj_colname) {
 
 
 # volcano plot all
-plot_volcano = function(fc_data,
+plot_volcano = function(diffexp_data,
                         fc_colname = "log2FoldChange",
                         pval_colname = "pvalue",
                         padj_colname = "padj") {
-  fc_data %>%
-    dplyr::mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)), 
-                                1, 
+  diffexp_data = diffexp_data %>%
+    dplyr::mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)),
+                                1,
                                 !!as.symbol(padj_colname))) %>%
     dplyr::mutate(log2FoldChange = !!as.symbol(fc_colname)) %>%
     dplyr::mutate(significant = as.factor(dplyr::case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
                                                            padj < 0.05 & log2FoldChange < 0 ~ 2,
                                                            TRUE ~ 0)))
 
-  max_fc = max(fc_data$log2FoldChange)
-  min_fc = min(fc_data$log2FoldChange)
-  max_padj = max(-log10(padj))
+  max_x = max(diffexp_data$log2FoldChange)
+  min_x = min(diffexp_data$log2FoldChange)
+  # add 2 to print above the largest circle
+  max_y = max(-log10(diffexp_data[[pval_colname]])) + 2
 
-  num_genes_up = fc_data %>%
+  num_genes_up = diffexp_data %>%
     dplyr::filter(padj < 0.05 & log2FoldChange > 0) %>%
     nrow()
-  num_genes_down = fc_data %>%
+  num_genes_down = diffexp_data %>%
     dplyr::filter(padj < 0.05 & log2FoldChange < 0) %>%
     nrow()
 
-  fc_data %>%
+  diffexp_data %>%
     ggplot2::ggplot(aes(x = log2FoldChange,
                         y = -log10(!!as.symbol(pval_colname)),
                         color = significant)) +
     geom_point(size = 2, alpha = 0.4) +
-    geom_text(aes(x = max_fc,
-                  y = max_padj,
-                  label = paste0("\U1F815 ",num_genes_up)),
+    geom_text(aes(x = max_x,
+                  y = max_y,
+                  label = paste0("\u2191 ",num_genes_up)),
               color = "steelblue") +
-    geom_text(aes(x = min_fc,
-                  y = max_padj,
-                  label = paste0("\U1F817 ",num_genes_down)),
+    geom_text(aes(x = min_x,
+                  y = max_y,
+                  label = paste0("\u2193 ",num_genes_down)),
               color = "darkred") +
     scale_color_discrete(type = c("gray60", "darkred", "steelblue")) +
     theme_bw() +
     theme(legend.position = "none")
 }
 
-plot_volcano_labeled = function(fc_data, gene_labels, symbol_colname = "SYMBOL", ...) {
-  dots = list(...)
-  fc_colname = dots[1]
-  pval_colname = dots[2]
-  padj_colname = dots[3]
+plot_volcano_labeled = function(diffexp_data, 
+                                gene_labels, 
+                                symbol_colname = "SYMBOL",
+                                fc_colname = "log2FoldChange",
+                                pval_colname = "pvalue",
+                                padj_colname = "padj") {
 
-  plot_volcano(fc_data, fc_colname, pval_colname, padj_colname) +
+  plot_volcano(diffexp_data, fc_colname, pval_colname, padj_colname) +
     geom_label_repel(data = . %>%
                        dplyr::filter(!!as.symbol(symbol_colname) %in% gene_labels),
                      aes(label = !!as.symbol(symbol_colname)),
@@ -391,9 +423,9 @@ plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
   pvals = diffexp_data_fil %>%
     dplyr::mutate(log_pval = -log10(!!as.symbol(padj_colname))) %>%
     dplyr::pull(log_pval)
-  pvals_colors = circlize::colorRamp2(c(-log10(0.05), max(pvals)), 
+  pvals_colors = circlize::colorRamp2(c(-log10(0.05), max(pvals)),
                                       c("white", "steelblue"))
-  pvalues_legend = ComplexHeatmap::Legend(col_fun = pvals_colors, 
+  pvalues_legend = ComplexHeatmap::Legend(col_fun = pvals_colors,
                                           title = "-log10(p-value)")
 
   har = ComplexHeatmap::rowAnnotation(
@@ -432,8 +464,8 @@ plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
     height = nrow(expression_data_fil)*unit(5, "mm"))
 
   ComplexHeatmap::draw(
-    ht, 
-    annotation_legend_list = list(pvalues_legend), 
+    ht,
+    annotation_legend_list = list(pvalues_legend),
     merge_legends = TRUE)
 }
 
@@ -497,8 +529,8 @@ plot_pathways_meta = function(df, top_pathways = 30) {
   return(plot_grid(p1, p2, p3, nrow = 1))
 }
 
-plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc = 80) {
-  data %>%
+plot_pathway_bargraph = function(df, pathway_source, top_n = 20, truncate_desc = 80) {
+  df %>%
     dplyr::filter(grepl(pathway_source, source)) %>%
     dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
     dplyr::slice_head(n = top_n) %>%
@@ -513,4 +545,3 @@ plot_pathway_bargraph = function(data, pathway_source, top_n = 20, truncate_desc
     ylab("") +
     theme_bw()
 }
-
