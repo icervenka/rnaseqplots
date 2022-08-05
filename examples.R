@@ -28,7 +28,7 @@ dire = read_dire(path_to_dire, "dire_all")
 gene_list = c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1")
 gene_labels = c("Mb", "Mstn", "Cyc1", "Sln", "Myh3")
 
-pathway_source = "MeSH_g2p_C@gene2pubmed_GSEA_all"
+pathway_source = "ConsensusPathDB_HumanCyc_GSEA_all"
 
 plot_dimensions_mm = list(
   "pca" = c(100, 100),
@@ -56,20 +56,19 @@ plot_volcano_labeled(diffexp_data, gene_labels, symbol_colname = "SYMBOL")
 #plot_volcano_cuffdiff()
 
 # heatmaps
-# plot_heatmap(expression_data, metadata)
 plot_heatmap_all(expression_data, metadata)
 plot_heatmap_topn(expression_data, metadata, n = 1000)
 plot_heatmap_diffexp(expression_data, diffexp_data, metadata, palette = "RdYlBu")
 plot_heatmap_fc(expression_data, diffexp_data, metadata, gene_list)
 
 # TF dire (dcode) plots
-plot_dire()
-plot_dire_labeled()
+plot_dire(dire)
+plot_dire_labeled(dire, 0.05, 0.05)
 
 # pathway plots
-pathways_df = collate_pathways(path_to_pathway_files)
+pathways_df = collate_pathways(path_to_pathway_files, pattern = "_contrast")
 plot_pathways_meta(pathways_df, top_pathways = 30)
-plot_pathway_bargraph(df, pathway_source, top_n = 20, truncate_desc = 80)
+plot_pathway_bargraph(pathways_df, pathway_source, top_n = 20, truncate_desc = 80)
 
 # compare two datasets
 plot_corr()

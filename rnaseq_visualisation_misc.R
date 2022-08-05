@@ -208,14 +208,6 @@ plot_lfc_scatter = function(lfc_data) {
   return(p)
 }
 
-plot_volcano_cuffdiff = function(diffexp_data, sample1, sample2, customization) {
-  p = diffexp_data %>% dplyr::filter(sample_1 == sample1 & sample_2 == sample2) %>%
-    ggplot2::ggplot(aes(x = log2_fold_change, y = -log10(p_value))) +
-    geom_point(aes(color = significant)) +
-    customization
-  return(p)
-}
-
 plot_venn2 = function(x, y, names, savename) {
   VennDiagram::venn.diagram(
     x = list(tolower(x), tolower(y)),
@@ -251,19 +243,22 @@ plot_venn2 = function(x, y, names, savename) {
   )
 }
 
-plot_dire = function(df) {
+plot_dire = function(df, color = "steelblue") {
   p = df %>%
     ggplot2::ggplot(aes(x = Occurrence, y = Importance)) +
-    geom_point() +
+    geom_point(color = color) +
     theme_bw()
   return(p)
 }
 
-plot_dire_labeled = function(df, occurrence_threshold = 0.05,
+plot_dire_labeled = function(df,
+                             occurrence_threshold = 0.05,
                              importance_threshold = 0.05,
-                             dot_size = 3.5) {
+                             dot_size = 3.5,
+                             color = "steelblue") {
+  
   p = df %>%
-    plot_dire() +
+    plot_dire(color) +
     geom_label_repel(data = . %>%
                        filter(Occurrence > occurrence_threshold | Importance > importance_threshold),
                      aes(x = Occurrence, y = Importance, label = `Transcription Factor`),
@@ -339,62 +334,67 @@ plot_heatmap_diffexp = function(expression_data, diffexp_data, metadata, palette
 
 
 # volcano plot all
-plot_volcano = function(diffexp_data,
-                        fc_colname = "log2FoldChange",
-                        pval_colname = "pvalue",
-                        padj_colname = "padj") {
-  diffexp_data = diffexp_data %>%
-    dplyr::mutate(padj = ifelse(is.na(!!as.symbol(padj_colname)),
-                                1,
-                                !!as.symbol(padj_colname))) %>%
-    dplyr::mutate(log2FoldChange = !!as.symbol(fc_colname)) %>%
-    dplyr::mutate(significant = as.factor(dplyr::case_when(padj < 0.05 & log2FoldChange > 0 ~ 1,
-                                                           padj < 0.05 & log2FoldChange < 0 ~ 2,
-                                                           TRUE ~ 0)))
-
-  max_y = max(-log10(diffexp_data[[pval_colname]]))
-
-  num_genes_up = diffexp_data %>%
-    dplyr::filter(padj < 0.05 & log2FoldChange > 0) %>%
-    nrow()
-  num_genes_down = diffexp_data %>%
-    dplyr::filter(padj < 0.05 & log2FoldChange < 0) %>%
-    nrow()
-
-  diffexp_data %>%
-    ggplot2::ggplot(aes(x = log2FoldChange,
-                        y = -log10(!!as.symbol(pval_colname)),
-                        color = significant)) +
-    geom_point(size = 2, alpha = 0.4) +
-    geom_text(aes(x = 0.5,
-                  y = max_y,
-                  label = paste0("\u2191 ",num_genes_up)),
-              color = "darkred",
-              size = 7) +
-    geom_text(aes(x = -0.5,
-                  y = max_y,
-                  label = paste0("\u2193 ",num_genes_down)),
-              color = "steelblue",
-              size = 7) +
-    scale_color_discrete(type = c("gray60", "darkred", "steelblue")) +
+volcano_plot = function(results,
+                        label = SYMBOL,
+                        x = log2FoldChange,
+                        y = pvalue,
+                        sig_threshold = 0.05,
+                        log2fc_threshold = 0.585, # rougly 1.5x
+                        filter_sig_on = padj,
+                        label_bottom_n = 5,
+                        label_top_n = 5,
+                        label_genes = NULL, # if specified overrides top_n/bottom_n arguments
+                        color_palette = c("gray70", "steelblue", "darkred")) {
+  
+  require(ggrepel)
+  
+  # validate function arguments
+  if(length(color_palette) != 3) {
+    stop("Color palette requires a vector length 3.")
+  }
+  
+  results_fil = results %>%
+    dplyr::select({{ label }}, {{ x }}, {{ y }}, {{ filter_sig_on }}) %>%
+    tidyr::drop_na() %>%
+    dplyr::mutate(significant = dplyr::case_when({{ filter_sig_on }} <= sig_threshold & {{ x }} > log2fc_threshold ~ "up",
+                                                 {{ filter_sig_on }} <= sig_threshold & {{ x }} <= (-1)*log2fc_threshold ~ "down",
+                                                 TRUE ~ "unchanged")) %>%
+    dplyr::mutate(significant = factor(significant, levels = c("unchanged", "down", "up")))
+  
+  p = results_fil %>%
+    ggplot2::ggplot(aes(x = {{ x }}, y = -log10({{ y }}))) +
+    geom_point(aes(color = significant), size = 1)
+  
+  if(is.null(label_genes)) {
+    p = p + 
+      geom_label_repel(data = results_fil %>% top_n(-label_bottom_n, {{ x }}), 
+                       aes(label = {{ label }}),
+                       min.segment.length = unit(0, 'lines')) +
+      geom_label_repel(data = results_fil %>% top_n(label_top_n, {{ x }}), 
+                       aes(label = {{ label }}),
+                       min.segment.length = unit(0, 'lines'))
+  } else if(is.vector(label_genes, mode = "character")) {
+    p = p +
+      geom_label(data = results_fil %>% dplyr::filter({{ label }} %in% label_genes), 
+                 aes(label = {{ label }}),
+                 min.segment.length = unit(0, 'lines'))
+  }
+  
+  p = p +
     theme_bw() +
-    theme(legend.position = "none")
+    xlab("log2(fold-change)") +
+    ylab("-log10(adjusted p-value)") +
+    theme(legend.position = "none") +
+    scale_color_manual(values = color_palette)
+  p
 }
 
-plot_volcano_labeled = function(diffexp_data, 
-                                gene_labels, 
-                                symbol_colname = "SYMBOL",
-                                fc_colname = "log2FoldChange",
-                                pval_colname = "pvalue",
-                                padj_colname = "padj") {
-
-  plot_volcano(diffexp_data, fc_colname, pval_colname, padj_colname) +
-    geom_label_repel(data = . %>%
-                       dplyr::filter(!!as.symbol(symbol_colname) %in% gene_labels),
-                     aes(label = !!as.symbol(symbol_colname)),
-                     color = "black",
-                     max.overlaps = 15)
+volcano_plot_cuffdiff = function(results, sample1, sample2, ...) {
+  results = results %>% 
+    dplyr::filter(sample_1 == sample1 & sample_2 == sample2)
+  volcano_plot(results, ...)
 }
+
 
 plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
                            id_colname = "SYMBOL", fc_colname = "log2FoldChange",
@@ -463,18 +463,23 @@ plot_heatmap_fc = function(expression_data, diffexp_data, metadata, gene_list,
     merge_legends = TRUE)
 }
 
-collate_pathways = function(pathway_files_basepath, pattern) {
+collate_pathways = function(pathway_files_basepath, pattern, padj_threshold = 0.05) {
+  if(stringr::str_sub(path_to_pathway_files, -1) != "/") {
+    pathway_files_basepath = paste0(pathway_files_basepath, "/")
+  }
+  
   pathway_files = list.files(pathway_files_basepath,
                              pattern = pattern,
                              full.names = F)
-
+  
   cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",
                           "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
 
   diffexp_pathways = purrr::map_dfr(pathway_files, function(x) {
     readr::read_delim(paste0(pathway_files_basepath, x),
                       delim = "\t", escape_double = FALSE,
-                      trim_ws = TRUE)  %>%
+                      trim_ws = TRUE, 
+                      show_col_types = F)  %>%
       setNames(cp_unified_colnames) %>%
       # TODO needs to be changed
       dplyr::mutate(source = gsub("_contrast.txt", "", x),
@@ -483,8 +488,7 @@ collate_pathways = function(pathway_files_basepath, pattern) {
       dplyr::select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
       unique()
   }) %>%
-    filter(p.adjust < 0.05)
-
+    filter(p.adjust < padj_threshold)
   return(diffexp_pathways)
 }
 
