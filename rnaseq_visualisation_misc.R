@@ -343,7 +343,12 @@ volcano_plot = function(results,
                         filter_sig_on = padj,
                         label_bottom_n = 5,
                         label_top_n = 5,
-                        label_genes = NULL, # if specified overrides top_n/bottom_n arguments
+                        label_genes = NULL, # if specified overrides top_n/bottom_n arguments,
+                        add_vhlines = TRUE,
+                        vhline_color = "gray40",
+                        vhline_type = "dashed",
+                        xlab_label = expression(paste("lo", g[2], "FC")),
+                        ylab_label = expression(paste("lo", g[10], "FDR")),
                         color_palette = c("gray70", "steelblue", "darkred")) {
   
   require(ggrepel)
@@ -367,10 +372,14 @@ volcano_plot = function(results,
   
   if(is.null(label_genes)) {
     p = p + 
-      geom_label_repel(data = results_fil %>% top_n(-label_bottom_n, {{ x }}), 
+      geom_label_repel(data = results_fil %>% 
+                         filter(significant != "unchanged") %>%
+                         top_n(-label_bottom_n, {{ x }}), 
                        aes(label = {{ label }}),
                        min.segment.length = unit(0, 'lines')) +
-      geom_label_repel(data = results_fil %>% top_n(label_top_n, {{ x }}), 
+      geom_label_repel(data = results_fil %>% 
+                         filter(significant != "unchanged") %>%
+                         top_n(label_top_n, {{ x }}) , 
                        aes(label = {{ label }}),
                        min.segment.length = unit(0, 'lines'))
   } else if(is.vector(label_genes, mode = "character")) {
@@ -379,11 +388,21 @@ volcano_plot = function(results,
                  aes(label = {{ label }}),
                  min.segment.length = unit(0, 'lines'))
   }
+    
+  if(add_vhlines) {
+    p = p +
+      geom_vline(xintercept = c(-log2fc_threshold, log2fc_threshold), 
+                 linetype = vhline_type, 
+                 color = vhline_color) + 
+      geom_hline(yintercept = -log10(sig_threshold), 
+                 linetype = vhline_type, 
+                 color=vhline_color)
+  }
   
   p = p +
     theme_bw() +
-    xlab("log2(fold-change)") +
-    ylab("-log10(adjusted p-value)") +
+    xlab(xlab_label) +
+    ylab(ylab_label) +
     theme(legend.position = "none") +
     scale_color_manual(values = color_palette)
   p
