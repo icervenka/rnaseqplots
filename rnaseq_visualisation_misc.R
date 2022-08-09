@@ -89,7 +89,7 @@ merge_cuffdiff_fc = function(x, y, annot, by = "gene") {
 }
 
 read_dire = function(filename, sheet_name = "Sheet1") {
-  
+
   # dire_df = function(fl) {
   #   conn = file(fl,open="r")
   #   linn = readLines(conn)
@@ -103,8 +103,8 @@ read_dire = function(filename, sheet_name = "Sheet1") {
   #   close(conn)
   #   return(linn)
   # }
-  
-  
+
+
   if(grepl(".xlsx", filename)) {
     data = readxl::read_excel(filename, sheet = sheet_name) %>%
       select(-`#`)
@@ -256,7 +256,7 @@ plot_dire_labeled = function(df,
                              importance_threshold = 0.05,
                              dot_size = 3.5,
                              color = "steelblue") {
-  
+
   p = df %>%
     plot_dire(color) +
     geom_label_repel(data = . %>%
@@ -267,56 +267,47 @@ plot_dire_labeled = function(df,
 }
 
 # heatmap all
-plot_heatmap = function(expression_matrix, metadata, palette = "RdBu") {
-  p = expression_matrix %>%
-    pheatmap::pheatmap(scale = "row",
-                       color = colorRampPalette(rev(RColorBrewer::brewer.pal(
-                         n = 7, name = palette)))(100),
-                       cluster_cols = T,
-                       show_rownames = F,
-                       cellwidth = 20,
-                       border_color = "white",
-                       treeheight_row = 15,
-                       treeheight_col = 20,
-                       annotation_col = metadata %>%
-                         tibble::column_to_rownames("sample"))
-  return(p)
-}
+plot_heatmap = function(expression_df, metadata,
+                             gene_list = NULL,
+                             geneid_colname = SYMBOL,
+                             metadata_sample_colname = sample,
+                             gene_ranking_fun = matrixStats::rowVars,
+                             cell_dims = c(10, 1),
+                             palette = "RdBu",
+                             ...) {
 
+  sc = deparse(substitute(metadata_sample_colname))
 
-plot_heatmap_all = function(...) {
-  dots = list(...)
-  dots[[1]] = dots[[1]] %>%
-    dplyr::select(dplyr::matches(metadata$sample)) %>%
-    as.matrix
+  if(!is.null(gene_list)) {
+    if(is.character(gene_list)) {
+      expression_df = expression_df %>%
+        dplyr::filter(!!as.symbol(geneid_colname) %in% gene_list)
+    } else if(is.numeric(gene_list)) {
+      expr_matrix = expression_df %>%
+        dplyr::select(dplyr::matches(metadata[[sc]])) %>%
+        as.matrix()
+      expression_df = expression_df[order(gene_ranking_fun(expr_matrix), decreasing = T),][1:gene_list,]
+    } else {
+      stop("Unrecognized type of argument for gene list.")
+    }
 
-  p = do.call(plot_heatmap, dots)
-  return(p)
-}
+  }
 
-plot_heatmap_topn = function(..., n = 1000, fun = matrixStats::rowVars) {
-  dots = list(...)
-
-  dots[[1]] = dots[[1]] %>%
-    dplyr::select(dplyr::matches(metadata$sample)) %>%
-    as.matrix
-  dots[[1]] = dots[[1]][order(fun(dots[[1]])),][1:n,]
-
-  p = do.call(plot_heatmap, dots)
-  return(p)
-}
-
-plot_heatmap_diffexp = function(expression_data, diffexp_data, metadata, palette = "RdBu",
-                                geneid_colname = "SYMBOL", padj_colname = "padj") {
-
-  selected_genes = diffexp_data %>%
-    dplyr::filter(!!as.symbol(padj_colname) < 0.05) %>%
-    dplyr::pull(!!as.symbol(geneid_colname))
-
-  p = expression_data %>%
-    dplyr::filter(!!as.symbol(geneid_colname) %in% selected_genes) %>%
-    dplyr::select(dplyr::matches(metadata$sample)) %>%
-    plot_heatmap(metadata, palette)
+  expression_df = expression_df %>%
+    dplyr::select(dplyr::matches(metadata[[sc]]))
+  
+  p = expression_df %>%
+  pheatmap::pheatmap(scale = "row",
+                     color = colorRampPalette(rev(RColorBrewer::brewer.pal(
+                       n = 7, name = palette)))(100),
+                     cellwidth = cell_dims[1],
+                     cellheight = cell_dims[2],
+                     border_color = "white",
+                     treeheight_row = 15,
+                     treeheight_col = 20,
+                     annotation_col = metadata %>%
+                       tibble::column_to_rownames(sc),
+                     ...)
   return(p)
 }
 
@@ -350,14 +341,14 @@ volcano_plot = function(results,
                         xlab_label = expression(paste("lo", g[2], "FC")),
                         ylab_label = expression(paste("lo", g[10], "FDR")),
                         color_palette = c("gray70", "steelblue", "darkred")) {
-  
+
   require(ggrepel)
-  
+
   # validate function arguments
   if(length(color_palette) != 3) {
     stop("Color palette requires a vector length 3.")
   }
-  
+
   results_fil = results %>%
     dplyr::select({{ label }}, {{ x }}, {{ y }}, {{ filter_sig_on }}) %>%
     tidyr::drop_na() %>%
@@ -365,40 +356,40 @@ volcano_plot = function(results,
                                                  {{ filter_sig_on }} <= sig_threshold & {{ x }} <= (-1)*log2fc_threshold ~ "down",
                                                  TRUE ~ "unchanged")) %>%
     dplyr::mutate(significant = factor(significant, levels = c("unchanged", "down", "up")))
-  
+
   p = results_fil %>%
     ggplot2::ggplot(aes(x = {{ x }}, y = -log10({{ y }}))) +
     geom_point(aes(color = significant), size = 1)
-  
+
   if(is.null(label_genes)) {
-    p = p + 
-      geom_label_repel(data = results_fil %>% 
+    p = p +
+      geom_label_repel(data = results_fil %>%
                          filter(significant != "unchanged") %>%
-                         top_n(-label_bottom_n, {{ x }}), 
+                         top_n(-label_bottom_n, {{ x }}),
                        aes(label = {{ label }}),
                        min.segment.length = unit(0, 'lines')) +
-      geom_label_repel(data = results_fil %>% 
+      geom_label_repel(data = results_fil %>%
                          filter(significant != "unchanged") %>%
-                         top_n(label_top_n, {{ x }}) , 
+                         top_n(label_top_n, {{ x }}) ,
                        aes(label = {{ label }}),
                        min.segment.length = unit(0, 'lines'))
   } else if(is.vector(label_genes, mode = "character")) {
     p = p +
-      geom_label(data = results_fil %>% dplyr::filter({{ label }} %in% label_genes), 
+      geom_label(data = results_fil %>% dplyr::filter({{ label }} %in% label_genes),
                  aes(label = {{ label }}),
                  min.segment.length = unit(0, 'lines'))
   }
-    
+
   if(add_vhlines) {
     p = p +
-      geom_vline(xintercept = c(-log2fc_threshold, log2fc_threshold), 
-                 linetype = vhline_type, 
-                 color = vhline_color) + 
-      geom_hline(yintercept = -log10(sig_threshold), 
-                 linetype = vhline_type, 
+      geom_vline(xintercept = c(-log2fc_threshold, log2fc_threshold),
+                 linetype = vhline_type,
+                 color = vhline_color) +
+      geom_hline(yintercept = -log10(sig_threshold),
+                 linetype = vhline_type,
                  color=vhline_color)
   }
-  
+
   p = p +
     theme_bw() +
     xlab(xlab_label) +
@@ -409,7 +400,7 @@ volcano_plot = function(results,
 }
 
 volcano_plot_cuffdiff = function(results, sample1, sample2, ...) {
-  results = results %>% 
+  results = results %>%
     dplyr::filter(sample_1 == sample1 & sample_2 == sample2)
   volcano_plot(results, ...)
 }
@@ -486,18 +477,18 @@ collate_pathways = function(pathway_files_basepath, pattern, padj_threshold = 0.
   if(stringr::str_sub(path_to_pathway_files, -1) != "/") {
     pathway_files_basepath = paste0(pathway_files_basepath, "/")
   }
-  
+
   pathway_files = list.files(pathway_files_basepath,
                              pattern = pattern,
                              full.names = F)
-  
+
   cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",
                           "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
 
   diffexp_pathways = purrr::map_dfr(pathway_files, function(x) {
     readr::read_delim(paste0(pathway_files_basepath, x),
                       delim = "\t", escape_double = FALSE,
-                      trim_ws = TRUE, 
+                      trim_ws = TRUE,
                       show_col_types = F)  %>%
       setNames(cp_unified_colnames) %>%
       # TODO needs to be changed
