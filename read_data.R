@@ -1,40 +1,43 @@
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
-.addFeatures = function(object,features,level="genes",...){
-  if(!is.data.frame(features)){
+.addFeatures <- function(object, features, level = "genes", ...) {
+  if (!is.data.frame(features)) {
     stop("features must be a data.frame")
   }
-  colnames(features)[1] = slot(object,level)@idField
-  colnames(features) = make.db.names(object@DB,colnames(features),unique=T)
-  DBI::dbWriteTable(object@DB,slot(object,level)@tables$featureTable,features,row.names=F,overwrite=T)
-  indexQuery = paste("CREATE INDEX ",slot(object,level)@idField," ON ",
-                    slot(object,level)@tables$featureTable," (",slot(object,level)@idField,")",sep="")
-  res = DBI::dbExecute(object@DB,indexQuery)
+  colnames(features)[1] <- slot(object, level)@idField
+  colnames(features) <- make.db.names(object@DB, colnames(features), unique = T)
+  DBI::dbWriteTable(object@DB, slot(object, level)@tables$featureTable, features, row.names = F, overwrite = T)
+  indexQuery <- paste("CREATE INDEX ", slot(object, level)@idField, " ON ",
+    slot(object, level)@tables$featureTable, " (", slot(object, level)@idField, ")",
+    sep = ""
+  )
+  res <- DBI::dbExecute(object@DB, indexQuery)
 }
-setMethod("addFeatures",signature(object="CuffSet"),.addFeatures)
+setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
 
 # user defined reading functions -----------------------------------------------
-read_cuffdiff_diff = function(dir) {
-  cuff = cummeRbund::readCufflinks(dir)
-  annot = read.delim(paste0(dir,"/gene_exp.diff"),
-                     sep = "\t",
-                     header=T,
-                     na.string="-") %>%
+read_cuffdiff_diff <- function(dir) {
+  cuff <- cummeRbund::readCufflinks(dir)
+  annot <- read.delim(paste0(dir, "/gene_exp.diff"),
+    sep = "\t",
+    header = T,
+    na.string = "-"
+  ) %>%
     dplyr::select(gene_id, gene)
-  cummeRbund::addFeatures(cuff,annot,level="genes")
+  cummeRbund::addFeatures(cuff, annot, level = "genes")
 
   # munging of differential expression data
-  diff = cummeRbund::diffData(genes(cuff)) %>%
+  diff <- cummeRbund::diffData(cummeRbund::genes(cuff)) %>%
     tibble::as_tibble()
-  diff = diff %>%
+  diff <- diff %>%
     dplyr::filter(value_1 > 0 & value_2 > 0) %>%
     dplyr::filter(status == "OK")
-  diff = diff %>%
+  diff <- diff %>%
     dplyr::mutate(comparison = paste0(sample_1, "_", sample_2)) %>%
     dplyr::left_join(annot %>% unique())
   return(diff)
 }
 
-read_dire_xlsx = function(filename, sheet_name = "Sheet1") {
+read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
 
   # dire_df = function(fl) {
   #   conn = file(fl,open="r")
@@ -51,12 +54,12 @@ read_dire_xlsx = function(filename, sheet_name = "Sheet1") {
   # }
 
 
-  if(grepl(".xlsx", filename)) {
-    data = readxl::read_excel(filename, sheet = sheet_name) %>%
-      select(-`#`)
+  if (grepl(".xlsx", filename)) {
+    data <- readxl::read_excel(filename, sheet = sheet_name) %>%
+      dplyr::select(-`#`)
   } else {
-    data = readr::read_delim(filename) %>%
-      select(-`#`)
+    data <- readr::read_delim(filename) %>%
+      dplyr::select(-`#`)
   }
   return(data)
 }

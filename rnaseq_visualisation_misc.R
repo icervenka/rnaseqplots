@@ -1,4 +1,3 @@
-
 # TODO distribute library loading to appropriate files
 library(readxl)
 library(readr)
@@ -21,3 +20,25 @@ library(stringr)
 library(tibble)
 library(purrr)
 library(dplyr)
+
+pack = c("readxl", 
+         "readr", 
+         "colorspace", 
+         "RColorBrewer", 
+         "viridis", 
+         "ggplot2", 
+         "ggrepel", 
+         "VennDiagram", 
+         "ComplexHeatmap", 
+         "pheatmap", 
+         "cowplot", 
+         "circlize", 
+         "cummeRbund", 
+         "DESeq2", 
+         "limma", 
+         "matrixStats", 
+         "broom", 
+         "stringr", 
+         "tibble", 
+         "purrr", 
+         "dplyr")
