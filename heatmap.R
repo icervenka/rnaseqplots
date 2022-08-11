@@ -45,6 +45,8 @@ plot_heatmap <- function(expression_df, metadata,
   return(p)
 }
 
+# ISSUE doesn't plot heatmap on mac rstudio
+# TODO fix custom annotation colors
 plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
                             id_colname = "SYMBOL", fc_colname = "log2FoldChange",
                             padj_colname = "padj") {
@@ -62,12 +64,13 @@ plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
     dplyr::pull(!!as.symbol(fc_colname))
   log2fc_colors <- ifelse(log2fc_vals < 0, "steelblue", "darkred")
 
+  # min double is added to pval, in cas of pval = 0 it becomes Inf
   pvals <- diffexp_data_fil %>%
-    dplyr::mutate(log_pval = -log10(!!as.symbol(padj_colname))) %>%
+    dplyr::mutate(log_pval = -log10(!!as.symbol(padj_colname) + .Machine$double.xmin)) %>%
     dplyr::pull(log_pval)
   pvals_colors <- circlize::colorRamp2(
-    c(-log10(0.05), max(pvals)),
-    c("white", "steelblue")
+    breaks = c(-log10(0.05), max(pvals)),
+    colors = c("white", "steelblue")
   )
   pvalues_legend <- ComplexHeatmap::Legend(
     col_fun = pvals_colors,
@@ -88,8 +91,8 @@ plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
     gap = grid::unit(2, "mm")
   )
 
-  col_colors <- gg_color_hue(length(IRanges::unique(metadata$group)))
-  names(col_colors) <- IRanges::unique(metadata$group)
+  col_colors <- gg_color_hue(length(unique(metadata$group)))
+  names(col_colors) <- unique(metadata$group)
 
   hat <- ComplexHeatmap::columnAnnotation(
     genotype = metadata$group,
@@ -110,9 +113,10 @@ plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
     show_column_names = FALSE,
     border_gp = grid::gpar(col = "black", lty = 1),
     rect_gp = grid::gpar(col = "black", lwd = 1),
-    width = IRanges::ncol(expression_data_fil) * grid::unit(5, "mm"),
-    height = rtracklayer::nrow(expression_data_fil) * grid::unit(5, "mm")
+    width = ncol(expression_data_fil) * unit(5, "mm"),
+    height = nrow(expression_data_fil) * unit(5, "mm")
   )
+
 
   ComplexHeatmap::draw(
     ht,
