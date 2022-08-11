@@ -1,7 +1,7 @@
-plot_dire <- function(df, color = "steelblue") {
+plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   p <- df %>%
     ggplot2::ggplot(ggplot2::aes(x = Occurrence, y = Importance)) +
-    ggplot2::geom_point(color = color) +
+    ggplot2::geom_point(color = color, size = dot_size) +
     ggplot2::theme_bw()
   return(p)
 }
@@ -9,15 +9,25 @@ plot_dire <- function(df, color = "steelblue") {
 plot_dire_labeled <- function(df,
                               occurrence_threshold = 0.05,
                               importance_threshold = 0.05,
-                              dot_size = 3.5,
-                              color = "steelblue") {
+                              label_genes = NULL,
+                              ...) {
   p <- df %>%
-    plot_dire(color) +
+    plot_dire(...)
+
+  if (is.null(label_genes)) {
+    label_data <- df %>%
+      dplyr::filter(Occurrence > occurrence_threshold & Importance > importance_threshold)
+  } else if (is.vector(label_genes, mode = "character")) {
+    label_data <- df %>%
+      dplyr::filter(`Transcription Factor` %in% label_genes)
+  }
+
+  p <- p +
     ggrepel::geom_label_repel(
-      data = . %>%
-        dplyr::filter(Occurrence > occurrence_threshold | Importance > importance_threshold),
-      ggplot2::aes(x = Occurrence, y = Importance, label = `Transcription Factor`),
-      size = dot_size
+      data = label_data,
+      ggplot2::aes(label = `Transcription Factor`),
+      min.segment.length = unit(0, "lines")
     )
+
   return(p)
 }
