@@ -1,6 +1,6 @@
 
 library(SummarizedExperiment, include_only = NULL)
-plot_pca_deseq <- function(dds, group = "group") {
+plot_pca_deseq <- function(dds, group = "group", plot_center = T, linetype = "solid", palette = NULL) {
   vsd <- DESeq2::vst(dds, blind = F)
 
   pcaData <- DESeq2::plotPCA(vsd, intgroup = c(group), returnData = TRUE)
@@ -17,25 +17,39 @@ plot_pca_deseq <- function(dds, group = "group") {
   p <- pcaData %>%
     ggplot2::ggplot(ggplot2::aes(PC1,
       PC2,
-      color = !!as.symbol(group),
-      shape = !!as.symbol(group)
+      color = !!as.symbol(group)#,
+      #shape = !!as.symbol(group)
     )) +
-    ggplot2::geom_point(size = 3) +
-    ggplot2::geom_segment(ggplot2::aes(
-      x = PC1,
-      y = PC2,
-      xend = xend,
-      yend = yend
-    ),
-    size = 0.5,
-    linetype = "dashed"
-    ) +
-    ggplot2::geom_point(data = segments, ggplot2::aes(x = xend, y = yend), size = 2) +
+    ggplot2::geom_point(size = 3)
+    
+    if(plot_center == T) {
+      p <- p +
+        ggplot2::geom_segment(ggplot2::aes(
+        x = PC1,
+        y = PC2,
+        xend = xend,
+        yend = yend
+      ),
+      size = 0.5,
+      linetype = linetype
+      ) +
+        ggplot2::geom_point(data = segments, ggplot2::aes(x = xend, y = yend), size = 1)
+    }
+  
+    p <- p +
     ggplot2::xlab(paste0("PC1: ", percentVar[1], "% variance")) +
     ggplot2::ylab(paste0("PC2: ", percentVar[2], "% variance")) +
     ggplot2::theme_bw() +
-    ggplot2::scale_color_manual(values = viridis::viridis(no_colors + 1)) +
     ggplot2::theme(legend.position = "top")
+      
+    if(is.null(palette)) {
+      p <- p + 
+        ggplot2::scale_color_manual(values = viridis::viridis(no_colors + 1)) 
+    } else {
+      p <- p + 
+        ggplot2::scale_color_manual(values = palette)
+    }
+   
 
   return(p)
 }
