@@ -35,31 +35,6 @@ volcano_plot <- function(results,
     ggplot2::ggplot(ggplot2::aes(x = {{ x }}, y = -log10({{ y }}))) +
     ggplot2::geom_point(ggplot2::aes(color = significant), size = 1)
 
-  if (is.null(label_genes)) {
-    p <- p +
-      ggrepel::geom_label_repel(
-        data = results_fil %>%
-          dplyr::filter(significant != "unchanged") %>%
-          dplyr::top_n(-label_bottom_n, {{ x }}),
-        ggplot2::aes(label = {{ label }}),
-        min.segment.length = ggplot2::unit(0, "lines")
-      ) +
-      ggrepel::geom_label_repel(
-        data = results_fil %>%
-          dplyr::filter(significant != "unchanged") %>%
-          dplyr::top_n(label_top_n, {{ x }}),
-        ggplot2::aes(label = {{ label }}),
-        min.segment.length = ggplot2::unit(0, "lines")
-      )
-  } else if (is.vector(label_genes, mode = "character")) {
-    p <- p +
-      ggplot2::geom_label(
-        data = results_fil %>% dplyr::filter({{ label }} %in% label_genes),
-        ggplot2::aes(label = {{ label }}),
-        min.segment.length = ggplot2::unit(0, "lines")
-      )
-  }
-
   if (add_vhlines) {
     p <- p +
       ggplot2::geom_vline(
@@ -71,6 +46,31 @@ volcano_plot <- function(results,
         yintercept = -log10(sig_threshold),
         linetype = vhline_type,
         color = vhline_color
+      )
+  }
+  
+  if (is.null(label_genes)) {
+    p <- p +
+      ggrepel::geom_label_repel(
+        data = results_fil %>%
+          dplyr::filter(significant != "unchanged") %>%
+          dplyr::top_n(-label_bottom_n, {{ x }}),
+        ggplot2::aes(label = {{ label }}),
+        min.segment.length = unit(0, "lines")
+      ) +
+      ggrepel::geom_label_repel(
+        data = results_fil %>%
+          dplyr::filter(significant != "unchanged") %>%
+          dplyr::top_n(label_top_n, {{ x }}),
+        ggplot2::aes(label = {{ label }}),
+        min.segment.length = unit(0, "lines")
+      )
+  } else if (is.vector(label_genes, mode = "character")) {
+    p <- p +
+      ggrepel::geom_label_repel(
+        data = results_fil %>% dplyr::filter({{ label }} %in% label_genes),
+        ggplot2::aes(label = {{ label }}),
+        min.segment.length = unit(0, "lines")
       )
   }
 
