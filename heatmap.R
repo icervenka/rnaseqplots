@@ -6,17 +6,17 @@ plot_heatmap <- function(expression_df, metadata,
                          cell_dims = c(10, 1),
                          palette = "RdBu",
                          ...) {
-  sc <- deparse(substitute(metadata_sample_colname))
+  samples <- ds(metadata[[metadata_sample_colname]])
 
   if (!is.null(gene_list)) {
     if (is.character(gene_list)) {
       expression_df <- expression_df %>%
-        dplyr::filter(!!as.symbol(geneid_colname) %in% gene_list)
+        dplyr::filter({{ geneid_colname }} %in% gene_list)
     } else if (is.numeric(gene_list)) {
       expr_matrix <- expression_df %>%
-        dplyr::select(dplyr::matches(metadata[[sc]])) %>%
+        dplyr::select(dplyr::matches(samples)) %>%
         as.matrix()
-      expression_df <- expression_df[SummarizedExperiment::order(gene_ranking_fun(expr_matrix),
+      expression_df <- expression_df[order(gene_ranking_fun(expr_matrix),
         decreasing = T
       ), ][1:gene_list, ]
     } else {
@@ -25,7 +25,7 @@ plot_heatmap <- function(expression_df, metadata,
   }
 
   expression_df <- expression_df %>%
-    dplyr::select(dplyr::matches(metadata[[sc]]))
+    dplyr::select(dplyr::matches(samples))
 
   p <- expression_df %>%
     pheatmap::pheatmap(
@@ -46,31 +46,36 @@ plot_heatmap <- function(expression_df, metadata,
 }
 
 # ISSUE doesn't plot heatmap on mac rstudio
-# TODO fix custom annotation colors
 plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
-                            id_colname = "SYMBOL", fc_colname = "log2FoldChange",
-                            padj_colname = "padj") {
+                            id_colname = SYMBOL, fc_colname = log2FoldChange,
+                            .fc_colors = c("darkred", "steelblue"),
+                            padj_colname = padj, .pval_colors = c("white", "steelblue"),
+                            metadata_sample_colname = sample, .col_annot_colors = NULL, # named vector, column annotation defaults to 'group'
+                            ) {
+  samples = metadata[[ds(metadata_sample_colname)]]
+  
   expression_data_fil <- expression_data %>%
-    dplyr::arrange(!!as.symbol(id_colname)) %>%
-    dplyr::filter(!!as.symbol(id_colname) %in% gene_list) %>%
-    dplyr::select(!!as.symbol(id_colname), dplyr::matches(metadata$sample)) %>%
-    tibble::column_to_rownames(id_colname)
+    dplyr::arrange({{ id_colname }}) %>%
+    dplyr::filter({{ id_colname }} %in% gene_list) %>%
+    dplyr::select({{ id_colname }}, dplyr::matches(samples)) %>%
+    tibble::column_to_rownames(ds(subid_colname))
 
   diffexp_data_fil <- diffexp_data %>%
-    dplyr::arrange(!!as.symbol(id_colname)) %>%
-    dplyr::filter(!!as.symbol(id_colname) %in% gene_list)
+    dplyr::arrange({{ id_colname }}) %>%
+    dplyr::filter({{ id_colname }} %in% gene_list)
 
   log2fc_vals <- diffexp_data_fil %>%
-    dplyr::pull(!!as.symbol(fc_colname))
-  log2fc_colors <- ifelse(log2fc_vals < 0, "steelblue", "darkred")
+    dplyr::pull({{ fc_colname }})
+  log2fc_colors <- ifelse(log2fc_vals < 0, .fc_colors[2], .fc_colors[1])
 
   # min double is added to pval, in cas of pval = 0 it becomes Inf
   pvals <- diffexp_data_fil %>%
-    dplyr::mutate(log_pval = -log10(!!as.symbol(padj_colname) + .Machine$double.xmin)) %>%
+    dplyr::mutate(log_pval = -log10({{ padj_colname }} + 
+                                      .Machine$double.xmin)) %>%
     dplyr::pull(log_pval)
   pvals_colors <- circlize::colorRamp2(
     breaks = c(-log10(0.05), max(pvals)),
-    colors = c("white", "steelblue")
+    colors = .pval_colors
   )
   pvalues_legend <- ComplexHeatmap::Legend(
     col_fun = pvals_colors,
@@ -90,13 +95,21 @@ plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
     simple_anno_size = grid::unit(0.5, "cm"), width = grid::unit(2, "cm"),
     gap = grid::unit(2, "mm")
   )
-
-  col_colors <- gg_color_hue(length(unique(metadata$group)))
-  names(col_colors) <- unique(metadata$group)
-
+  
+  if(is.null(.col_annot_colors)) {
+    selected_gropus <- c("group")
+    col_colors <- gg_color_hue(length(unique(metadata[[selected_groups]]))) %>%
+      setNames(unique(metadata[[selected_groups]]))
+    col_list = list("group" = col_colors)
+  } else {
+    selected_gropus = names(.col_annot_colors)
+    col_list = .col_annot_colors
+  }
+  
   hat <- ComplexHeatmap::columnAnnotation(
-    genotype = metadata$group,
-    col = list(genotype = col_colors),
+    # TODO check if this works properly
+    df = metadata %>% select(contains(selected_groups)),
+    col = col_list,
     border = TRUE
   )
 
@@ -116,7 +129,6 @@ plot_heatmap_fc <- function(expression_data, diffexp_data, metadata, gene_list,
     width = ncol(expression_data_fil) * unit(5, "mm"),
     height = nrow(expression_data_fil) * unit(5, "mm")
   )
-
 
   ComplexHeatmap::draw(
     ht,
