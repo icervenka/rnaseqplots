@@ -75,3 +75,42 @@ create_gsea_cls = function(data,
     return(text_lines)
   }
 }
+
+create_gsea_rank = function(data,
+                            out = NULL,
+                            ranking_equation = ~ -log10(pvalue)*sign(log2FoldChange),
+                            gene_id_column = ensembl_gene_id,
+                            .inf = "replace") {
+  out_df = data %>%
+    dplyr::mutate(rank = !!lazyeval::f_rhs(ranking_equation)) %>%
+    dplyr::select({{ gene_id_column }}, rank) %>%
+    dplyr::arrange(desc(rank)) %>%
+    tidyr::drop_na() 
+  
+  if(.inf == "drop") {
+    out_df = out_df %>%
+      dplyr::filter(is.finite(rank))
+  } else if(.inf == "replace") {
+    min_val = out_df %>%
+      dplyr::filter(is.finite(rank)) %>%
+      pull(rank) %>%
+      min()
+    max_val = out_df %>%
+      dplyr::filter(is.finite(rank)) %>%
+      pull(rank) %>%
+      max()
+    
+    out_df$rank[which(out_df$rank == Inf)] = max_val + 0.01 * max_val
+    out_df$rank[which(out_df$rank == -Inf)] = min_val + 0.01 * min_val
+  }
+  
+  if(!is.null(out)) {
+    write.table(out_df,
+                out,
+                sep = "\t",
+                row.names = F,
+                quote = F)
+  } else {
+    return(out_df)
+  }
+}
