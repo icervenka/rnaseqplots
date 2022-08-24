@@ -113,3 +113,24 @@ get_gsea_files_from_dir = function(dirpath, pattern) {
     mutate(file = paste0(pattern, file))
   return(file_df)
 }
+
+batch_read_filter_gsea = function(dir = ".", 
+                                  pattern = "gsea_report_for",
+                                  score_threshold = 0, 
+                                  pvalue_threshold = 0.05) {
+  
+  files_df = get_gsea_files_from_dir(dir, pattern)
+  
+  map_dfr(unique(files_df$path), function(x) {
+    filtered_df = files_df %>%
+      filter(path == x)
+    map_dfr(filtered_df$file, function(y) {
+      read_gsea(paste0(x, "/", y)) 
+    }) %>%
+      filter_pathways(score_column = nes, 
+                      pvalue_column = fdr_qval, 
+                      rank_by = nes,
+                      score_threshold = score_threshold,
+                      pvalue_threshold = pvalue_threshold)
+  })
+}
