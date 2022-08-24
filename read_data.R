@@ -89,3 +89,27 @@ read_amigo_json = function(jsonfile) {
            pvalue = as.double(pvalue),
            level = as.integer(level))
 }
+
+read_gsea = function(filename, rank_by = nes, descending = T) {
+  orientation = rank_how(descending)
+  
+  read.table(filename, header = TRUE, sep = "\t") %>%
+    dplyr::select(-X) %>%
+    setNames(c("name", "link", "details", "size", "es", "nes", "nom_pval", 
+               "fdr_qval", "fwer_pval", "rank_at_max", "leading_edge")) %>%
+    mutate(file = filename) %>%
+    arrange(orientation(abs({{ rank_by }}))) %>%
+    mutate(pathway_rank = row_number()) %>%
+    mutate(nom_pval = nom_pval + 0.00001) %>%
+    mutate(fdr_qval = fdr_qval + 0.00001)
+}
+
+get_gsea_files_from_dir = function(dirpath, pattern) {
+  file_df = data.frame(full_path = dir(dirpath, 
+                                       pattern=paste0(pattern,".*tsv"), 
+                                       full.names = T, 
+                                       recursive = T)) %>%
+    separate(full_path, into = c("path", "file"), sep = paste0("/", pattern), remove = F) %>%
+    mutate(file = paste0(pattern, file))
+  return(file_df)
+}
