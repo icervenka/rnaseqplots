@@ -16,3 +16,15 @@ merge_cuffdiff_fc <- function(x, y, annot, by = "gene") {
   lfcs <- lfcs %>% dplyr::mutate(err_sq = (log2_fold_change.y - log2_fold_change.x)^2)
   return(lfcs)
 }
+
+filter_deseq_results = function(res, padj_threshold = 0.05) {
+  filtered_res = res %>% 
+    data.frame() %>%
+    rownames_to_column("ensembl_gene_id")
+  
+  if(!is.null(padj_threshold)) {
+    filtered_res = filtered_res %>%
+      filter(padj < padj_threshold)
+  }
+  return(filtered_res)
+}
