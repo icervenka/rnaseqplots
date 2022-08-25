@@ -114,6 +114,20 @@ get_gsea_files_from_dir = function(dirpath, pattern) {
   return(file_df)
 }
 
+filter_pathways = function(pathway_data, score_column, pvalue_column, rank_by,
+                           score_threshold = 0, pvalue_threshold = 0.05,
+                           descending = T) {
+ 
+  orientation = rank_how(descending)
+  
+  pathway_data %>%
+    filter(abs({{ score_column }}) > score_threshold) %>%
+    filter({{ pvalue_column }} < pvalue_threshold ) %>%
+    arrange(orientation(abs({{ rank_by }}))) %>%
+    mutate(pathway_rank = row_number())
+}
+
+
 batch_read_filter_gsea = function(dir = ".", 
                                   pattern = "gsea_report_for",
                                   score_threshold = 0, 
@@ -133,4 +147,12 @@ batch_read_filter_gsea = function(dir = ".",
                       score_threshold = score_threshold,
                       pvalue_threshold = pvalue_threshold)
   })
+}
+
+read_ipa = function(filename, rank_by = zscore, descending = T) {
+  orientation = rank_how(descending)
+  
+  read.table(filename, header = TRUE, sep = "\t") %>%
+    arrange(orientation(abs({{ rank_by }}))) %>%
+    mutate(pathway_rank = row_number())
 }
