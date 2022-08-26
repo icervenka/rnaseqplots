@@ -1,3 +1,5 @@
+library("magrittr")
+
 plot_corr <- function(gene_expr, param_values) {
   p <- base::cbind.data.frame(
     gene_expr = gene_expr,
@@ -18,7 +20,7 @@ plot_lfc_scatter <- function(lfc_data) {
       text = gene
     )) +
     ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq)) +
-    colorspace::scale_colour_continuous_sequential("viridis", rev = F) +
+    colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE) +
     ggplot2::theme_bw() +
     ggplot2::labs(size = "-log10(p-value)", colour = "squared\nerror")
   return(p)

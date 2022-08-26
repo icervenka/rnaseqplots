@@ -1,3 +1,6 @@
+library("magrittr")
+
+# label_genes if specified overrides top_n/bottom_n arguments,
 volcano_plot <- function(results,
                          label = SYMBOL,
                          x = log2FoldChange,
@@ -7,13 +10,17 @@ volcano_plot <- function(results,
                          filter_sig_on = padj,
                          label_bottom_n = 5,
                          label_top_n = 5,
-                         label_genes = NULL, # if specified overrides top_n/bottom_n arguments,
+                         label_genes = NULL,
                          add_vhlines = TRUE,
                          vhline_color = "gray40",
                          vhline_type = "dashed",
                          xlab_label = expression(paste("lo", g[2], "FC")),
                          ylab_label = expression(paste("lo", g[10], "FDR")),
-                         color_palette = c("gray70", "steelblue", "darkred")) {
+                         color_palette = c(
+                           "gray70",
+                           "steelblue",
+                           "darkred"
+                         )) {
   require(ggrepel)
 
   # validate function arguments
@@ -25,11 +32,15 @@ volcano_plot <- function(results,
     dplyr::select({{ label }}, {{ x }}, {{ y }}, {{ filter_sig_on }}) %>%
     tidyr::drop_na() %>%
     dplyr::mutate(significant = dplyr::case_when(
-      {{ filter_sig_on }} <= sig_threshold & {{ x }} > log2fc_threshold ~ "up",
-      {{ filter_sig_on }} <= sig_threshold & {{ x }} <= (-1) * log2fc_threshold ~ "down",
+      {{ filter_sig_on }} <= sig_threshold &
+        {{ x }} > log2fc_threshold ~ "up",
+      {{ filter_sig_on }} <= sig_threshold &
+        {{ x }} <= (-1) * log2fc_threshold ~ "down",
       TRUE ~ "unchanged"
     )) %>%
-    dplyr::mutate(significant = factor(significant, levels = c("unchanged", "down", "up")))
+    dplyr::mutate(significant = factor(significant,
+      levels = c("unchanged", "down", "up")
+    ))
 
   p <- results_fil %>%
     ggplot2::ggplot(ggplot2::aes(x = {{ x }}, y = -log10({{ y }}))) +
@@ -48,7 +59,7 @@ volcano_plot <- function(results,
         color = vhline_color
       )
   }
-  
+
   if (is.null(label_genes)) {
     p <- p +
       ggrepel::geom_label_repel(
@@ -56,21 +67,22 @@ volcano_plot <- function(results,
           dplyr::filter(significant != "unchanged") %>%
           dplyr::top_n(-label_bottom_n, {{ x }}),
         ggplot2::aes(label = {{ label }}),
-        min.segment.length = unit(0, "lines")
+        min.segment.length = grid::unit(0, "lines")
       ) +
       ggrepel::geom_label_repel(
         data = results_fil %>%
           dplyr::filter(significant != "unchanged") %>%
           dplyr::top_n(label_top_n, {{ x }}),
         ggplot2::aes(label = {{ label }}),
-        min.segment.length = unit(0, "lines")
+        min.segment.length = grid::unit(0, "lines")
       )
   } else if (is.vector(label_genes, mode = "character")) {
     p <- p +
       ggrepel::geom_label_repel(
-        data = results_fil %>% dplyr::filter({{ label }} %in% label_genes),
+        data = results_fil %>%
+          dplyr::filter({{ label }} %in% label_genes),
         ggplot2::aes(label = {{ label }}),
-        min.segment.length = unit(0, "lines")
+        min.segment.length = grid::unit(0, "lines")
       )
   }
 

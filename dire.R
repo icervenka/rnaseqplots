@@ -1,3 +1,5 @@
+library("magrittr")
+
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   p <- df %>%
     ggplot2::ggplot(ggplot2::aes(x = Occurrence, y = Importance)) +
@@ -16,7 +18,10 @@ plot_dire_labeled <- function(df,
 
   if (is.null(label_genes)) {
     label_data <- df %>%
-      dplyr::filter(Occurrence > occurrence_threshold & Importance > importance_threshold)
+      dplyr::filter(
+        Occurrence > occurrence_threshold &
+        Importance > importance_threshold
+      )
   } else if (is.vector(label_genes, mode = "character")) {
     label_data <- df %>%
       dplyr::filter(`Transcription Factor` %in% label_genes)
@@ -26,7 +31,7 @@ plot_dire_labeled <- function(df,
     ggrepel::geom_label_repel(
       data = label_data,
       ggplot2::aes(label = `Transcription Factor`),
-      min.segment.length = unit(0, "lines")
+      min.segment.length = grid::unit(0, "lines")
     )
 
   return(p)

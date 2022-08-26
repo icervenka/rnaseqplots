@@ -1,24 +1,34 @@
-collate_pathways = function(pathway_files_basepath, pattern, padj_threshold = 0.05) {
-  if(stringr::str_sub(path_to_pathway_files, -1) != "/") {
-    pathway_files_basepath = paste0(pathway_files_basepath, "/")
+library("magrittr")
+
+collate_pathways <- function(pathway_files_basepath,
+                             pattern,
+                             padj_threshold = 0.05) {
+  if (stringr::str_sub(path_to_pathway_files, -1) != "/") {
+    pathway_files_basepath <- paste0(pathway_files_basepath, "/")
   }
 
-  pathway_files = list.files(pathway_files_basepath,
-                             pattern = pattern,
-                             full.names = F)
+  pathway_files <- list.files(pathway_files_basepath,
+    pattern = pattern,
+    full.names = FALSE
+  )
 
-  cp_unified_colnames = c("ID",	"Description",	"GeneRatio/NES",	"pvalue",
-                          "p.adjust",	"SYMBOL",	"ENTREZID",	"log2FoldChange")
+  cp_unified_colnames <- c(
+    "ID", "Description", "GeneRatio/NES", "pvalue",
+    "p.adjust", "SYMBOL", "ENTREZID", "log2FoldChange"
+  )
 
-  diffexp_pathways = purrr::map_dfr(pathway_files, function(x) {
+  diffexp_pathways <- purrr::map_dfr(pathway_files, function(x) {
     readr::read_delim(paste0(pathway_files_basepath, x),
-                      delim = "\t", escape_double = FALSE,
-                      trim_ws = TRUE,
-                      show_col_types = F)  %>%
+      delim = "\t", escape_double = FALSE,
+      trim_ws = TRUE,
+      show_col_types = FALSE
+    ) %>%
       setNames(cp_unified_colnames) %>%
       # TODO needs to be changed
-      dplyr::mutate(source = gsub("_contrast.txt", "", x),
-                    ID = as.character(ID)) %>%
+      dplyr::mutate(
+        source = gsub("_contrast.txt", "", x),
+        ID = as.character(ID)
+      ) %>%
       # might not reflect actual columns
       dplyr::select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
       unique()
@@ -28,53 +38,66 @@ collate_pathways = function(pathway_files_basepath, pattern, padj_threshold = 0.
 }
 
 
-plot_pathways_meta = function(df, top_pathways = 30) {
-  pathways_summary = df %>%
+plot_pathways_meta <- function(df, top_pathways = 30) {
+  pathways_summary <- df %>%
     dplyr::group_by(source) %>%
-    dplyr::summarise(n_pathways = dplyr::n(),
-                     mean_enrichment = mean(`GeneRatio/NES`))
+    dplyr::summarise(
+      n_pathways = dplyr::n(),
+      mean_enrichment = mean(`GeneRatio/NES`)
+    )
 
-  p1 = pathways_summary %>%
+  p1 <- pathways_summary %>%
     ggplot2::ggplot() +
     ggplot2::geom_histogram(ggplot2::aes(x = n_pathways),
-                   bins = 100,
-                   fill = "steelblue") +
+      bins = 100,
+      fill = "steelblue"
+    ) +
     ggplot2::theme_bw()
 
   # top pathway contributors
-  p2 = pathways_summary %>%
+  p2 <- pathways_summary %>%
     dplyr::top_n(30, n_pathways) %>%
     dplyr::arrange(n_pathways) %>%
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
-    ggplot2::geom_bar(stat="identity", fill = "steelblue") +
+    ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
     ggplot2::theme_bw()
 
   # bottom pathway contributors
-  p3 = pathways_summary %>%
+  p3 <- pathways_summary %>%
     dplyr::top_n(30, -n_pathways) %>%
     dplyr::arrange(n_pathways) %>%
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
-    ggplot2::geom_bar(stat="identity", fill = "steelblue") +
+    ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
     ggplot2::theme_bw()
 
   return(cowplot::plot_grid(p1, p2, p3, nrow = 1))
 }
 
-plot_pathway_bargraph = function(df, pathway_source, top_n = 20, truncate_desc = 80) {
+plot_pathway_bargraph <- function(df,
+                                  pathway_source,
+                                  top_n = 20,
+                                  truncate_desc = 80) {
   df %>%
     dplyr::filter(grepl(pathway_source, source)) %>%
     dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
     dplyr::slice_head(n = top_n) %>%
     dplyr::arrange(`GeneRatio/NES`) %>%
-    dplyr::mutate(Description = stringr::str_trunc(Description, truncate_desc)) %>%
-    dplyr::mutate(Description = factor(Description, levels = (.) %>% dplyr::pull(Description))) %>%
-    ggplot2::ggplot(ggplot2::aes(x = `GeneRatio/NES`,
-               y = Description,
-               color = -log10(p.adjust),
-               fill = -log10(p.adjust))) +
-    ggplot2::geom_bar(stat="identity") +
+    dplyr::mutate(
+      Description =
+        stringr::str_trunc(Description, truncate_desc)
+    ) %>%
+    dplyr::mutate(Description = factor(Description,
+      levels = (.) %>% dplyr::pull(Description)
+    )) %>%
+    ggplot2::ggplot(ggplot2::aes(
+      x = `GeneRatio/NES`,
+      y = Description,
+      color = -log10(p.adjust),
+      fill = -log10(p.adjust)
+    )) +
+    ggplot2::geom_bar(stat = "identity") +
     ggplot2::ylab("") +
     ggplot2::theme_bw()
 }
