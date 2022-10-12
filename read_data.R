@@ -121,8 +121,8 @@ filter_pathways <- function(pathway_data, score_column, pvalue_column, rank_by,
   orientation <- rank_how(descending)
 
   pathway_data %>%
-    filter(abs({{ score_column }}) > score_threshold) %>%
-    filter({{ pvalue_column }} < pvalue_threshold) %>%
+    dplyr::filter(abs({{ score_column }}) > score_threshold) %>%
+    dplyr::filter({{ pvalue_column }} < pvalue_threshold) %>%
     dplyr::arrange(orientation(abs({{ rank_by }}))) %>%
     dplyr::mutate(pathway_rank = dplyr::row_number())
 }
