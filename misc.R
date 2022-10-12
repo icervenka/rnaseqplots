@@ -1,5 +1,4 @@
-library("magrittr")
-library("dplyr")
+library(magrittr, include.only = "%>%")
 
 ds <- function(ex) {
   return(deparse(substitute(ex)))

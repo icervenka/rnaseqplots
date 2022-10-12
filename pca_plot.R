@@ -1,5 +1,4 @@
-library(SummarizedExperiment, include_only = NULL)
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 plot_pca_deseq <- function(dds,
                            group = "group",

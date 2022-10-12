@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   p <- df %>%

@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 # label_genes if specified overrides top_n/bottom_n arguments,
 volcano_plot <- function(results,

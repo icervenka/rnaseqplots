@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 merge_cuffdiff_fc <- function(x, y, annot, by = "gene") {
   lfcs <- merge(x %>%

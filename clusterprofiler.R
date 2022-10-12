@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 collate_pathways <- function(pathway_files_basepath,
                              pattern,

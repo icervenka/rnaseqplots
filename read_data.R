@@ -1,5 +1,4 @@
-library("magrittr")
-source("misc.R")
+library(magrittr, include.only = "%>%")
 
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
 .addFeatures <- function(object, features, level = "genes", ...) {

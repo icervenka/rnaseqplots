@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 plot_corr <- function(gene_expr, param_values) {
   p <- base::cbind.data.frame(

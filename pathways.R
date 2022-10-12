@@ -1,3 +1,5 @@
+library(magrittr, include.only = "%>%")
+
 plot_pathways_rank = function(pathway_data,
                               rank_include,
                               x_axis,

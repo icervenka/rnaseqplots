@@ -1,6 +1,4 @@
-library(egg)
-source("misc.R")
-library("magrittr")
+library(magrittr, include.only = "%>%")
 
 ggsave_fixed <- function(file, plot = last_plot(), units = "mm", margin = 1,
                          plot_width = 4, plot_height = 4,
