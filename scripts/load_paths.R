@@ -1,3 +1,15 @@
+## supplied by user, contains paths to data and metadata files, will contain
+## some of the following variables
+# path_to_metadata
+# path_to_sample_expression
+# path_to_diffexp_data
+# path_to_deseq_dds
+# path_to_cuffdiff
+# path_to_dire
+# path_to_pathway_files
+# path_to_plot_export_params (json format)
+# path_to_output_directory
+
 path_to_metadata <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/analysis_params/metadata.tsv"
 path_to_sample_expression <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/sample_expression.csv"
 path_to_diffexp_data <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/ko_vs_wt_all.txt"

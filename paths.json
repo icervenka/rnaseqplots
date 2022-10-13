@@ -1,0 +1,28 @@
+{
+    "input_directory": "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default",
+    "input_data_paths": 
+        {
+            "path_to_metadata": 
+            "analysis_params/metadata.tsv",
+            "path_to_sample_expression":
+            "degfiles/sample_expression.csv",
+            "path_to_diffexp_data":
+            "degfiles/ko_vs_wt_all.txt",
+            "path_to_deseq_dds":
+            "dds.rds",
+            "path_to_cuffdiff":
+            "",
+            "path_to_dire":
+            "../ko_vs_wt_diffexp.xlsx",
+            "path_to_pathway_files":
+            "../pathways/output/csv/ko_wt/"
+            
+        },
+    "param_paths":
+        {
+            "path_to_plot_export_params": "plot_export_params.json",
+            "path_to_gene_lists": "gene_lists.json",
+            "plot_export_params": "plot_export_params.json"
+        },
+    "output_directory": ".",
+}

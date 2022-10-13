@@ -1,30 +1,20 @@
 # load required packages
-source("load_packages.R", local = TRUE)
+source("scripts/load_packages.R", local = TRUE)
 
 # load package functions
-source("load_scripts.R", local = TRUE)
+source("scripts/load_scripts.R", local = TRUE)
 
-## supplied by user, contains paths to data and metadata files, will contain
-## some of the following variables
-# path_to_metadata
-# path_to_sample_expression
-# path_to_diffexp_data
-# path_to_deseq_dds
-# path_to_cuffdiff
-# path_to_dire
-# path_to_pathway_files
-# path_to_plot_export_params (json format)
-# path_to_output_directory
+# parses paths.json file for locations of user supplied data and parameters
 source("load_paths.R", local = TRUE)
 
 # load data and metadata
-source("load_data.R")
+source("scripts/load_data.R", local = TRUE)
 
 # load gene list, pathway lists etc.
-gene_list <- c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1")
-gene_labels <- c("Mb", "Mstn", "Cyc1", "Sln", "Myh3")
+# gene_list <- c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1")
+# gene_labels <- c("Mb", "Mstn", "Cyc1", "Sln", "Myh3")
 
-pathway_source <- "ConsensusPathDB_HumanCyc_GSEA_all"
+# pathway_source <- "ConsensusPathDB_HumanCyc_GSEA_all"
 
 ### test functions -------------------------------------------------------------
 # pca plots
