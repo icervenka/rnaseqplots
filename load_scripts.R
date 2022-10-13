@@ -1,0 +1,15 @@
+## require the function files
+source("misc.R", local = TRUE)
+
+source("clusterprofiler.R", local = TRUE)
+source("correlations.R", local = TRUE)
+source("dire.R", local = TRUE)
+source("export.R", local = TRUE)
+source("heatmap.R", local = TRUE)
+source("ma.R", local = TRUE)
+source("pathways.R", local = TRUE)
+source("pca_plot.R", local = TRUE)
+source("read_data.R", local = TRUE)
+source("transform_data.R", local = TRUE)
+source("venn.R", local = TRUE)
+source("volcano_plot.R", local = TRUE)

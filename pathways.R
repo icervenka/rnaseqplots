@@ -11,7 +11,9 @@ plot_pathways_rank = function(pathway_data,
                               legend_text = NULL,
                               label_offset = 0.4) {
 
-  if(max(rank_include) > nrow(pathway_data)) stop("Some ranks not found in filtered dataset.")
+  if (max(rank_include) > nrow(pathway_data)) {
+    stop("Some ranks not found in filtered dataset.")
+  }
 
   pathway_data = pathway_data %>%
     #mutate(pathway_rank = row_number()) %>%
@@ -44,4 +46,8 @@ plot_pathways_rank = function(pathway_data,
       theme(axis.text.y = element_blank())
   }
   p
+}
+
+plot_pathways_scatter <- function(data) {
+
 }

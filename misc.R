@@ -1,8 +1,8 @@
 library(magrittr, include.only = "%>%")
 
-ds <- function(ex) {
-  return(deparse(substitute(ex)))
-}
+# ds <- function(ex) {
+#   return(deparse(substitute(ex)))
+# }
 
 gg_color_hue <- function(i) {
   hues <- seq(15, 375, length = i + 1)

@@ -25,7 +25,7 @@ create_gsea_normalized <- function(data,
                                    data_description_col = NULL,
                                    metadata_sample_col = sample,
                                    out = NULL) {
-  samples <- metadata[[ds(metadata_sample_col)]]
+  samples <- metadata[[deparse(substitute((metadata_sample_col)))]]
   data_cols <- names(data)[names(data) %in% samples]
 
   out_df <- data %>%
@@ -61,8 +61,8 @@ create_gsea_cls <- function(data,
   metadata_filtered <- metadata %>%
     dplyr::select({{ sample_col }}, {{ group_col }})
 
-  samples <- metadata_filtered[[ds(sample_col)]]
-  groups <- metadata_filtered[[ds(group_col)]] %>%
+  samples <- metadata_filtered[[deparse(substitute((sample_col)))]]
+  groups <- metadata_filtered[[deparse(substitute((group_col)))]] %>%
     stringr::str_replace_all("[:space:]+", "")
   data_cols <- names(data)[names(data) %in% samples]
   sample_indices <- match(samples, data_cols)
@@ -124,4 +124,36 @@ create_gsea_rank <- function(data,
   } else {
     return(out_df)
   }
+}
+
+get_export_params <- function(graph_type, param_jsonfile) {
+  param_json <- rjson::fromJSON(file = param_jsonfile)
+  param_df <- purrr::map_dfr(param_json, data.frame)
+
+  param_list <- param_df %>%
+    dplyr::filter(graph_type == graph_type) %>%
+    dplyr::select(-graph_type) %>%
+    as.list()
+  return(param_list)
+}
+
+ggsave_param <- function(output_dir,
+                         params,
+                         plot = last_plot(),
+                         filename_prefix = "",
+                         filename_suffix = "",
+                         time_prefix = FALSE) {
+  if (time_prefix) {
+    tp <- Sys.Date()
+  } else {
+    tp <- ""
+  }
+  out_filename <- paste0(
+    output_dir,
+    tp,
+    filename_prefix
+    params$filename,
+    filename_suffix
+  )
+  rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!params)
 }

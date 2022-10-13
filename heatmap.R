@@ -1,4 +1,4 @@
-library("magrittr")
+library(magrittr, include.only = "%>%")
 source("misc.R")
 
 plot_heatmap <- function(expression_df,
@@ -11,7 +11,8 @@ plot_heatmap <- function(expression_df,
                          palette = "RdBu",
                          draw = TRUE,
                          ...) {
-  samples <- ds(metadata[[metadata_sample_colname]])
+
+  samples <- deparse(substitute((metadata[[metadata_sample_colname]])))
 
   if (!is.null(gene_list)) {
     if (is.character(gene_list)) {
