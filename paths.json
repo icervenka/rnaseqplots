@@ -1,5 +1,5 @@
 {
-    "input_directory": "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default",
+    "input_directory": "./",
     "input_data_paths": 
         {
             "path_to_metadata": 
@@ -20,9 +20,8 @@
         },
     "param_paths":
         {
-            "path_to_plot_export_params": "plot_export_params.json",
-            "path_to_gene_lists": "gene_lists.json",
-            "plot_export_params": "plot_export_params.json"
+            "path_to_plot_export_params": "data/plot_export_params.json",
+            "path_to_gene_lists": "data/gene_lists.json"
         },
-    "output_directory": ".",
+    "output_directory": "."
 }

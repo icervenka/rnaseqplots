@@ -157,3 +157,9 @@ ggsave_param <- function(output_dir,
   )
   rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!params)
 }
+
+ggsave_param_wrapper = function(graph_type, ...) {
+  ggsave_param(path_to_output_directory,
+               get_export_params(graph_type, path_to_plot_export_params),
+               ...)
+}

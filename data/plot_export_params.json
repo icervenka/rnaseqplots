@@ -81,7 +81,7 @@
     },
     {
         "graph_type": "pathways_scatter",
-        "filename": "pathways_scatter.png",
+        "filename": "pathways_scatter",
         "device": "png",
         "dpi": 600,
         "unit": "cm",
@@ -90,7 +90,7 @@
     },
     {
         "graph_type": "pathways_ranked",
-        "filename": "pathways_ranked.png",
+        "filename": "pathways_ranked",
         "device": "png",
         "dpi": 600,
         "unit": "cm",

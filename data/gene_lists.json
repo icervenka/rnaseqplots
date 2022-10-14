@@ -1,0 +1,9 @@
+{
+    "mito_1": ["PPARGC1A", "MB", "MYOG", "MSTN", "ND5", "CYC1", "SDHA", "ATP5A1"],
+    "myosins": ["MYHC1", "MYHC2A", "MYHC2B", "MYHC2X"],
+    "calcium": ["SERCA1", "SERCA2A", "CASQ1", "CASQ2"],
+    "structure": ["TTN", "CRYAB", "IGF1", "IGFBP5", "DMD", "MYMK", "RAC1", "RHOA", "MURF1", "ATROGIN"],
+    "mstn": ["MSTN", "ACVR2A", "ACVR2B", "DCN", "CTGF"],
+    "metabolism": ["PGC1ex2", "ERRa", "VEGFA", "CYTC", "CPT1B", "LDHB", "ACOX1", "GLUT4", "HK2", "PDK4"],
+    "tfs": ["MYOD", "MYF5", "MYF6", "MYOG", "MEF2C", "PAX7"]
+}

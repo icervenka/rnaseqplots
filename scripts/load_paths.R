@@ -10,12 +10,25 @@
 # path_to_plot_export_params (json format)
 # path_to_output_directory
 
-path_to_metadata <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/analysis_params/metadata.tsv"
-path_to_sample_expression <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/sample_expression.csv"
-path_to_diffexp_data <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/degfiles/ko_vs_wt_all.txt"
-path_to_deseq_dds <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/diffexp/deseq_default/dds.rds"
-path_to_cuffdiff <- ""
-path_to_dire <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/ko_vs_wt_diffexp.xlsx"
-path_to_pathway_files <- "~/OneDrive/_Ruaslab/01_projects/01_hectd1/19_rnaseq/pathways/output/csv/ko_wt"
-path_to_plot_export_params <- "plot_export_params.json"
-path_to_output_directory <- "."
+path_list <- rjson::fromJSON(file = "paths.json")
+
+input_directory <- path_list$input_directory %>%
+    dir_exists() %>%
+    append_dir_slash()
+
+output_directory <- path_list$output_directory %>%
+    dir_exists() %>%
+    append_dir_slash()
+
+purrr::walk2(
+    c(
+        names(path_list$input_data_paths),
+        names(path_list$param_paths)
+    ),
+    c(
+        path_list$input_data_paths,
+        path_list$param_paths
+    ), function(x, y) {
+        assign(x, y, envir = .GlobalEnv)
+    }
+)

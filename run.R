@@ -5,14 +5,10 @@ source("scripts/load_packages.R", local = TRUE)
 source("scripts/load_scripts.R", local = TRUE)
 
 # parses paths.json file for locations of user supplied data and parameters
-source("load_paths.R", local = TRUE)
+source("scripts/load_paths.R", local = TRUE)
 
 # load data and metadata
 source("scripts/load_data.R", local = TRUE)
-
-# load gene list, pathway lists etc.
-# gene_list <- c("Ppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1")
-# gene_labels <- c("Mb", "Mstn", "Cyc1", "Sln", "Myh3")
 
 # pathway_source <- "ConsensusPathDB_HumanCyc_GSEA_all"
 
@@ -24,11 +20,9 @@ ggsave_param(
   get_export_params("pca", path_to_plot_export_params),
   filename_suffix = "_deseq"
 )
+
 plot_pca_common(sample_expression, metadata)
-ggsave_param(
-  path_to_output_directory,
-  get_export_params("pca", path_to_plot_export_params)
-)
+ggsave_param_wrapper("pca")
 
 # volcano plots
 # TODO add call to volcano plot with parameters
