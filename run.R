@@ -10,8 +10,6 @@ source("scripts/load_paths.R", local = TRUE)
 # load data and metadata
 source("scripts/load_data.R", local = TRUE)
 
-# pathway_source <- "ConsensusPathDB_HumanCyc_GSEA_all"
-
 ### test functions -------------------------------------------------------------
 # pca plots
 plot_pca_deseq(dds)

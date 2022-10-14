@@ -1,23 +1,12 @@
-metadata <- read.table(path_to_metadata, header = TRUE) %>%
+metadata <- read_data(path_to_metadata) %>%
   select(sample, group) %>%
-  unique() %>%
-  arrange(rev(group))
+  unique() # %>%
+  # arrange(rev(group))
 rownames(metadata) <- NULL
 
-sample_expression <- read_delim(
-  path_to_sample_expression,
-  delim = "\t",
-  escape_double = FALSE,
-  trim_ws = TRUE
-)
-
-diffexp_data <- read_delim(
-  path_to_diffexp_data,
-  delim = "\t",
-  escape_double = FALSE,
-  trim_ws = TRUE
-)
+sample_expression <- read_data(path_to_sample_expression)
+diffexp_data <- read_data(path_to_diffexp_data)
 
 dds <- readRDS(path_to_deseq_dds)
 cufdiff_diff <- read_cuffdiff_diff(path_to_cuffdiff)
-dire <- read_dire(path_to_dire, "dire_all")
+dire <- read_dire(path_to_dire, dire_sheet_name)

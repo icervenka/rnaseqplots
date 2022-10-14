@@ -19,6 +19,21 @@ dir_exists <- function(dir_string) {
     }
 }
 
+read_data <- function(filename) {
+  ext <- tools::file_ext(filename)
+  if (ext %in% c("tsv", "txt") {
+    separator = "\t"
+  } else if (ext %in% c("csv")) {
+    separator = ","
+  }
+  data <- readr::read_delim(filename,
+  delim = separator
+  header = TRUE,
+  escape_double = FALSE,
+  trim_ws = TRUE)
+  return(data)
+}
+
 gg_color_hue <- function(i) {
   hues <- seq(15, 375, length = i + 1)
   hcl(h = hues, l = 65, c = 100)[1:i]

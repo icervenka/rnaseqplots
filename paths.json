@@ -1,21 +1,23 @@
 {
-    "input_directory": "./",
+    "input_directory": "data",
     "input_data_paths": 
         {
             "path_to_metadata": 
-            "analysis_params/metadata.tsv",
+            "metadata.tsv",
             "path_to_sample_expression":
-            "degfiles/sample_expression.csv",
+            "sample_expression.csv",
             "path_to_diffexp_data":
-            "degfiles/ko_vs_wt_all.txt",
+            "ko_vs_wt_all.txt",
             "path_to_deseq_dds":
             "dds.rds",
             "path_to_cuffdiff":
             "",
             "path_to_dire":
-            "../ko_vs_wt_diffexp.xlsx",
+            "ko_vs_wt_dire.xlsx",
+            "dire_sheet_name":
+            "dire_all",
             "path_to_pathway_files":
-            "../pathways/output/csv/ko_wt/"
+            "pathways"
             
         },
     "param_paths":
