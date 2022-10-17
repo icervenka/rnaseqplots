@@ -1,12 +1,8 @@
 library(magrittr, include.only = "%>%")
 
-# ds <- function(ex) {
-#   return(deparse(substitute(ex)))
-# }
-
 append_dir_slash <- function(dir_string) {
     if (!base::endsWith(dir_string, "/")) {
-        paste0(dir_string, "/")
+        dir_string = paste0(dir_string, "/")
     }
     return(dir_string)
 }
@@ -21,14 +17,14 @@ dir_exists <- function(dir_string) {
 
 read_data <- function(filename) {
   ext <- tools::file_ext(filename)
-  if (ext %in% c("tsv", "txt") {
+  if (ext %in% c("tsv", "txt")) {
     separator = "\t"
-  } else if (ext %in% c("csv")) {
+  } else if(ext %in% c("csv")) {
     separator = ","
   }
   data <- readr::read_delim(filename,
-  delim = separator
-  header = TRUE,
+  delim = separator,
+  col_names = TRUE,
   escape_double = FALSE,
   trim_ws = TRUE)
   return(data)

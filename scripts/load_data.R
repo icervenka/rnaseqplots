@@ -1,7 +1,7 @@
+# TODO fix factor ordering for group
 metadata <- read_data(path_to_metadata) %>%
-  select(sample, group) %>%
-  unique() # %>%
-  # arrange(rev(group))
+  dplyr::select(sample, group) %>%
+  base::unique()
 rownames(metadata) <- NULL
 
 sample_expression <- read_data(path_to_sample_expression)

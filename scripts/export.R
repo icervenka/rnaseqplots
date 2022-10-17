@@ -151,7 +151,7 @@ ggsave_param <- function(output_dir,
   out_filename <- paste0(
     output_dir,
     tp,
-    filename_prefix
+    filename_prefix,
     params$filename,
     filename_suffix
   )

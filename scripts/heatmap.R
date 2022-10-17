@@ -1,5 +1,4 @@
 library(magrittr, include.only = "%>%")
-source("misc.R")
 
 plot_heatmap <- function(expression_df,
                          metadata,

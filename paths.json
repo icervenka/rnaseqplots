@@ -3,27 +3,27 @@
     "input_data_paths": 
         {
             "path_to_metadata": 
-            "metadata.tsv",
+                "metadata.tsv",
             "path_to_sample_expression":
-            "sample_expression.csv",
+                "sample_expression.txt",
             "path_to_diffexp_data":
-            "ko_vs_wt_all.txt",
+                "ko_vs_wt_all.txt",
             "path_to_deseq_dds":
-            "dds.rds",
+                "dds.rds",
             "path_to_cuffdiff":
-            "",
+                "",
             "path_to_dire":
-            "ko_vs_wt_dire.xlsx",
-            "dire_sheet_name":
-            "dire_all",
+                "ko_vs_wt_dire.xlsx",
             "path_to_pathway_files":
-            "pathways"
+                "pathways",
+            "path_to_gene_lists": 
+                "gene_lists.json"
             
         },
     "param_paths":
         {
-            "path_to_plot_export_params": "data/plot_export_params.json",
-            "path_to_gene_lists": "data/gene_lists.json"
+            "dire_sheet_name":
+                "dire_all"
         },
     "output_directory": "."
 }

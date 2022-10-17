@@ -65,6 +65,7 @@
     {
         "graph_type": "venn",
         "filename": "venn",
+        "device": "png",
         "dpi": 600,
         "unit": "cm",
         "width": 10,

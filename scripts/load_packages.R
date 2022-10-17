@@ -26,4 +26,5 @@ pack <- c(
     "dplyr"
 )
 
+# TODO add suppress startup messages
 lapply(pack, library, character.only = TRUE)

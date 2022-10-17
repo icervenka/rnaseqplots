@@ -4,8 +4,11 @@ source("scripts/load_packages.R", local = TRUE)
 # load package functions
 source("scripts/load_scripts.R", local = TRUE)
 
-# parses paths.json file for locations of user supplied data and parameters
+# parses paths.json file for locations of user supplied data 
 source("scripts/load_paths.R", local = TRUE)
+
+# parses config.json file for parameters
+source("scripts/load_config.R", local = TRUE)
 
 # load data and metadata
 source("scripts/load_data.R", local = TRUE)
