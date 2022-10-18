@@ -21,7 +21,6 @@ volcano_plot <- function(results,
                            "steelblue",
                            "darkred"
                          )) {
-  require(ggrepel)
 
   # validate function arguments
   if (length(color_palette) != 3) {

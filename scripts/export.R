@@ -126,15 +126,15 @@ create_gsea_rank <- function(data,
   }
 }
 
-get_export_params <- function(graph_type, param_jsonfile) {
-  param_json <- rjson::fromJSON(file = param_jsonfile)
-  param_df <- purrr::map_dfr(param_json, data.frame)
+get_export_params <- function(graph_type, config_jsonfile) {
+  config_df <- rjson::fromJSON(file = config_jsonfile) %>%
+    purrr::map_dfr(config_json, data.frame)
 
-  param_list <- param_df %>%
+  config_list <- config_df %>%
     dplyr::filter(graph_type == graph_type) %>%
     dplyr::select(-graph_type) %>%
     as.list()
-  return(param_list)
+  return(config_list)
 }
 
 ggsave_param <- function(output_dir,

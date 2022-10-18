@@ -4,7 +4,7 @@ source("scripts/load_packages.R", local = TRUE)
 # load package functions
 source("scripts/load_scripts.R", local = TRUE)
 
-# parses paths.json file for locations of user supplied data 
+# parses paths.json file for locations of user supplied data
 source("scripts/load_paths.R", local = TRUE)
 
 # parses config.json file for parameters
@@ -18,16 +18,46 @@ source("scripts/load_data.R", local = TRUE)
 plot_pca_deseq(dds)
 ggsave_param(
   path_to_output_directory,
-  get_export_params("pca", path_to_plot_export_params),
+  get_export_params("pca", config_path),
   filename_suffix = "_deseq"
 )
 
 plot_pca_common(sample_expression, metadata)
 ggsave_param_wrapper("pca")
 
+plot_pca_common(
+  sample_expression,
+  metadata,
+  group = "group",
+  plot_center = TRUE,
+  linetype = "dashed",
+  palette = c("steelblue", "darkred")
+)
+
 # volcano plots
-# TODO add call to volcano plot with parameters
-volcano_plot(diffexp_data)
+volcano_plot(
+  diffexp_data,
+  label_bottom_n = 5,
+  label_top_n = 10
+)
+ggsave_param_wrapper("volcano_plot")
+
+volcano_plot(
+  diffexp_data,
+  label = SYMBOL,
+  x = log2FoldChange,
+  y = pvalue,
+  sig_threshold = 0.1,
+  log2fc_threshold = 1,
+  filter_sig_on = padj,
+  label_genes = c("Tnni2", "Tnnt1", "Ryr3", "Sln", "Tnnc2", "Casq1", "Casq2"),
+  add_vhlines = TRUE,
+  vhline_color = "darkolivegreen4",
+  vhline_type = "solid",
+  xlab_label = "log2FoldChange",
+  ylab_label = "-log10(p-value)",
+  color_palette = c("bisque2", "darkorchid4", "cyan4")
+)
 
 # heatmaps
 plot_heatmap_all(expression_data, metadata)
