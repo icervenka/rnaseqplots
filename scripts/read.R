@@ -156,3 +156,9 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
     dplyr::arrange(orientation(abs({{ rank_by }}))) %>%
     dplyr::mutate(pathway_rank = dplyr::row_number())
 }
+
+# get_gene_list(name, path_to_gene_lists) {
+#   gene_lists <- rjson::fromJSON(file = path_to_gene_lists)
+
+#   return(gene_lists[[name]])
+# }

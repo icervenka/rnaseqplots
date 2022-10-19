@@ -117,7 +117,8 @@ plot_heatmap_fc(
   padj_colname = padj,
   .pval_colors = c("white", "steelblue"),
   metadata_sample_colname = sample,
-  .col_annot_colors = NULL
+  .col_annot_colors = list(group = c("wt" = "gray60", 
+                                     "ko" = "steelblue"))
 )
 ggsave_param_wrapper("heatmap_fc")
 

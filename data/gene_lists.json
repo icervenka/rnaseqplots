@@ -5,6 +5,6 @@
     "structure": ["TTN", "CRYAB", "IGF1", "IGFBP5", "DMD", "MYMK", "RAC1", "RHOA", "MURF1", "ATROGIN"],
     "mstn": ["MSTN", "ACVR2A", "ACVR2B", "DCN", "CTGF"],
     "metabolism": ["Ppargc1a", "Esrra", "Vegfa", "Cyc1", "Cpt1b", "Ldhb", "Acox1", "Slc2a4", "Hk2", "Pdk4"],
-    "tfs": ["MYOD", "MYF5", "MYF6", "MYOG", "MEF2C", "PAX7"],
+    "tfs": ["Myod1", "Myf5", "Myf6", "Myog", "Mef2c", "Pax7"],
     "volcano_example": ["Tnni2", "Tnnt1", "Ryr3", "Sln", "Tnnc2", "Casq1", "Casq2"]
 }
