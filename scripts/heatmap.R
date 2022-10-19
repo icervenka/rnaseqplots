@@ -1,38 +1,50 @@
 library(magrittr, include.only = "%>%")
 
-plot_heatmap <- function(expression_df,
+plot_heatmap <- function(expression_data,
                          metadata,
                          gene_list = NULL,
                          geneid_colname = SYMBOL,
+                         process_gene_dup_fun = sum,
                          metadata_sample_colname = sample,
                          gene_ranking_fun = matrixStats::rowVars,
                          cell_dims = c(10, 1),
                          palette = "RdBu",
-                         draw = TRUE,
                          ...) {
 
-  samples <- deparse(substitute((metadata[[metadata_sample_colname]])))
-
+  sample_colname_str = deparse(substitute(metadata_sample_colname))
+  geneid_colname_str = deparse(substitute(geneid_colname))
+  
+  samples <- metadata[[sample_colname_str]]
+  
   if (!is.null(gene_list)) {
     if (is.character(gene_list)) {
-      expression_df <- expression_df %>%
+      expression_data <- expression_data %>%
         dplyr::filter({{ geneid_colname }} %in% gene_list)
     } else if (is.numeric(gene_list)) {
-      expr_matrix <- expression_df %>%
+      expr_matrix <- expression_data %>%
         dplyr::select(dplyr::matches(samples)) %>%
         as.matrix()
-      expression_df <- expression_df[order(gene_ranking_fun(expr_matrix),
+      expression_data <- expression_data[order(gene_ranking_fun(expr_matrix),
         decreasing = TRUE
       ), ][1:gene_list, ]
-    } else {
+      } else {
       stop("Unrecognized type of argument for gene list.")
     }
   }
 
-  expression_df <- expression_df %>%
-    dplyr::select(dplyr::matches(samples))
-
-  p <- expression_df %>%
+  if(nrow(expression_data) == 0) {
+    stop("Filtered expression dataset is empty.")
+  }
+  
+  expression_data <- expression_data %>%
+    dplyr::select({{ geneid_colname }}, dplyr::matches(samples)) %>%
+    dplyr::group_by({{ geneid_colname }}) %>%
+    dplyr::summarise(across(dplyr::matches(samples), 
+                            process_gene_dup_fun, 
+                            na.rm = TRUE)) %>%
+    tibble::column_to_rownames(geneid_colname_str)
+  
+  p <- expression_data %>%
     pheatmap::pheatmap(
       scale = "row",
       color = colorRampPalette(S4Vectors::rev(RColorBrewer::brewer.pal(
@@ -44,15 +56,14 @@ plot_heatmap <- function(expression_df,
       treeheight_row = 15,
       treeheight_col = 20,
       annotation_col = metadata %>%
-        tibble::column_to_rownames(sc), # what is this?
+        tibble::column_to_rownames(sample_colname_str),
       ...
     )
   return(p)
 }
 
-# ISSUE doesn't plot heatmap on mac rstudio
 # named vector, column annotation defaults to 'group'
-# extra params to ComplexHeatmap
+# (...) extra params to ComplexHeatmap
 plot_heatmap_fc <- function(expression_data,
                             diffexp_data,
                             metadata,
@@ -121,7 +132,9 @@ plot_heatmap_fc <- function(expression_data,
   }
 
   hat <- ComplexHeatmap::columnAnnotation(
-    df = metadata %>% dplyr::select(dplyr::contains(selected_groups)),
+    df = metadata %>% 
+      dplyr::select(dplyr::contains(selected_groups)) %>% 
+      as.list(),
     col = col_list,
     border = TRUE
   )

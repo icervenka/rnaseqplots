@@ -14,7 +14,8 @@ source("scripts/load_config.R", local = TRUE)
 source("scripts/load_data.R", local = TRUE)
 
 ### test functions -------------------------------------------------------------
-# pca plots
+## pca plots
+# A
 plot_pca_deseq(dds)
 ggsave_param(
   path_to_output_directory,
@@ -22,11 +23,12 @@ ggsave_param(
   filename_suffix = "_deseq"
 )
 
-plot_pca_common(sample_expression, metadata)
+# B
+plot_pca_common(expression_data, metadata)
 ggsave_param_wrapper("pca")
 
 plot_pca_common(
-  sample_expression,
+  expression_data,
   metadata,
   group = "group",
   plot_center = TRUE,
@@ -34,14 +36,27 @@ plot_pca_common(
   palette = c("steelblue", "darkred")
 )
 
-# volcano plots
+## volcano plots
+# A
 volcano_plot(
   diffexp_data,
   label_bottom_n = 5,
   label_top_n = 10
 )
-ggsave_param_wrapper("volcano_plot")
+ggsave_param(
+  path_to_output_directory,
+  list(
+    filename = "volcano",
+    device = "png",
+    dpi = 600,
+    unit = "cm",
+    width = 16,
+    height = 8
+  ),
+  filename_suffix = "_top"
+)
 
+# B
 volcano_plot(
   diffexp_data,
   label = SYMBOL,
@@ -50,7 +65,7 @@ volcano_plot(
   sig_threshold = 0.1,
   log2fc_threshold = 1,
   filter_sig_on = padj,
-  label_genes = c("Tnni2", "Tnnt1", "Ryr3", "Sln", "Tnnc2", "Casq1", "Casq2"),
+  label_genes = gene_lists[["volcano_example"]],
   add_vhlines = TRUE,
   vhline_color = "darkolivegreen4",
   vhline_type = "solid",
@@ -58,21 +73,65 @@ volcano_plot(
   ylab_label = "-log10(p-value)",
   color_palette = c("bisque2", "darkorchid4", "cyan4")
 )
+ggsave_param_wrapper("volcano_plot")
 
-# heatmaps
-plot_heatmap_all(expression_data, metadata)
-plot_heatmap_topn(expression_data, metadata, n = 1000)
-plot_heatmap_diffexp(expression_data, diffexp_data, metadata, palette = "RdYlBu")
-plot_heatmap_fc(expression_data, diffexp_data, metadata, gene_list)
+## heatmaps
+# A
+plot_heatmap(
+  expression_data,
+  metadata,
+  gene_list = 1000,
+  show_rownames = FALSE
+)
 
-# TF dire (dcode) plots
+# B
+plot_heatmap(
+  expression_data,
+  metadata,
+  gene_list = gene_lists[["metabolism"]],
+  geneid_colname = SYMBOL,
+  metadata_sample_colname = sample,
+  gene_ranking_fun = rowMeans,
+  cell_dims = c(9, 9),
+  palette = "PuOr"
+)
+ggsave_param_wrapper("heatmap")
+
+# C
+plot_heatmap_fc(
+  expression_data,
+  diffexp_data,
+  metadata,
+  gene_lists[["tfs"]]
+)
+
+# D
+plot_heatmap_fc(
+  expression_data,
+  diffexp_data,
+  metadata,
+  gene_lists[["mito_1"]],
+  id_colname = SYMBOL,
+  fc_colname = log2FoldChange,
+  .fc_colors = c("darkred", "steelblue"),
+  padj_colname = padj,
+  .pval_colors = c("white", "steelblue"),
+  metadata_sample_colname = sample,
+  .col_annot_colors = NULL
+)
+ggsave_param_wrapper("heatmap_fc")
+
+## TF dire (dcode) plots
 plot_dire(dire)
+
 plot_dire_labeled(dire, 0.05, 0.05)
 
-# pathway plots
+## pathway plots
 pathways_df <- collate_pathways(path_to_pathway_files, pattern = "_contrast")
 plot_pathways_meta(pathways_df, top_pathways = 30)
 plot_pathway_bargraph(pathways_df, pathway_source, top_n = 20, truncate_desc = 80)
+
+# gsea plots
 
 # compare two datasets
 plot_corr()

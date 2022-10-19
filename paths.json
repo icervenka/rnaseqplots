@@ -4,7 +4,7 @@
         {
             "path_to_metadata": 
                 "metadata.tsv",
-            "path_to_sample_expression":
+            "path_to_expression_data":
                 "sample_expression.txt",
             "path_to_diffexp_data":
                 "ko_vs_wt_all.txt",
