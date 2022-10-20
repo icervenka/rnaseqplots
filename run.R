@@ -117,24 +117,45 @@ plot_heatmap_fc(
   padj_colname = padj,
   .pval_colors = c("white", "steelblue"),
   metadata_sample_colname = sample,
-  .col_annot_colors = list(group = c("wt" = "gray60", 
-                                     "ko" = "steelblue"))
+  .col_annot_colors = list(group = c(
+    "wt" = "gray60",
+    "ko" = "steelblue"
+  ))
 )
 ggsave_param_wrapper("heatmap_fc")
 
 ## TF dire (dcode) plots
+# A
 plot_dire(dire)
 
-plot_dire_labeled(dire, 0.05, 0.05)
+# B
+plot_dire_labeled(
+  dire,
+  occurrence_threshold = 0.05,
+  importance_threshold = 0.05
+)
+ggsave_param_wrapper("dire")
 
-## pathway plots
+## gsea plots
+# TODO write pathway name prettifier
+# A
+plot_pathways_rank(
+  gsea_data %>%
+    dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
+  pathway_ranks[["example_1"]],
+  x_axis = nes,
+  y_axis = name,
+  bar_fill = fdr_qval
+)
+
+# B
+
+## other pathway plots
 pathways_df <- collate_pathways(path_to_pathway_files, pattern = "_contrast")
 plot_pathways_meta(pathways_df, top_pathways = 30)
 plot_pathway_bargraph(pathways_df, pathway_source, top_n = 20, truncate_desc = 80)
 
-# gsea plots
-
-# compare two datasets
+## compare two datasets
 plot_corr()
 plot_lfc_scatter()
 plot_venn2()

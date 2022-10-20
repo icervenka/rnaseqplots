@@ -3,6 +3,7 @@
         "wt",
         "ko"
     ],
+    "gsea_fdr_cutoff": 0.25,
     "plot_export_params": [
         {
             "graph_type": "heatmap",
@@ -70,6 +71,15 @@
         {
             "graph_type": "venn",
             "filename": "venn",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 10,
+            "height": 8
+        },
+        {
+            "graph_type": "pathways_rank",
+            "filename": "pathways_rank",
             "device": "png",
             "dpi": 600,
             "unit": "cm",
