@@ -1,29 +1,31 @@
 {
-    "input_directory": "data",
     "input_data_paths": 
         {
             "path_to_metadata": 
-                "metadata.tsv",
+                "data/metadata.tsv",
             "path_to_expression_data":
-                "sample_expression.txt",
+                "data/sample_expression.txt",
             "path_to_diffexp_data":
-                "ko_vs_wt_all.txt",
+                "data/ko_vs_wt_all.txt",
             "path_to_deseq_dds":
-                "dds.rds",
+                "data/dds.rds",
             "path_to_cuffdiff":
                 "",
             "path_to_dire":
-                "ko_vs_wt_dire.xlsx",
+                "data/ko_vs_wt_dire.xlsx",
             "path_to_pathway_files":
-                "pathways",
+                "data/pathways",
+            "path_to_gsea_files":
+                "data/gsea",
             "path_to_gene_lists": 
-                "gene_lists.json"
-            
+                "data/gene_lists.json",
+            "path_to_pathway_ranks": 
+                "data/pathway_ranks.json"
         },
-    "param_paths":
+    "params":
         {
             "dire_sheet_name":
                 "dire_all"
         },
-    "output_directory": "."
+    "output_directory": "output"
 }
