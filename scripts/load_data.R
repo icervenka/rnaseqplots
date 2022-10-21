@@ -40,6 +40,13 @@ if (nchar(path_to_dire) > 0) {
   dire <- read_dire_xlsx(path_to_dire, dire_sheet_name)
 }
 
+# load clusterprofiler pathway files
+if (nchar(path_to_cp_pathways_files > 0)) {
+  cp_pathways <- collate_cp_pathways(
+    path_to_cp_pathways_files,
+    pattern = cp_pathways_pattern)
+}
+
 # load gene list json file
 if (nchar(path_to_gene_lists) > 0) {
   gene_lists <- rjson::fromJSON(file = path_to_gene_lists)

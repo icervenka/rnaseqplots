@@ -4,6 +4,7 @@
         "ko"
     ],
     "gsea_fdr_cutoff": 0.25,
+    "cp_pathways_pattern": "_contrast",
     "plot_export_params": [
         {
             "graph_type": "heatmap",

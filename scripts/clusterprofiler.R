@@ -1,43 +1,5 @@
 library(magrittr, include.only = "%>%")
 
-collate_pathways <- function(pathway_files_basepath,
-                             pattern,
-                             padj_threshold = 0.05) {
-  if (stringr::str_sub(path_to_pathway_files, -1) != "/") {
-    pathway_files_basepath <- paste0(pathway_files_basepath, "/")
-  }
-
-  pathway_files <- list.files(pathway_files_basepath,
-    pattern = pattern,
-    full.names = FALSE
-  )
-
-  cp_unified_colnames <- c(
-    "ID", "Description", "GeneRatio/NES", "pvalue",
-    "p.adjust", "SYMBOL", "ENTREZID", "log2FoldChange"
-  )
-
-  diffexp_pathways <- purrr::map_dfr(pathway_files, function(x) {
-    readr::read_delim(paste0(pathway_files_basepath, x),
-      delim = "\t", escape_double = FALSE,
-      trim_ws = TRUE,
-      show_col_types = FALSE
-    ) %>%
-      setNames(cp_unified_colnames) %>%
-      # TODO needs to be changed
-      dplyr::mutate(
-        source = gsub("_contrast.txt", "", x),
-        ID = as.character(ID)
-      ) %>%
-      # might not reflect actual columns
-      dplyr::select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
-      unique()
-  }) %>%
-    dplyr::filter(p.adjust < padj_threshold)
-  return(diffexp_pathways)
-}
-
-
 plot_pathways_meta <- function(df, top_pathways = 30) {
   pathways_summary <- df %>%
     dplyr::group_by(source) %>%

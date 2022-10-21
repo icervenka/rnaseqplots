@@ -13,7 +13,7 @@
                 "",
             "path_to_dire":
                 "data/ko_vs_wt_dire.xlsx",
-            "path_to_pathway_files":
+            "path_to_cp_pathway_files":
                 "data/pathways",
             "path_to_gsea_files":
                 "data/gsea",

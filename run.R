@@ -1,17 +1,6 @@
-# load required packages
-source("scripts/load_packages.R", local = TRUE)
-
-# load package functions
-source("scripts/load_scripts.R", local = TRUE)
-
-# parses paths.json file for locations of user supplied data
-source("scripts/load_paths.R", local = TRUE)
-
-# parses config.json file for parameters
-source("scripts/load_config.R", local = TRUE)
-
-# load data and metadata
-source("scripts/load_data.R", local = TRUE)
+# run master loading script that loads all the necessary, packages, functions
+# and data
+source("scripts/load.R", local = TRUE)
 
 ### test functions -------------------------------------------------------------
 ## pca plots
@@ -149,10 +138,24 @@ plot_pathways_rank(
 )
 
 # B
+plot_pathways_volcano(
+  gsea_data %>%
+    dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
+  x_axis = nes,
+  y_axis = fdr_qval,
+  label_pathways = c(1, 2, 5, 6, 7, 9, 10),
+  alpha = 0.8,
+  color_palette = c(
+    "steelblue4",
+    "darkred"
+  )
+)
 
-## other pathway plots
-pathways_df <- collate_pathways(path_to_pathway_files, pattern = "_contrast")
+## other pathway plots (clusterprofiler, etc.)
+# A
 plot_pathways_meta(pathways_df, top_pathways = 30)
+
+# B
 plot_pathway_bargraph(pathways_df, pathway_source, top_n = 20, truncate_desc = 80)
 
 ## compare two datasets
