@@ -1,5 +1,7 @@
+# TODO load all config in a walk function
 config_path <- "config.json"
 
+# TODO rename
 config <- rjson::fromJSON(file = config_path)[["plot_export_params"]] %>%
   purrr::map_dfr(data.frame)
 

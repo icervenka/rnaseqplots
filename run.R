@@ -1,6 +1,6 @@
 # run master loading script that loads all the necessary, packages, functions
 # and data
-source("scripts/load.R", local = TRUE)
+source("scripts/load_all.R", local = TRUE)
 
 ### test functions -------------------------------------------------------------
 ## pca plots
@@ -131,7 +131,7 @@ ggsave_param_wrapper("dire")
 plot_pathways_rank(
   gsea_data %>%
     dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
-  pathway_ranks[["example_1"]],
+  pathway_lists[["example_1"]],
   x_axis = nes,
   y_axis = name,
   bar_fill = fdr_qval
@@ -143,7 +143,7 @@ plot_pathways_volcano(
     dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
   x_axis = nes,
   y_axis = fdr_qval,
-  label_pathways = c(1, 2, 5, 6, 7, 9, 10),
+  label_pathways = pathway_lists[["example_volcano"]],
   alpha = 0.8,
   color_palette = c(
     "steelblue4",
@@ -153,10 +153,15 @@ plot_pathways_volcano(
 
 ## other pathway plots (clusterprofiler, etc.)
 # A
-plot_pathways_meta(pathways_df, top_pathways = 30)
+plot_cp_pathways_meta(pathways_df, top_pathways = 30)
 
 # B
-plot_pathway_bargraph(pathways_df, pathway_source, top_n = 20, truncate_desc = 80)
+plot_cp_pathway_bargraph(
+  pathways_df,
+  pathway_source,
+  top_n = 20,
+  truncate_description = 80
+)
 
 ## compare two datasets
 plot_corr()

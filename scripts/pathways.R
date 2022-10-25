@@ -27,7 +27,9 @@ plot_pathways_rank <- function(pathway_data,
     ggplot(aes(x = {{ y_axis }}, y = {{ x_axis }})) +
     geom_bar(stat = "identity", aes(fill = -log10({{ bar_fill }})), size = 1) +
     geom_label(aes(label = rank_of),
-      nudge_y = (-1) * sign(pathway_data[[deparse(substitute(x_axis))]]) * label_offset,
+      nudge_y = (-1) *
+        sign(pathway_data[[deparse(substitute(x_axis))]]) *
+        label_offset,
       size = 2.5
     ) +
     coord_flip() +
@@ -41,17 +43,14 @@ plot_pathways_rank <- function(pathway_data,
   if (!is.null(legend_text)) {
     p <- p + ylab(legend_text)
   }
-  if (plot_legend == F) {
+  if (plot_legend == FALSE) {
     p <- p + theme(legend.position = "none")
   }
-
-  if (plot_x_text == F) {
+  if (plot_x_text == FALSE) {
     cat(as.character(pathway_data[[deparse(substitute(y_axis))]]), sep = "\n")
-    p <- p +
-      # theme(axis.text.y = element_blank(), legend.position = "none")
-      theme(axis.text.y = element_blank())
+    p <- p + theme(axis.text.y = element_blank())
   }
-  p
+  return(p)
 }
 
 plot_pathways_volcano <- function(pathway_data,
@@ -84,8 +83,8 @@ plot_pathways_volcano <- function(pathway_data,
     dplyr::mutate(significant = significant_x + significant_y) %>%
     dplyr::mutate(significant = as.factor(significant))
 
-  color_palette = color_palette[1:max(as.numeric(pathway_data$significant))]
-  
+  color_palette <- color_palette[1:max(as.numeric(pathway_data$significant))]
+
   p <- pathway_data %>%
     ggplot2::ggplot(ggplot2::aes(x = {{ x_axis }}, y = -log10({{ y_axis }}))) +
     ggplot2::geom_point(ggplot2::aes(color = significant),
@@ -114,7 +113,7 @@ plot_pathways_volcano <- function(pathway_data,
       )
     }
   }
-  
+
   if (is.vector(label_pathways, mode = "character")) {
     p <- p +
       ggrepel::geom_label_repel(
@@ -132,5 +131,70 @@ plot_pathways_volcano <- function(pathway_data,
         min.segment.length = grid::unit(0, "lines")
       )
   }
+  return(p)
+}
+
+plot_cp_pathways_meta <- function(df, top_pathways = 30) {
+  pathways_summary <- df %>%
+    dplyr::group_by(source) %>%
+    dplyr::summarise(
+      n_pathways = dplyr::n(),
+      mean_enrichment = mean(`GeneRatio/NES`)
+    )
+
+  p1 <- pathways_summary %>%
+    ggplot2::ggplot() +
+    ggplot2::geom_histogram(ggplot2::aes(x = n_pathways),
+      bins = 100,
+      fill = "steelblue"
+    ) +
+    ggplot2::theme_bw()
+
+  # top pathway contributors
+  p2 <- pathways_summary %>%
+    dplyr::top_n(30, n_pathways) %>%
+    dplyr::arrange(n_pathways) %>%
+    dplyr::mutate(source = factor(source, levels = source)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
+    ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
+    ggplot2::theme_bw()
+
+  # bottom pathway contributors
+  p3 <- pathways_summary %>%
+    dplyr::top_n(30, -n_pathways) %>%
+    dplyr::arrange(n_pathways) %>%
+    dplyr::mutate(source = factor(source, levels = source)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
+    ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
+    ggplot2::theme_bw()
+
+  return(cowplot::plot_grid(p1, p2, p3, nrow = 1))
+}
+
+plot_cp_pathways_bargraph <- function(df,
+                                      pathway_source_pattern,
+                                      top_n = 20,
+                                      truncate_description = 80) {
+  p <- df %>%
+    dplyr::filter(grepl(pathway_source_pattern, source)) %>%
+    dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
+    dplyr::slice_head(n = top_n) %>%
+    dplyr::arrange(`GeneRatio/NES`) %>%
+    dplyr::mutate(
+      Description =
+        stringr::str_trunc(Description, truncate_description)
+    ) %>%
+    dplyr::mutate(Description = factor(Description,
+      levels = (.) %>% dplyr::pull(Description)
+    )) %>%
+    ggplot2::ggplot(ggplot2::aes(
+      x = `GeneRatio/NES`,
+      y = Description,
+      color = -log10(p.adjust),
+      fill = -log10(p.adjust)
+    )) +
+    ggplot2::geom_bar(stat = "identity") +
+    ggplot2::ylab("") +
+    ggplot2::theme_bw()
   return(p)
 }

@@ -53,8 +53,8 @@ if (nchar(path_to_gene_lists) > 0) {
 }
 
 # load pathway ranks json file
-if (nchar(path_to_pathway_ranks) > 0) {
-  pathway_ranks <- rjson::fromJSON(file = path_to_pathway_ranks)
+if (nchar(path_to_pathway_lists) > 0) {
+  pathway_lists <- rjson::fromJSON(file = path_to_pathway_lists)
 }
 
 # load gsea pathway data

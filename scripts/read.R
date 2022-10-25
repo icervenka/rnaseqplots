@@ -6,10 +6,24 @@ library(magrittr, include.only = "%>%")
     stop("features must be a data.frame")
   }
   colnames(features)[1] <- slot(object, level)@idField
-  colnames(features) <- make.db.names(object@DB, colnames(features), unique = T)
-  DBI::dbWriteTable(object@DB, slot(object, level)@tables$featureTable, features, row.names = F, overwrite = T)
-  indexQuery <- paste("CREATE INDEX ", slot(object, level)@idField, " ON ",
-    slot(object, level)@tables$featureTable, " (", slot(object, level)@idField, ")",
+  colnames(features) <- make.db.names(object@DB,
+    colnames(features),
+    unique = TRUE
+  )
+  DBI::dbWriteTable(object@DB,
+    slot(object, level)@tables$featureTable,
+    features,
+    row.names = FALSE,
+    overwrite = TRUE
+  )
+  indexQuery <- paste(
+    "CREATE INDEX ",
+    slot(object, level)@idField,
+    " ON ",
+    slot(object, level)@tables$featureTable,
+    " (",
+    slot(object, level)@idField,
+    ")",
     sep = ""
   )
   res <- DBI::dbExecute(object@DB, indexQuery)
@@ -17,7 +31,7 @@ library(magrittr, include.only = "%>%")
 setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
 
 # user defined reading functions -----------------------------------------------
-read_cuffdiff_diff <- function(dir) {
+read_cuffdiff <- function(dir) {
   cuff <- cummeRbund::readCufflinks(dir)
   annot <- read.delim(paste0(dir, "/gene_exp.diff"),
     sep = "\t",
@@ -158,8 +172,8 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 }
 
 collate_cp_pathways <- function(pathway_files_basepath,
-                             pattern,
-                             padj_threshold = 0.05) {
+                                pattern,
+                                padj_threshold = 0.05) {
   if (stringr::str_sub(path_to_pathway_files, -1) != "/") {
     pathway_files_basepath <- paste0(pathway_files_basepath, "/")
   }
@@ -194,8 +208,3 @@ collate_cp_pathways <- function(pathway_files_basepath,
   return(diffexp_pathways)
 }
 
-# get_gene_list(name, path_to_gene_lists) {
-#   gene_lists <- rjson::fromJSON(file = path_to_gene_lists)
-
-#   return(gene_lists[[name]])
-# }
