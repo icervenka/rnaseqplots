@@ -134,8 +134,8 @@ plot_pathways_volcano <- function(pathway_data,
   return(p)
 }
 
-plot_cp_pathways_meta <- function(df, top_pathways = 30) {
-  pathways_summary <- df %>%
+plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
+  pathways_summary <- pathway_data %>%
     dplyr::group_by(source) %>%
     dplyr::summarise(
       n_pathways = dplyr::n(),
@@ -152,7 +152,7 @@ plot_cp_pathways_meta <- function(df, top_pathways = 30) {
 
   # top pathway contributors
   p2 <- pathways_summary %>%
-    dplyr::top_n(30, n_pathways) %>%
+    dplyr::top_n(top_pathways, n_pathways) %>%
     dplyr::arrange(n_pathways) %>%
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
@@ -161,7 +161,7 @@ plot_cp_pathways_meta <- function(df, top_pathways = 30) {
 
   # bottom pathway contributors
   p3 <- pathways_summary %>%
-    dplyr::top_n(30, -n_pathways) %>%
+    dplyr::top_n(top_pathways, -n_pathways) %>%
     dplyr::arrange(n_pathways) %>%
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
@@ -171,14 +171,14 @@ plot_cp_pathways_meta <- function(df, top_pathways = 30) {
   return(cowplot::plot_grid(p1, p2, p3, nrow = 1))
 }
 
-plot_cp_pathways_bargraph <- function(df,
+plot_cp_pathways_bargraph <- function(pathway_data,
                                       pathway_source_pattern,
-                                      top_n = 20,
+                                      top_pathways = 20,
                                       truncate_description = 80) {
-  p <- df %>%
+  p <- pathway_data %>%
     dplyr::filter(grepl(pathway_source_pattern, source)) %>%
     dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
-    dplyr::slice_head(n = top_n) %>%
+    dplyr::slice_head(n = top_pathways) %>%
     dplyr::arrange(`GeneRatio/NES`) %>%
     dplyr::mutate(
       Description =

@@ -12,7 +12,7 @@
             "path_to_cuffdiff":
                 "data/cuffdiff",
             "path_to_cp_pathway_files":
-                "data/pathways",
+                "data/cp_pathways",
             "path_to_gsea_files":
                 "data/gsea",
             "path_to_ipa_files":

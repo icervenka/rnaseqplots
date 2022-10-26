@@ -2,7 +2,6 @@
 script_folder <- "scripts/"
 
 source(paste0(script_folder, "misc.R"), local = TRUE)
-source(paste0(script_folder, "clusterprofiler.R"), local = TRUE)
 source(paste0(script_folder, "correlate.R"), local = TRUE)
 source(paste0(script_folder, "dire.R"), local = TRUE)
 source(paste0(script_folder, "export.R"), local = TRUE)

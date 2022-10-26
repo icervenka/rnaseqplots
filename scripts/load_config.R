@@ -7,4 +7,6 @@ config <- rjson::fromJSON(file = config_path)[["plot_export_params"]] %>%
 
 group_levels <- rjson::fromJSON(file = config_path)[["group_levels"]]
 
-gsea_fdr_cutoff <- rjson::fromJSON(file = config_path)[["gsea_fdr_cutoff "]]
+gsea_fdr_cutoff <- rjson::fromJSON(file = config_path)[["gsea_fdr_cutoff"]]
+
+cp_pathways_pattern <- rjson::fromJSON(file = config_path)[["cp_pathways_pattern"]]

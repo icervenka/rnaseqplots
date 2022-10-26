@@ -64,6 +64,8 @@ volcano_plot(
 )
 ggsave_param_wrapper("volcano_plot")
 
+# TODO add cuffdiff volcano plot
+
 ## heatmaps
 # A
 plot_heatmap(
@@ -153,17 +155,22 @@ plot_pathways_volcano(
 
 ## other pathway plots (clusterprofiler, etc.)
 # A
-plot_cp_pathways_meta(pathways_df, top_pathways = 30)
+plot_cp_pathways_meta(cp_pathways, top_pathways = 30)
 
 # B
-plot_cp_pathway_bargraph(
-  pathways_df,
-  pathway_source,
-  top_n = 20,
+plot_cp_pathways_bargraph(
+  cp_pathways,
+  pathway_source_pattern = "KEGG_GSEA",
+  top_pathways = 10,
   truncate_description = 80
 )
 
 ## compare two datasets
+#A
 plot_corr()
+
+#B
 plot_lfc_scatter()
+
+#C
 plot_venn2()

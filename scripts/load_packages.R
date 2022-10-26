@@ -27,4 +27,6 @@ pack <- c(
 )
 
 # TODO add suppress startup messages
-lapply(pack, library, character.only = TRUE)
+lapply(pack, function(x) {
+    suppressPackageStartupMessages(library(x, character.only = TRUE))
+})

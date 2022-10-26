@@ -174,9 +174,6 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 collate_cp_pathways <- function(pathway_files_basepath,
                                 pattern,
                                 padj_threshold = 0.05) {
-  if (stringr::str_sub(path_to_pathway_files, -1) != "/") {
-    pathway_files_basepath <- paste0(pathway_files_basepath, "/")
-  }
 
   pathway_files <- list.files(pathway_files_basepath,
     pattern = pattern,
@@ -207,4 +204,3 @@ collate_cp_pathways <- function(pathway_files_basepath,
     dplyr::filter(p.adjust < padj_threshold)
   return(diffexp_pathways)
 }
-
