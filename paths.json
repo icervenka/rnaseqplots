@@ -6,7 +6,10 @@
             "path_to_expression_data":
                 "data/sample_expression.txt",
             "path_to_diffexp_data":
-                "data/ko_vs_wt_all.txt",
+                {
+                    "ko_wt": "data/ko_vs_wt_all.txt",
+                    "sol_edl": "data/sol_edl_all.txt"
+                },
             "path_to_deseq_dds":
                 "data/dds.rds",
             "path_to_cuffdiff":

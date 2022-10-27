@@ -1,12 +1,12 @@
-# TODO load all config in a walk function
 config_path <- "config.json"
+config <- rjson::fromJSON(file = config_path)
 
-# TODO rename
-config <- rjson::fromJSON(file = config_path)[["plot_export_params"]] %>%
+plot_params <- config[["plot_export_params"]] %>%
   purrr::map_dfr(data.frame)
 
-group_levels <- rjson::fromJSON(file = config_path)[["group_levels"]]
-
-gsea_fdr_cutoff <- rjson::fromJSON(file = config_path)[["gsea_fdr_cutoff"]]
-
-cp_pathways_pattern <- rjson::fromJSON(file = config_path)[["cp_pathways_pattern"]]
+config_items <- c("group_levels", "gsea_fdr_cutoff", "cp_pathways_pattern")
+purrr::walk(config_items, function(x, config) {
+  if (validate_config(x, config)) {
+    assign(x, config[[x]], envir = .GlobalEnv)
+  }
+}, config = config)

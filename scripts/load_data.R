@@ -1,7 +1,8 @@
 # load metadata
 if (nchar(path_to_metadata) > 0) {
   metadata <- read_data(path_to_metadata) %>%
-    dplyr::select(sample, group) %>%
+    dplyr::select(-c(fq, lane, read)) %>%
+    #dplyr::select(sample, group) %>%
     base::unique() %>%
     dplyr::mutate(group = factor(group, levels = group_levels)) %>%
     dplyr::arrange(group)
@@ -19,7 +20,11 @@ if (nchar(path_to_expression_data) > 0) {
 
 # load differential expression data
 if (nchar(path_to_diffexp_data) > 0) {
-  diffexp_data <- read_data(path_to_diffexp_data)
+  diffexp_data <- purrr::walk(path_to_diffexp_data, function(x) {
+    read_data(x)
+  }) %>%
+  setNames(names(path_to_diffexp_data))
+
 } else {
   warning("Path to experiment expression data containing differential
   gene expression is missing.")
@@ -68,5 +73,3 @@ if (nchar(path_to_gene_lists) > 0) {
 if (nchar(path_to_pathway_lists) > 0) {
   pathway_lists <- rjson::fromJSON(file = path_to_pathway_lists)
 }
-
-

@@ -1,5 +1,14 @@
 library(magrittr, include.only = "%>%")
 
+validate_config <- function(item, config_dict) {
+  if (item %in% names(config_dict) &&
+  nchar(config[[item]]) > 0) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
 append_dir_slash <- function(dir_string) {
     if (!base::endsWith(dir_string, "/")) {
         dir_string = paste0(dir_string, "/")

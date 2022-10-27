@@ -88,6 +88,15 @@
             "height": 8
         },
         {
+            "graph_type": "pathways_volcano",
+            "filename": "pathways_volcano",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 10,
+            "height": 8
+        },
+        {
             "graph_type": "pathways_bargraph",
             "filename": "pathways_bargraph",
             "device": "png",
@@ -97,8 +106,8 @@
             "height": 8
         },
         {
-            "graph_type": "pathways_scatter",
-            "filename": "pathways_scatter",
+            "graph_type": "pathways_meta",
+            "filename": "pathways_meta",
             "device": "png",
             "dpi": 600,
             "unit": "cm",
@@ -106,8 +115,8 @@
             "height": 8
         },
         {
-            "graph_type": "pathways_ranked",
-            "filename": "pathways_ranked",
+            "graph_type": "pathways_scatter",
+            "filename": "pathways_scatter",
             "device": "png",
             "dpi": 600,
             "unit": "cm",
