@@ -19,16 +19,18 @@ if (nchar(path_to_expression_data) > 0) {
 }
 
 # load differential expression data
-if (nchar(path_to_diffexp_data) > 0) {
-  diffexp_data <- purrr::walk(path_to_diffexp_data, function(x) {
+
+diffexp_data <- purrr::map(path_to_diffexp_data, function(x) {
+  if (nchar(x) > 0) {
     read_data(x)
-  }) %>%
+  }
+}) %>%
   setNames(names(path_to_diffexp_data))
 
-} else {
-  warning("Path to experiment expression data containing differential
-  gene expression is missing.")
-}
+# } else {
+#   warning("Path to experiment expression data containing differential
+#   gene expression is missing.")
+# }
 
 # load DESeq2 dds object
 if (nchar(path_to_deseq_dds) > 0) {
@@ -36,13 +38,14 @@ if (nchar(path_to_deseq_dds) > 0) {
 }
 
 # load dire analysis
-if (nchar(path_to_dire) > 0) {
-  if (endsWith(path_to_dire, "xlsx")) {
-    dire <- read_dire_xlsx(path_to_dire, dire_sheet_name)
-  } else {
-    dire <- read_data(path_to_dire)
-  }
-}
+# TODO updated to directory
+# if (nchar(path_to_dire) > 0) {
+#   if (endsWith(path_to_dire, "xlsx")) {
+#     dire <- read_dire_xlsx(path_to_dire, dire_sheet_name)
+#   } else {
+#     dire <- read_data(path_to_dire)
+#   }
+# }
 
 # load cuffdiff object
 if (nchar(path_to_cuffdiff) > 0) {

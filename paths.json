@@ -2,16 +2,17 @@
     "input_data_paths": 
         {
             "path_to_metadata": 
-                "data/metadata.tsv",
+                "data/metadata_np.tsv",
             "path_to_expression_data":
-                "data/sample_expression.txt",
+                "data/expression_data_np.txt",
             "path_to_diffexp_data":
                 {
-                    "ko_wt": "data/ko_vs_wt_all.txt",
-                    "sol_edl": "data/sol_edl_all.txt"
+                    "cgrp_ctrl": "data/cgrp_vs_ctrl.txt",
+                    "ne_ctrl": "data/ne_vs_ctrl.txt",
+                    "cgrp_ne": "data/cgrp_vs_ne.txt"
                 },
             "path_to_deseq_dds":
-                "data/dds.rds",
+                "data/dds_np.rds",
             "path_to_cuffdiff":
                 "data/cuffdiff",
             "path_to_cp_pathway_files":
@@ -23,7 +24,7 @@
             "path_to_amigo_files":
                 "data/amigo", 
             "path_to_dire":
-                "data/ko_vs_wt_dire.xlsx",
+                "data/dire",
             "path_to_gene_lists": 
                 "data/gene_lists.json",
             "path_to_pathway_lists": 
