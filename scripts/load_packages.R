@@ -9,6 +9,7 @@ pack <- c(
     "ggplot2",
     "ggrepel",
     "VennDiagram",
+    "fultile.logger",
     "ComplexHeatmap",
     "pheatmap",
     "cowplot",
@@ -26,7 +27,8 @@ pack <- c(
     "dplyr"
 )
 
-# TODO add suppress startup messages
 lapply(pack, function(x) {
     suppressPackageStartupMessages(library(x, character.only = TRUE))
 })
+
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")

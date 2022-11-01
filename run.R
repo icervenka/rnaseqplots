@@ -138,6 +138,7 @@ plot_pathways_rank(
   y_axis = name,
   bar_fill = fdr_qval
 )
+ggsave_param_wrapper("pathways_rank")
 
 # B
 plot_pathways_volcano(
@@ -152,8 +153,9 @@ plot_pathways_volcano(
     "darkred"
   )
 )
+ggsave_param_wrapper("pathways_volcano")
 
-## other pathway plots (clusterprofiler, etc.)
+## other pathway plots (amigo, clusterprofiler, etc.)
 # A
 plot_cp_pathways_meta(cp_pathways, top_pathways = 30)
 
@@ -164,13 +166,27 @@ plot_cp_pathways_bargraph(
   top_pathways = 10,
   truncate_description = 80
 )
+ggsave_param(
+  path_to_output_directory,
+  config[["pathways_bargraph"]],
+)
 
 ## compare two datasets
-#A
-plot_corr()
+# A
+plot_param_corr(
+  expression_data,
+  metadata,
+  gene_lists[["mito_1"]],
+  c("weight")
+)
 
-#B
-plot_lfc_scatter()
+# B
+plot_lfc_scatter(diffexp_data$cgrp_ctrl, diffexp_data$ne_ctrl)
 
-#C
-plot_venn2()
+# C
+
+plot_venn(
+  list(diffexp_data$cgrp_ctrl %>% dplyr::filter(padj < 0.05) %>% pull(SYMBOL),
+       diffexp_data$ne_ctrl %>% dplyr::filter(padj < 0.05) %>% pull(SYMBOL)),
+  font_size = 1)
+
