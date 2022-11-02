@@ -1,14 +1,5 @@
 library(magrittr, include.only = "%>%")
 
-cor_test_df <- function(df, x, y) {
-  cor.test(
-    df[[deparse(substitute(x))]],
-    df[[deparse(substitute(y))]],
-    method = "pearson"
-  ) %>%
-    tidy()
-}
-
 plot_param_corr <- function(expression_data,
                             metadata,
                             gene_list,
@@ -19,7 +10,7 @@ plot_param_corr <- function(expression_data,
   sample_colname_str <- deparse(substitute(sample_colname))
 
   filtered_expression <- expression_data %>%
-    dplyr::filter({{ id_colname }} %in% gene_list) %>%
+    dplyr::filter(tolower({{ id_colname }}) %in% tolower(gene_list)) %>%
     dplyr::select({{ id_colname }}, matches(metadata[[sample_colname_str]])) %>%
     tidyr::pivot_longer(-{{ id_colname }},
       names_to = sample_colname_str,
@@ -78,28 +69,32 @@ plot_lfc_scatter <- function(diffexp_data_1,
 
   common_genes <- intersect(
     diffexp_data_1 %>%
-      dplyr::filter(!!as.symbol(data_colnames_1["pvalue"]) < pvalue_threshold) %>%
+      dplyr::filter(
+        !!as.symbol(data_colnames_1["pvalue"]) < pvalue_threshold
+      ) %>%
       dplyr::pull(data_colnames_1["id"]),
     diffexp_data_2 %>%
-      dplyr::filter(!!as.symbol(data_colnames_2["pvalue"]) < pvalue_threshold) %>%
+      dplyr::filter(
+        !!as.symbol(data_colnames_2["pvalue"]) < pvalue_threshold
+      ) %>%
       dplyr::pull(data_colnames_2["id"])
   )
-  
-  by_x = data_colnames_1["id"] %>% unname()
-  by_y = data_colnames_2["id"] %>% unname()
-  
+
+  by_x <- data_colnames_1["id"] %>% unname()
+  by_y <- data_colnames_2["id"] %>% unname()
+
   print(by_x)
   print(by_y)
-  
+
   lfc_data <- diffexp_data_1 %>%
-    dplyr::select(dplyr::all_of(data_colnames_1 %>% unname)) %>%
+    dplyr::select(dplyr::all_of(unname(data_colnames_1))) %>%
     dplyr::filter(!!as.symbol(data_colnames_1["id"]) %in% common_genes) %>%
     dplyr::left_join(diffexp_data_2 %>%
-                       dplyr::select(dplyr::all_of(data_colnames_2 %>% unname)),
-                     by = "ENSEMBL",
-                     suffix = c("_x", "_y")
-                     )
-  
+      dplyr::select(dplyr::all_of(data_colnames_2 %>% unname())),
+    by = "ENSEMBL",
+    suffix = c("_x", "_y")
+    )
+
   if (same_lfc_colname) {
     data_colnames_1["log2fc"] <- paste0(data_colnames_1["log2fc"], "_x")
     data_colnames_2["log2fc"] <- paste0(data_colnames_2["log2fc"], "_y")
@@ -112,28 +107,51 @@ plot_lfc_scatter <- function(diffexp_data_1,
 
   lfc_data <- lfc_data %>%
     # Fisher method of combining p-values
-    dplyr::mutate(chi_pcomb = -2 * (log(!!as.symbol(data_colnames_1["pvalue"])) +
-      log(!!as.symbol(data_colnames_2["pvalue"])))) %>%
+    dplyr::mutate(
+      chi_pcomb = -2 * (log(!!as.symbol(data_colnames_1["pvalue"])) +
+        log(!!as.symbol(data_colnames_2["pvalue"])))
+    ) %>%
     # calculate significance of combined p-values
     # TODO check the degrees of freedom
     dplyr::mutate(p_chi = pchisq(chi_pcomb,
-      df = 2,
+      df = 1,
       lower.tail = FALSE
     )) %>%
     # calculate squared error of genes for ranking
     dplyr::mutate(err_sq = (!!as.symbol(data_colnames_1["log2fc"]) -
-                              !!as.symbol(data_colnames_2["log2fc"]))^2)
+      !!as.symbol(data_colnames_2["log2fc"]))^2)
 
-  print(lfc_data)
+  lfc_data <- lfc_data %>%
+    dplyr::mutate(
+      sign_1 = sign(!!as.symbol(data_colnames_1["log2fc"])),
+      sign_2 = sign(!!as.symbol(data_colnames_2["log2fc"]))
+    ) %>%
+    dplyr::mutate(quadrant = case_when(
+      sign_1 > 0 & sign_2 > 0 ~ 1,
+      sign_1 > 0 & sign_2 < 0 ~ 2,
+      sign_1 < 0 & sign_2 < 0 ~ 3,
+      sign_1 < 0 & sign_2 > 0 ~ 4
+    )) %>%
+    dplyr::mutate(quadrant = factor(quadrant))
+
   p <- lfc_data %>%
     dplyr::filter(p_chi < pvalue_threshold) %>%
     ggplot2::ggplot(ggplot2::aes(
       x = !!as.symbol(data_colnames_1["log2fc"]),
       y = !!as.symbol(data_colnames_2["log2fc"]),
       text = !!as.symbol(data_colnames_1["id"])
-    )) +
-    ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq)) +
-    colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE) +
+    ))
+
+  if (color_quadrants) {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = quadrant))
+  } else {
+    p <- p +
+      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq)) +
+      colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE)
+  }
+
+  p <- p +
     ggplot2::theme_bw() +
     ggplot2::labs(size = "-log10(p-value)", colour = "squared\nerror")
   return(p)

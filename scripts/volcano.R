@@ -79,7 +79,7 @@ volcano_plot <- function(results,
     p <- p +
       ggrepel::geom_label_repel(
         data = results_fil %>%
-          dplyr::filter({{ label }} %in% label_genes),
+          dplyr::filter(tolower({{ label }}) %in% tolower(label_genes)),
         ggplot2::aes(label = {{ label }}),
         min.segment.length = grid::unit(0, "lines")
       )

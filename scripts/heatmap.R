@@ -19,7 +19,7 @@ plot_heatmap <- function(expression_data,
   if (!is.null(gene_list)) {
     if (is.character(gene_list)) {
       expression_data <- expression_data %>%
-        dplyr::filter({{ geneid_colname }} %in% gene_list)
+        dplyr::filter(tolower({{ geneid_colname }}) %in% tolower(gene_list))
     } else if (is.numeric(gene_list)) {
       expr_matrix <- expression_data %>%
         dplyr::select(dplyr::matches(samples)) %>%
@@ -35,7 +35,7 @@ plot_heatmap <- function(expression_data,
   if(nrow(expression_data) == 0) {
     stop("Filtered expression dataset is empty.")
   }
-  
+
   expression_data <- expression_data %>%
     dplyr::select({{ geneid_colname }}, dplyr::matches(samples)) %>%
     dplyr::group_by({{ geneid_colname }}) %>%
@@ -43,7 +43,7 @@ plot_heatmap <- function(expression_data,
                             process_gene_dup_fun, 
                             na.rm = TRUE)) %>%
     tibble::column_to_rownames(geneid_colname_str)
-  
+
   p <- expression_data %>%
     pheatmap::pheatmap(
       scale = "row",
@@ -81,7 +81,7 @@ plot_heatmap_fc <- function(expression_data,
 
   expression_data_fil <- expression_data %>%
     dplyr::arrange({{ id_colname }}) %>%
-    dplyr::filter({{ id_colname }} %in% gene_list) %>%
+    dplyr::filter(tolower({{ id_colname }}) %in% tolower(gene_list)) %>%
     dplyr::select({{ id_colname }}, dplyr::matches(samples)) %>%
     tibble::column_to_rownames(var = ctr_id)
 
