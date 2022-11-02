@@ -2,17 +2,16 @@
     "input_data_paths": 
         {
             "path_to_metadata": 
-                "data/metadata_np.tsv",
+                "data/metadata.tsv",
             "path_to_expression_data":
-                "data/expression_data_np.txt",
+                "data/expression_data.txt",
             "path_to_diffexp_data":
                 {
-                    "cgrp_ctrl": "data/cgrp_vs_ctrl.txt",
-                    "ne_ctrl": "data/ne_vs_ctrl.txt",
-                    "cgrp_ne": "data/cgrp_vs_ne.txt"
+                    "ex1": "data/diffexp_data_1.txt",
+                    "ex2": "data/diffexp_data_2.txt"
                 },
             "path_to_deseq_dds":
-                "data/dds_np.rds",
+                "data/dds.rds",
             "path_to_cuffdiff":
                 "data/cuffdiff",
             "path_to_cp_pathway_files":

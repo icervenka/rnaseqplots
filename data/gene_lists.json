@@ -1,9 +1,8 @@
 {
     "mito_1": ["Pppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1"],
-    "myosins": ["MYHC1", "MYHC2A", "MYHC2B", "MYHC2X"],
-    "calcium": ["SERCA1", "SERCA2A", "CASQ1", "CASQ2"],
-    "structure": ["TTN", "CRYAB", "IGF1", "IGFBP5", "DMD", "MYMK", "RAC1", "RHOA", "MURF1", "ATROGIN"],
-    "mstn": ["MSTN", "ACVR2A", "ACVR2B", "DCN", "CTGF"],
+    "calcium": ["Serca1", "Serca2a", "Casq1", "Casq2"],
+    "structure": ["Tttn", "Cryab", "Igf1", "Igfbp5", "Dmd", "Rac1", "Rhoa", "Trim53"],
+    "mstn": ["Mstn", "Acvr2a", "Acvr2b", "Dcn", "Ctgf"],
     "metabolism": ["Ppargc1a", "Esrra", "Vegfa", "Cyc1", "Cpt1b", "Ldhb", "Acox1", "Slc2a4", "Hk2", "Pdk4"],
     "tfs": ["Myod1", "Myf5", "Myf6", "Myog", "Mef2c", "Pax7"],
     "volcano_example": ["Tnni2", "Tnnt1", "Ryr3", "Sln", "Tnnc2", "Casq1", "Casq2"]
