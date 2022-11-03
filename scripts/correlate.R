@@ -80,17 +80,11 @@ plot_lfc_scatter <- function(diffexp_data_1,
       dplyr::pull(data_colnames_2["id"])
   )
 
-  by_x <- data_colnames_1["id"] %>% unname()
-  by_y <- data_colnames_2["id"] %>% unname()
-
-  print(by_x)
-  print(by_y)
-
   lfc_data <- diffexp_data_1 %>%
     dplyr::select(dplyr::all_of(unname(data_colnames_1))) %>%
     dplyr::filter(!!as.symbol(data_colnames_1["id"]) %in% common_genes) %>%
     dplyr::left_join(diffexp_data_2 %>%
-      dplyr::select(dplyr::all_of(data_colnames_2 %>% unname())),
+      dplyr::select(dplyr::all_of(unname(data_colnames_2))),
     by = "ENSEMBL",
     suffix = c("_x", "_y")
     )

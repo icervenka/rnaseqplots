@@ -13,7 +13,11 @@ plot_pca_deseq <- function(dds,
   }
 
 
-  pca_data <- DESeq2::plotPCA(dds_norm, intgroup = c(group), returnData = TRUE) %>%
+  pca_data <- DESeq2::plotPCA(
+    dds_norm,
+    intgroup = c(group),
+    returnData = TRUE
+  ) %>%
     tibble::rownames_to_column(var = "id")
   percent_var_labs <- round(100 * attr(pca_data, "percentVar"))
   segments <- pca_data %>%

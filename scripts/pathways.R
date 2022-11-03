@@ -148,7 +148,9 @@ plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
       bins = 100,
       fill = "steelblue"
     ) +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    xlab("# of significant pathways") +
+    ggtitle("Significant pathways histogram")
 
   # top pathway contributors
   p2 <- pathways_summary %>%
@@ -157,7 +159,9 @@ plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
     ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    xlab("# of significant pathways") +
+    ggtitle("Analyses with highest\n# of significant pathways")
 
   # bottom pathway contributors
   p3 <- pathways_summary %>%
@@ -166,7 +170,9 @@ plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
     dplyr::mutate(source = factor(source, levels = source)) %>%
     ggplot2::ggplot(ggplot2::aes(x = n_pathways, y = source)) +
     ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
-    ggplot2::theme_bw()
+    ggplot2::theme_bw() +
+    xlab("# of significant pathways") +
+    ggtitle("Analyses with lowest\n# of significant pathways")
 
   return(cowplot::plot_grid(p1, p2, p3, nrow = 1))
 }

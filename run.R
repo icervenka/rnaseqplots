@@ -2,13 +2,13 @@
 # and data
 source("scripts/load_all.R", local = TRUE)
 
-### test functions -------------------------------------------------------------
-## pca plots
+############################# test functions ###################################
+## pca plots -------------------------------------------------------------------
 # A
 plot_pca_deseq(dds)
 ggsave_param(
   path_to_output_directory,
-  get_export_params("pca", config_path),
+  plot_params[["pca"]],
   filename_suffix = "_deseq"
 )
 
@@ -25,7 +25,15 @@ plot_pca_common(
   palette = c("steelblue", "darkred")
 )
 
-## volcano plots
+## ma plot ---------------------------------------------------------------------
+ma_plot(
+  diffexp_data$ex_1,
+  label_top_n = 8,
+  label_bottom_n = 8
+)
+ggsave_param_wrapper("ma")
+
+## volcano plots ---------------------------------------------------------------
 # A
 volcano_plot(
   diffexp_data,
@@ -47,7 +55,7 @@ ggsave_param(
 
 # B
 volcano_plot(
-  diffexp_data,
+  diffexp_data$ex_1,
   label = SYMBOL,
   x = log2FoldChange,
   y = pvalue,
@@ -66,7 +74,7 @@ ggsave_param_wrapper("volcano_plot")
 
 # TODO add cuffdiff volcano plot
 
-## heatmaps
+## heatmaps  -------------------------------------------------------------------
 # A
 plot_heatmap(
   expression_data,
@@ -91,7 +99,7 @@ ggsave_param_wrapper("heatmap")
 # C
 plot_heatmap_fc(
   expression_data,
-  diffexp_data,
+  diffexp_data$ex_1,
   metadata,
   gene_lists[["tfs"]]
 )
@@ -99,7 +107,7 @@ plot_heatmap_fc(
 # D
 plot_heatmap_fc(
   expression_data,
-  diffexp_data,
+  diffexp_data$ex_1,
   metadata,
   gene_lists[["mito_1"]],
   id_colname = SYMBOL,
@@ -115,7 +123,30 @@ plot_heatmap_fc(
 )
 ggsave_param_wrapper("heatmap_fc")
 
-## TF dire (dcode) plots
+## compare two datasets --------------------------------------------------------
+# A
+plot_param_corr(
+  expression_data,
+  metadata,
+  gene_lists[["mito_1"]],
+  c("weight")
+)
+
+# B
+plot_lfc_scatter(diffexp_data$ex_1, diffexp_data$ex_2)
+
+# C
+plot_venn(
+  list(
+    get_sig_genes(diffexp_data$ex_1),
+    get_sig_genes(diffexp_data$ex_1)
+  ),
+  plot_params[["venn"]],
+  font_size = 1
+)
+
+
+## TF dire (dcode) plots -------------------------------------------------------
 # A
 plot_dire(dire)
 
@@ -127,7 +158,7 @@ plot_dire_labeled(
 )
 ggsave_param_wrapper("dire")
 
-## gsea plots
+## gsea plots  -----------------------------------------------------------------
 # TODO write pathway name prettifier
 # A
 plot_pathways_rank(
@@ -155,7 +186,7 @@ plot_pathways_volcano(
 )
 ggsave_param_wrapper("pathways_volcano")
 
-## other pathway plots (amigo, clusterprofiler, etc.)
+## other pathway plots (amigo, clusterprofiler, etc.)  -------------------------
 # A
 plot_cp_pathways_meta(cp_pathways, top_pathways = 30)
 
@@ -168,25 +199,5 @@ plot_cp_pathways_bargraph(
 )
 ggsave_param(
   path_to_output_directory,
-  config[["pathways_bargraph"]],
+  plot_params[["pathways_bargraph"]],
 )
-
-## compare two datasets
-# A
-plot_param_corr(
-  expression_data,
-  metadata,
-  gene_lists[["mito_1"]],
-  c("weight")
-)
-
-# B
-plot_lfc_scatter(diffexp_data$cgrp_ctrl, diffexp_data$ne_ctrl)
-
-# C
-
-plot_venn(
-  list(diffexp_data$cgrp_ctrl %>% dplyr::filter(padj < 0.05) %>% pull(SYMBOL),
-       diffexp_data$ne_ctrl %>% dplyr::filter(padj < 0.05) %>% pull(SYMBOL)),
-  font_size = 1)
-

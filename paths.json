@@ -7,8 +7,8 @@
                 "data/expression_data.txt",
             "path_to_diffexp_data":
                 {
-                    "ex1": "data/diffexp_data_1.txt",
-                    "ex2": "data/diffexp_data_2.txt"
+                    "ex_1": "data/diffexp_data_1.txt",
+                    "ex_2": "data/diffexp_data_2.txt"
                 },
             "path_to_deseq_dds":
                 "data/dds.rds",
