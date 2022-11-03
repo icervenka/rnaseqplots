@@ -1,7 +1,7 @@
 library(magrittr, include.only = "%>%")
 
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
-.addFeatures <- function(object, features, level = "genes", ...) {
+.addFeatures <- function(object, features, level = "genes", ...) { # nolint
   if (!is.data.frame(features)) {
     stop("features must be a data.frame")
   }
@@ -16,7 +16,7 @@ library(magrittr, include.only = "%>%")
     row.names = FALSE,
     overwrite = TRUE
   )
-  indexQuery <- paste(
+  indexQuery <- paste( # nolint
     "CREATE INDEX ",
     slot(object, level)@idField,
     " ON ",
@@ -31,6 +31,22 @@ library(magrittr, include.only = "%>%")
 setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
 
 # user defined reading functions -----------------------------------------------
+read_data <- function(filename) {
+  ext <- tools::file_ext(filename)
+  if (ext %in% c("tsv", "txt")) {
+    separator <- "\t"
+  } else if (ext %in% c("csv")) {
+    separator <- ","
+  }
+  data <- readr::read_delim(filename,
+    delim = separator,
+    col_names = TRUE,
+    escape_double = FALSE,
+    trim_ws = TRUE
+  )
+  return(data)
+}
+
 read_cuffdiff <- function(dir) {
   cuff <- cummeRbund::readCufflinks(dir)
   annot <- read.delim(paste0(dir, "/gene_exp.diff"),
