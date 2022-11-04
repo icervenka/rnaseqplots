@@ -19,7 +19,6 @@ if (nchar(path_to_expression_data) > 0) {
 }
 
 # load differential expression data
-
 diffexp_data <- purrr::map(path_to_diffexp_data, function(x) {
   if (nchar(x) > 0) {
     read_data(x)
@@ -38,14 +37,12 @@ if (nchar(path_to_deseq_dds) > 0) {
 }
 
 # load dire analysis
-# TODO updated to directory
-# if (nchar(path_to_dire) > 0) {
-#   if (endsWith(path_to_dire, "xlsx")) {
-#     dire <- read_dire_xlsx(path_to_dire, dire_sheet_name)
-#   } else {
-#     dire <- read_data(path_to_dire)
-#   }
-# }
+if (nchar(path_to_dire) > 0) {
+  # doesn't need appending of the slash at the end
+  dire <- collate_dire_pathways(path_to_dire, 
+                                dire_pattern, 
+                                dire_sheet_name)
+}
 
 # load cuffdiff object
 if (nchar(path_to_cuffdiff) > 0) {

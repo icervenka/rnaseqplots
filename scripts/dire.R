@@ -12,15 +12,16 @@ plot_dire_labeled <- function(df,
                               occurrence_threshold = 0.05,
                               importance_threshold = 0.05,
                               label_genes = NULL,
+                              combine_thresholds = `&`,
                               ...) {
   p <- df %>%
     plot_dire(...)
 
   if (is.null(label_genes)) {
     label_data <- df %>%
-      dplyr::filter(
-        Occurrence > occurrence_threshold &
-        Importance > importance_threshold
+      dplyr::filter(combine_thresholds(
+        Occurrence > occurrence_threshold,
+        Importance > importance_threshold)
       )
   } else if (is.vector(label_genes, mode = "character")) {
     label_data <- df %>%
