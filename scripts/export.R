@@ -126,19 +126,28 @@ create_gsea_rank <- function(data,
   }
 }
 
-get_export_params <- function(graph_type, config_jsonfile) {
-  config_df <- rjson::fromJSON(file = config_jsonfile) %>%
-    purrr::map_dfr(config_json, data.frame)
+get_plot_params <- function(type, plot_params) {
+  if (class(plot_params) == "data.frame") {
+    config_df <- plot_params
+  } else if (class(plot_params) == "character" && endsWith(plot_params, "json")) {
+    # TODO check
+    config_df <- rjson::fromJSON(file = plot_params)$plot_export_params %>%
+      purrr::map_dfr(data.frame)
+  }
 
+  if(!(type %in% config_df$graph_type)) {
+    stop("Graph type not present in parameter list for exporting plots.")
+  }
+  
   config_list <- config_df %>%
-    dplyr::filter(graph_type == graph_type) %>%
+    dplyr::filter(graph_type == type) %>%
     dplyr::select(-graph_type) %>%
     as.list()
   return(config_list)
 }
 
 ggsave_param <- function(output_dir,
-                         params,
+                         plot_params,
                          plot = last_plot(),
                          filename_prefix = "",
                          filename_suffix = "",
@@ -152,14 +161,17 @@ ggsave_param <- function(output_dir,
     output_dir,
     tp,
     filename_prefix,
-    params$filename,
-    filename_suffix
+    plot_params$filename,
+    filename_suffix,
+    ".",
+    plot_params$device
   )
-  rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!params)
+  plot_params$filename <- NULL
+  rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!plot_params)
 }
 
-ggsave_param_wrapper = function(graph_type, ...) {
-  ggsave_param(path_to_output_directory,
-               get_export_params(graph_type, path_to_plot_export_params),
+ggsave_param_wrapper <- function(graph_type, ...) {
+  ggsave_param(output_directory,
+               get_plot_params(graph_type, "config.json"),
                ...)
 }

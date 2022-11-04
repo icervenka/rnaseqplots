@@ -9,7 +9,7 @@ pack <- c(
     "ggplot2",
     "ggrepel",
     "VennDiagram",
-    "fultile.logger",
+    "futile.logger",
     "ComplexHeatmap",
     "pheatmap",
     "cowplot",

@@ -1,8 +1,8 @@
 library(magrittr, include.only = "%>%")
 
 validate_config <- function(item, config_dict) {
-  if (item %in% names(config_dict) &&
-    nchar(config[[item]]) > 0) {
+  # empty strings are sometimes needed for patterns for file listing
+  if (item %in% names(config_dict)) { # && nchar(config[[item]]) > 0) {
     return(TRUE)
   } else {
     return(FALSE)
