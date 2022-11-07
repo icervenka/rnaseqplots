@@ -1,11 +1,44 @@
 {
     "group_levels": [
-        "wt",
-        "ko"
+        "ctrl",
+        "ne",
+        "cgrp",
+        "npy",
+        "sp"
     ],
+    "padj_sig_cutoff": 0.05,
     "gsea_fdr_cutoff": 0.25,
     "cp_pathways_pattern": "_contrast",
+    "dire_pattern": "",
+    "dire_sheet_name": "dire_all",
     "plot_export_params": [
+        {
+            "graph_type": "pca",
+            "filename": "pca",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 10,
+            "height": 8
+        },
+        {
+            "graph_type": "ma",
+            "filename": "ma",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 10,
+            "height": 10
+        },
+        {
+            "graph_type": "volcano",
+            "filename": "volcano",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 10,
+            "height": 10
+        },
         {
             "graph_type": "heatmap",
             "filename": "heatmap",
@@ -13,7 +46,7 @@
             "dpi": 600,
             "unit": "cm",
             "width": 10,
-            "height": 8
+            "height": 7
         },
         {
             "graph_type": "heatmap_fc",
@@ -25,12 +58,39 @@
             "height": 8
         },
         {
+            "graph_type": "param_correlation",
+            "filename": "param_correlation",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 8,
+            "height": 12
+        },
+        {
+            "graph_type": "lfc_scatter",
+            "filename": "lfc_scatter",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 14,
+            "height": 10
+        },
+        {
+            "graph_type": "venn",
+            "filename": "venn",
+            "device": "png",
+            "dpi": 600,
+            "unit": "cm",
+            "width": 4,
+            "height": 4
+        },
+        {
             "graph_type": "dire",
             "filename": "dire",
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 16,
+            "width": 12,
             "height": 8
         },
         {
@@ -39,43 +99,7 @@
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 16,
-            "height": 8
-        },
-        {
-            "graph_type": "ma",
-            "filename": "ma",
-            "device": "png",
-            "dpi": 600,
-            "unit": "cm",
-            "width": 16,
-            "height": 8
-        },
-        {
-            "graph_type": "volcano",
-            "filename": "volcano",
-            "device": "png",
-            "dpi": 600,
-            "unit": "cm",
-            "width": 16,
-            "height": 8
-        },
-        {
-            "graph_type": "pca",
-            "filename": "pca",
-            "device": "png",
-            "dpi": 600,
-            "unit": "cm",
-            "width": 10,
-            "height": 8
-        },
-        {
-            "graph_type": "venn",
-            "filename": "venn",
-            "device": "png",
-            "dpi": 600,
-            "unit": "cm",
-            "width": 10,
+            "width": 12,
             "height": 8
         },
         {
@@ -84,7 +108,7 @@
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 10,
+            "width": 14,
             "height": 8
         },
         {
@@ -93,17 +117,8 @@
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 10,
-            "height": 8
-        },
-        {
-            "graph_type": "pathways_bargraph",
-            "filename": "pathways_bargraph",
-            "device": "png",
-            "dpi": 600,
-            "unit": "cm",
-            "width": 10,
-            "height": 8
+            "width": 12,
+            "height": 12
         },
         {
             "graph_type": "pathways_meta",
@@ -111,17 +126,17 @@
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 10,
-            "height": 8
+            "width": 26,
+            "height": 10
         },
         {
-            "graph_type": "pathways_scatter",
-            "filename": "pathways_scatter",
+            "graph_type": "pathways_bargraph",
+            "filename": "pathways_bargraph",
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 10,
-            "height": 8
+            "width": 13,
+            "height": 6
         }
     ]
 }

@@ -1,16 +1,16 @@
-sample	fq	lane	read	group
-cgrp1	NG-21640_CGRP1_lib351431_6535_2_1.fastq.gz	1	1	cgrp
-cgrp2	NG-21640_CGRP2_lib351432_6535_2_1.fastq.gz	1	1	cgrp
-cgrp3	NG-21640_CGRP3_lib351433_c_1.fastq.gz	1	1	cgrp
-ctrl1	NG-21640_Control1_lib351422_6535_1_1.fastq.gz	1	1	ctrl
-ctrl2	NG-21640_Control2_lib351423_6535_1_1.fastq.gz	1	1	ctrl
-ctrl3	NG-21640_Control3_lib351424_6535_1_1.fastq.gz	1	1	ctrl
-ne1	NG-21640_NE1_lib351425_6535_1_1.fastq.gz	1	1	ne
-ne2	NG-21640_NE2_lib351426_6535_1_1.fastq.gz	1	1	ne
-ne3	NG-21640_NE3_lib351427_6535_1_1.fastq.gz	1	1	ne
-npy1	NG-21640_NPY1_lib351428_6535_1_1.fastq.gz	1	1	npy
-npy2	NG-21640_NPY2_lib351429_6535_1_1.fastq.gz	1	1	npy
-npy3	NG-21640_NPY3_lib351430_6535_2_1.fastq.gz	1	1	npy
-sp1	NG-21640_SP1_lib351434_6535_2_1.fastq.gz	1	1	sp
-sp2	NG-21640_SP2_lib351435_c_1.fastq.gz	1	1	sp
-sp3	NG-21640_SP3_lib351436_6535_2_1.fastq.gz	1	1	sp
+sample	fq	lane	read	group	weight
+cgrp1	NG-21640_CGRP1_lib351431_6535_2_1.fastq.gz	1	1	cgrp	25.7
+cgrp2	NG-21640_CGRP2_lib351432_6535_2_1.fastq.gz	1	1	cgrp	26.8
+cgrp3	NG-21640_CGRP3_lib351433_c_1.fastq.gz	1	1	cgrp	28.1
+ctrl1	NG-21640_Control1_lib351422_6535_1_1.fastq.gz	1	1	ctrl	32.8
+ctrl2	NG-21640_Control2_lib351423_6535_1_1.fastq.gz	1	1	ctrl	34.1
+ctrl3	NG-21640_Control3_lib351424_6535_1_1.fastq.gz	1	1	ctrl	36.7
+ne1	NG-21640_NE1_lib351425_6535_1_1.fastq.gz	1	1	ne	30.2
+ne2	NG-21640_NE2_lib351426_6535_1_1.fastq.gz	1	1	ne	32.2
+ne3	NG-21640_NE3_lib351427_6535_1_1.fastq.gz	1	1	ne	31.9
+npy1	NG-21640_NPY1_lib351428_6535_1_1.fastq.gz	1	1	npy	32.8
+npy2	NG-21640_NPY2_lib351429_6535_1_1.fastq.gz	1	1	npy	29.7
+npy3	NG-21640_NPY3_lib351430_6535_2_1.fastq.gz	1	1	npy	33.6
+sp1	NG-21640_SP1_lib351434_6535_2_1.fastq.gz	1	1	sp	40.2
+sp2	NG-21640_SP2_lib351435_c_1.fastq.gz	1	1	sp	32.7
+sp3	NG-21640_SP3_lib351436_6535_2_1.fastq.gz	1	1	sp	36.9

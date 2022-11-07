@@ -38,7 +38,6 @@ Processes ouput from [IPA report generator](https://github.com/icervenka/ipa_rep
 ### Dire (dcode.org) transcription factor analysis
 Processing of output from [dire](https://dire.dcode.org/) transcription factor analysis. Accepts also xlsx files. Must contain `Occurence` and `Importance` columns. For data in xlsx file format, sheet name has to be specified in `params` section of `paths.json` file if different than default "Sheet1". 
 
-
 ### Gene lists
 Json file containing custom gene list to be used in plots throughout the analysis. Gene names/IDs are case sensitive and must match the appropriate column in your expression data or differential expression data. See `data/gene_lists.json` for example.
 
@@ -59,18 +58,44 @@ Specified in `config.json` file in the root directory. Following configurations 
 ## Supported Graphs
 
 ### PCA plots
+![PCA plot](output/pca_deseq.png)
 
 ### MA plot
+![MA plot](output/ma.png)
 
 ### Volcano plots
+![Labeled volcano plot](output/volcano_top.png)
 
 ### Heatmaps
-
-### Venn diagrams
+![Gene expression heatmap](output/heatmap.png)
 
 ### Dire transcription factor plots
+![Labeled DIRE plot](output/dire.png)
 
 ### Pathway analysis plots
+
+#### Pathway meta-analysis
+![Pathways meta-analysis](output/pathways_meta.png)
+
+#### Pathways bargraph
+![Pathways bargraph](output/pathways_bargraph.png)
+
+#### Pathways bargraph with ranking
+![GSEA Pathways barplot with ranking](output/pathways_rank.png)
+
+#### Pathways volcano plot
+![GSEA Pathways volcano plot](output/pathways_volcano.png)
+
+### Plots for comparing datasets
+
+#### Parameter correlation
+![Gene Expression - Parameter Correlation](output/param_correlation.png)
+
+#### Scatterplot of log2(fold-changes) of two datasets
+![Log2 fold change scatterplot](output/lfc_scatter.png)
+
+#### Venn diagram
+![Venn diagram](output/venn.png)
 
 ## Required packages
 

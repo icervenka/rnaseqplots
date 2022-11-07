@@ -7,14 +7,13 @@ source("scripts/load_all.R", local = TRUE)
 # A
 plot_pca_deseq(dds)
 ggsave_param(
-  path_to_output_directory,
-  plot_params[["pca"]],
+  output_directory,
+  get_plot_params("pca", "config.json"),
   filename_suffix = "_deseq"
 )
 
-# B
 plot_pca_common(expression_data, metadata)
-ggsave_param_wrapper("pca")
+#ggsave_param_wrapper("pca")
 
 plot_pca_common(
   expression_data,
@@ -22,33 +21,33 @@ plot_pca_common(
   group = "group",
   plot_center = TRUE,
   linetype = "dashed",
-  palette = c("steelblue", "darkred")
+  palette = viridis::viridis(5)
 )
 
 ## ma plot ---------------------------------------------------------------------
 ma_plot(
   diffexp_data$ex_1,
-  label_top_n = 8,
-  label_bottom_n = 8
+  label_top_n = 5,
+  label_bottom_n = 5
 )
 ggsave_param_wrapper("ma")
 
 ## volcano plots ---------------------------------------------------------------
 # A
 volcano_plot(
-  diffexp_data,
+  diffexp_data$ex_1,
   label_bottom_n = 5,
-  label_top_n = 10
+  label_top_n = 6
 )
 ggsave_param(
-  path_to_output_directory,
+  output_directory,
   list(
     filename = "volcano",
     device = "png",
     dpi = 600,
     unit = "cm",
-    width = 16,
-    height = 8
+    width = 10,
+    height = 10
   ),
   filename_suffix = "_top"
 )
@@ -70,11 +69,11 @@ volcano_plot(
   ylab_label = "-log10(p-value)",
   color_palette = c("bisque2", "darkorchid4", "cyan4")
 )
-ggsave_param_wrapper("volcano_plot")
 
 # TODO add cuffdiff volcano plot
 
 ## heatmaps  -------------------------------------------------------------------
+# TODO ggsave cant save heatmaps
 # A
 plot_heatmap(
   expression_data,
@@ -93,23 +92,25 @@ plot_heatmap(
   gene_ranking_fun = rowMeans,
   cell_dims = c(9, 9),
   palette = "PuOr"
-)
-ggsave_param_wrapper("heatmap")
+) %>%
+ggsave_param_wrapper("heatmap", plot = .)
 
 # C
+# why tfs gene list doesn't work
 plot_heatmap_fc(
   expression_data,
   diffexp_data$ex_1,
   metadata,
-  gene_lists[["tfs"]]
+  gene_lists[["structure"]]
 )
 
 # D
-plot_heatmap_fc(
+# TODO only does lfcc pval of one comparison
+p <- plot_heatmap_fc(
   expression_data,
   diffexp_data$ex_1,
   metadata,
-  gene_lists[["mito_1"]],
+  gene_lists[["heatmap_fc_example"]],
   id_colname = SYMBOL,
   fc_colname = log2FoldChange,
   .fc_colors = c("darkred", "steelblue"),
@@ -117,11 +118,14 @@ plot_heatmap_fc(
   .pval_colors = c("white", "steelblue"),
   metadata_sample_colname = sample,
   .col_annot_colors = list(group = c(
-    "wt" = "gray60",
-    "ko" = "steelblue"
+    "ctrl" = "gray60",
+    "ne" = "steelblue",
+    "cgrp" = "darkseagreen",
+    "npy" = "tomato4",
+    "sp" = "lightgoldenrod2"
   ))
 )
-ggsave_param_wrapper("heatmap_fc")
+ggsave_param_wrapper("heatmap_fc", plot = p)
 
 ## compare two datasets --------------------------------------------------------
 # A
@@ -129,52 +133,60 @@ plot_param_corr(
   expression_data,
   metadata,
   gene_lists[["mito_1"]],
-  c("weight")
+  c("weight"),
+  palette = viridis::viridis(5)
 )
+ggsave_param_wrapper("param_correlation")
 
 # B
-plot_lfc_scatter(diffexp_data$ex_1, diffexp_data$ex_2)
+plot_lfc_scatter(
+  diffexp_data$ex_1,
+  diffexp_data$ex_2,
+  color_quadrants = TRUE,
+  alpha = 1
+)
+ggsave_param_wrapper("lfc_scatter")
 
 # C
+## Venn diagram function takes parameters for plot export as one of the
+## function arguments
 plot_venn(
   list(
     get_sig_genes(diffexp_data$ex_1),
-    get_sig_genes(diffexp_data$ex_1)
+    get_sig_genes(diffexp_data$ex_2)
   ),
-  plot_params[["venn"]],
+  get_plot_params("venn", "config.json"),
   font_size = 1
 )
 
-
 ## TF dire (dcode) plots -------------------------------------------------------
 # A
-plot_dire(dire)
+plot_dire(dire %>% filter_file("dire_1"))
 
 # B
 plot_dire_labeled(
-  dire,
-  occurrence_threshold = 0.05,
-  importance_threshold = 0.05
-)
+  dire %>% filter_file("dire_2"),
+  occurrence_threshold = 0.10,
+  importance_threshold = 0.15,
+  combine_thresholds = `|`)
 ggsave_param_wrapper("dire")
 
 ## gsea plots  -----------------------------------------------------------------
 # TODO write pathway name prettifier
 # A
 plot_pathways_rank(
-  gsea_data %>%
-    dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
+  gsea_data %>% filter_name("HALLMARK"),
   pathway_lists[["example_1"]],
   x_axis = nes,
   y_axis = name,
-  bar_fill = fdr_qval
+  bar_fill = fdr_qval,
+  label_offset = 0.8
 )
 ggsave_param_wrapper("pathways_rank")
 
 # B
 plot_pathways_volcano(
-  gsea_data %>%
-    dplyr::filter(grepl("hallmark", name, ignore.case = TRUE)),
+  gsea_data %>% filter_name("KEGG"),
   x_axis = nes,
   y_axis = fdr_qval,
   label_pathways = pathway_lists[["example_volcano"]],
@@ -189,6 +201,7 @@ ggsave_param_wrapper("pathways_volcano")
 ## other pathway plots (amigo, clusterprofiler, etc.)  -------------------------
 # A
 plot_cp_pathways_meta(cp_pathways, top_pathways = 30)
+ggsave_param_wrapper("pathways_meta")
 
 # B
 plot_cp_pathways_bargraph(
@@ -198,6 +211,6 @@ plot_cp_pathways_bargraph(
   truncate_description = 80
 )
 ggsave_param(
-  path_to_output_directory,
-  plot_params[["pathways_bargraph"]],
+  output_directory,
+  get_plot_params("pathways_bargraph", plot_params),
 )
