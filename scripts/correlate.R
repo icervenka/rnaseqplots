@@ -5,7 +5,9 @@ plot_param_corr <- function(expression_data,
                             gene_list,
                             params,
                             id_colname = SYMBOL,
+                            group_colname = group,
                             sample_colname = sample,
+                            palette = NULL,
                             show_regression = TRUE) {
   sample_colname_str <- deparse(substitute(sample_colname))
 
@@ -18,12 +20,13 @@ plot_param_corr <- function(expression_data,
     )
 
   filtered_metadata <- metadata %>%
-    dplyr::select({{ sample_colname }}, matches(params)) %>%
-    tidyr::pivot_longer(-{{ sample_colname }},
+    dplyr::select({{ sample_colname }}, {{ group_colname }}, matches(params)) %>%
+    tidyr::pivot_longer(-c({{ sample_colname }}, {{ group_colname }}),
       names_to = "param",
       values_to = "param_value"
     )
 
+  print(filtered_metadata)
   param_df <- filtered_expression %>%
     dplyr::left_join(filtered_metadata, by = sample_colname_str)
 
@@ -35,7 +38,8 @@ plot_param_corr <- function(expression_data,
 
   p <- param_df %>%
     ggplot2::ggplot(ggplot2::aes(x = param_value, y = gene_expression)) +
-    ggplot2::geom_point() +
+    ggplot2::geom_point(aes(color = {{ group_colname }})) +
+    { if (!is.null(palette)) scale_color_manual(values = palette) } + 
     ggplot2::stat_smooth(
       method = "lm",
       se = FALSE,
@@ -49,7 +53,6 @@ plot_param_corr <- function(expression_data,
   return(p)
 }
 
-# TODO color quadrants
 plot_lfc_scatter <- function(diffexp_data_1,
                              diffexp_data_2,
                              data_colnames_1 = c(
@@ -63,7 +66,8 @@ plot_lfc_scatter <- function(diffexp_data_1,
                                pvalue = "padj"
                              ),
                              pvalue_threshold = 0.05,
-                             color_quadrants = TRUE) {
+                             color_quadrants = TRUE,
+                             alpha = 1) {
   same_lfc_colname <- data_colnames_1["log2fc"] == data_colnames_2["log2fc"]
   same_pvalue_colname <- data_colnames_1["pvalue"] == data_colnames_2["pvalue"]
 
@@ -138,15 +142,19 @@ plot_lfc_scatter <- function(diffexp_data_1,
 
   if (color_quadrants) {
     p <- p +
-      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = quadrant))
+      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = quadrant),
+                          alpha = alpha) + 
+      ggplot2::labs(colour = "quadrant")
   } else {
     p <- p +
-      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq)) +
-      colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE)
+      ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq),
+                          alpha = alpha) +
+      colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE) + 
+      ggplot2::labs(colour = "squared\nerror")
   }
 
   p <- p +
     ggplot2::theme_bw() +
-    ggplot2::labs(size = "-log10(p-value)", colour = "squared\nerror")
+    ggplot2::labs(size = "-log10(p-value)")
   return(p)
 }

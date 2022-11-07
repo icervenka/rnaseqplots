@@ -41,6 +41,16 @@ filter_deseq_results <- function(res, padj_threshold = 0.05) {
   return(filtered_res)
 }
 
+filter_file <- function(df, str) {
+  df %>%
+    dplyr::filter(grepl(str, file))
+}
+
+filter_name <- function(df, str) {
+  df %>%
+    dplyr::filter(grepl(str, name))
+}
+
 get_sig_genes <- function(diffexp_data,
                           colname = SYMBOL,
                           sig_threshold = 0.05,

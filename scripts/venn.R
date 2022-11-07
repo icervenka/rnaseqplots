@@ -4,12 +4,19 @@ plot_venn <- function(l,
                       palette = viridis::viridis(2),
                       font_size = 0.6,
                       ...) {
-  if (is.null(savename)) grid.newpage()
+  if (nchar(plot_params$filename) == 0) grid.newpage()
 
+  out_filename <- paste0(
+    output_directory,
+    plot_params$filename,
+    ".",
+    plot_params$device
+  )
+  
   a <- VennDiagram::venn.diagram(
     l,
     category.names = category_names,
-    filename = plot_params$filename,
+    filename = out_filename,
     output = TRUE,
 
     # Output features
@@ -36,5 +43,5 @@ plot_venn <- function(l,
     ...
   )
 
-  if (is.null(savename)) grid.draw(a)
+  if (nchar(plot_params$filename) == 0) grid.draw(a)
 }

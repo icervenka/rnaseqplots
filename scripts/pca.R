@@ -80,6 +80,7 @@ plot_pca_common <- function(expression_data,
     linetype,
     palette
   )
+  return(p)
 }
 
 plot_pca <- function(pca_data,

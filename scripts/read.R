@@ -96,7 +96,7 @@ collate_dire_pathways <- function(pathway_files_basepath,
     } else {
       dire_df <- read_data(x) %>%
       dplyr::select(-`#`) %>%
-        mutate(Occurrence = as.numeric(gsub("%", "", Occurrence))/100)
+        mutate(Occurrence = as.numeric(gsub("%", "", Occurrence)) / 100)
     }
     dire_df <- dire_df %>%
       dplyr::mutate(file = x)

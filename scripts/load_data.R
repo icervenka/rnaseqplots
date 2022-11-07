@@ -39,8 +39,8 @@ if (nchar(path_to_deseq_dds) > 0) {
 # load dire analysis
 if (nchar(path_to_dire) > 0) {
   # doesn't need appending of the slash at the end
-  dire <- collate_dire_pathways(path_to_dire, 
-                                dire_pattern, 
+  dire <- collate_dire_pathways(path_to_dire,
+                                dire_pattern,
                                 dire_sheet_name)
 }
 
