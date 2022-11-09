@@ -10,12 +10,11 @@ plot_heatmap <- function(expression_data,
                          cell_dims = c(10, 1),
                          palette = "RdBu",
                          ...) {
+  sample_colname_str <- deparse(substitute(metadata_sample_colname))
+  geneid_colname_str <- deparse(substitute(geneid_colname))
 
-  sample_colname_str = deparse(substitute(metadata_sample_colname))
-  geneid_colname_str = deparse(substitute(geneid_colname))
-  
   samples <- metadata[[sample_colname_str]]
-  
+
   if (!is.null(gene_list)) {
     if (is.character(gene_list)) {
       expression_data <- expression_data %>%
@@ -27,21 +26,23 @@ plot_heatmap <- function(expression_data,
       expression_data <- expression_data[order(gene_ranking_fun(expr_matrix),
         decreasing = TRUE
       ), ][1:gene_list, ]
-      } else {
+    } else {
       stop("Unrecognized type of argument for gene list.")
     }
   }
 
-  if(nrow(expression_data) == 0) {
+  if (nrow(expression_data) == 0) {
     stop("Filtered expression dataset is empty.")
   }
 
   expression_data <- expression_data %>%
     dplyr::select({{ geneid_colname }}, dplyr::matches(samples)) %>%
     dplyr::group_by({{ geneid_colname }}) %>%
-    dplyr::summarise(across(dplyr::matches(samples), 
-                            process_gene_dup_fun, 
-                            na.rm = TRUE)) %>%
+    dplyr::summarise(
+      across(dplyr::matches(samples),
+      process_gene_dup_fun,
+      na.rm = TRUE
+    )) %>%
     tibble::column_to_rownames(geneid_colname_str)
 
   p <- expression_data %>%
@@ -68,16 +69,26 @@ plot_heatmap_fc <- function(expression_data,
                             diffexp_data,
                             metadata,
                             gene_list,
+                            include_groups = NULL,
                             id_colname = SYMBOL,
                             fc_colname = log2FoldChange,
                             .fc_colors = c("darkred", "steelblue"),
                             padj_colname = padj,
                             .pval_colors = c("white", "steelblue"),
                             metadata_sample_colname = sample,
+                            metadata_group_colname = group,
                             .col_annot_colors = NULL,
                             ...) {
   ctr_id <- deparse(rlang::enexpr(id_colname))
-  samples <- metadata %>% dplyr::pull({{ metadata_sample_colname }})
+  if (!is.null(include_groups)) {
+    groups <- metadata %>%
+      dplyr::filter({{ metadata_group_colname }} %in% include_groups) %>%
+      dplyr::pull({{ metadata_group_colname }})
+  }
+  samples <- metadata %>%
+    dplyr::filter({{ metadata_group_colname }} %in% groups) %>%
+    dplyr::pull({{ metadata_sample_colname }})
+
 
   expression_data_fil <- expression_data %>%
     dplyr::arrange({{ id_colname }}) %>%
@@ -132,8 +143,8 @@ plot_heatmap_fc <- function(expression_data,
   }
 
   hat <- ComplexHeatmap::columnAnnotation(
-    df = metadata %>% 
-      dplyr::select(dplyr::contains(selected_groups)) %>% 
+    df = metadata %>%
+      dplyr::select(dplyr::contains(selected_groups)) %>%
       as.list(),
     col = col_list,
     border = TRUE
