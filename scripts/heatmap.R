@@ -3,15 +3,23 @@ library(magrittr, include.only = "%>%")
 plot_heatmap <- function(expression_data,
                          metadata,
                          gene_list = NULL,
+                         include_groups = NULL,
                          geneid_colname = SYMBOL,
                          process_gene_dup_fun = sum,
                          metadata_sample_colname = sample,
+                         metadata_group_colname = group,
                          gene_ranking_fun = matrixStats::rowVars,
                          cell_dims = c(10, 1),
                          palette = "RdBu",
                          ...) {
   sample_colname_str <- deparse(substitute(metadata_sample_colname))
+  group_colname_str <- deparse(substitute(metadta_group_colname))
   geneid_colname_str <- deparse(substitute(geneid_colname))
+
+  if (!is.null(include_groups)) {
+    metadata <- metadata %>%
+      dplyr::filter({{ metadata_group_colname }} %in% include_groups)
+  }
 
   samples <- metadata[[sample_colname_str]]
 
@@ -79,14 +87,13 @@ plot_heatmap_fc <- function(expression_data,
                             metadata_group_colname = group,
                             .col_annot_colors = NULL,
                             ...) {
+  group_colname_str <- deparse(substitute(metadata_group_colname))
   ctr_id <- deparse(rlang::enexpr(id_colname))
   if (!is.null(include_groups)) {
-    groups <- metadata %>%
-      dplyr::filter({{ metadata_group_colname }} %in% include_groups) %>%
-      dplyr::pull({{ metadata_group_colname }})
+    metadata <- metadata %>%
+      dplyr::filter({{ metadata_group_colname }} %in% include_groups)
   }
   samples <- metadata %>%
-    dplyr::filter({{ metadata_group_colname }} %in% groups) %>%
     dplyr::pull({{ metadata_sample_colname }})
 
 
@@ -133,10 +140,10 @@ plot_heatmap_fc <- function(expression_data,
   )
 
   if (is.null(.col_annot_colors)) {
-    selected_groups <- c("group")
+    selected_groups <- c(group_colname_str)
     col_colors <- gg_color_hue(length(unique(metadata[[selected_groups]]))) %>%
       setNames(unique(metadata[[selected_groups]]))
-    col_list <- list("group" = col_colors)
+    col_list <- list(group_colname_str = col_colors)
   } else {
     selected_groups <- names(.col_annot_colors)
     col_list <- .col_annot_colors
