@@ -83,7 +83,6 @@ read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
 collate_dire_pathways <- function(pathway_files_basepath,
                                   pattern,
                                   sheet_name) {
-  print(pathway_files_basepath)
   pathway_files <- list.files(
     pathway_files_basepath,
     pattern = pattern,

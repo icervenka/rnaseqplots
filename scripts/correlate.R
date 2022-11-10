@@ -20,13 +20,16 @@ plot_param_corr <- function(expression_data,
     )
 
   filtered_metadata <- metadata %>%
-    dplyr::select({{ sample_colname }}, {{ group_colname }}, matches(params)) %>%
+    dplyr::select(
+      {{ sample_colname }},
+      {{ group_colname }},
+      matches(params)
+    ) %>%
     tidyr::pivot_longer(-c({{ sample_colname }}, {{ group_colname }}),
       names_to = "param",
       values_to = "param_value"
     )
 
-  print(filtered_metadata)
   param_df <- filtered_expression %>%
     dplyr::left_join(filtered_metadata, by = sample_colname_str)
 
@@ -39,7 +42,9 @@ plot_param_corr <- function(expression_data,
   p <- param_df %>%
     ggplot2::ggplot(ggplot2::aes(x = param_value, y = gene_expression)) +
     ggplot2::geom_point(aes(color = {{ group_colname }})) +
-    { if (!is.null(palette)) scale_color_manual(values = palette) } + 
+    { #nolint
+      if (!is.null(palette)) scale_color_manual(values = palette)
+    } +
     ggplot2::stat_smooth(
       method = "lm",
       se = FALSE,
@@ -143,13 +148,15 @@ plot_lfc_scatter <- function(diffexp_data_1,
   if (color_quadrants) {
     p <- p +
       ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = quadrant),
-                          alpha = alpha) + 
+        alpha = alpha
+      ) +
       ggplot2::labs(colour = "quadrant")
   } else {
     p <- p +
       ggplot2::geom_point(ggplot2::aes(size = -log10(p_chi), color = err_sq),
-                          alpha = alpha) +
-      colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE) + 
+        alpha = alpha
+      ) +
+      colorspace::scale_colour_continuous_sequential("viridis", rev = FALSE) +
       ggplot2::labs(colour = "squared\nerror")
   }
 

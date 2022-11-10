@@ -2,6 +2,7 @@
     "mito_1": ["Pppargc1a", "Mb", "Myog", "Mstn", "ND5", "Cyc1", "Sdha", "Atp5a1"],
     "metabolism": ["Ppargc1a", "Esrra", "Vegfa", "Cyc1", "Cpt1b", "Ldhb", "Acox1", "Slc2a4", "Hk2", "Pdk4"],
     "volcano_example": ["Tnni2", "Tnnt1", "Ryr3", "Sln", "Tnnc2", "Casq1", "Casq2"],
-    "heatmap_fc_example": ["Idh3a","Cox10","Cluh","Cdk1","Fgf10","Apoe","Sdhd","Angptl4", 
+    "heatmap_fc_example_1": ["Fgf10", "Fos", "Advrba", "Col3a1", "Acvr1c", "Atf3", "Tnf", "Ppargc1a", "Gclc", "Myl9"],
+    "heatmap_fc_example_2": ["Idh3a","Cox10","Cluh","Cdk1","Fgf10","Apoe","Sdhd","Angptl4", 
         "Acly","Fasn","Plat","Hmox1","Itga6", "Timp3", "Slc3a2", "Cars","Adrb3","Myc","Cd14","Stat5a","Tubb2b"]
 }

@@ -12,7 +12,7 @@ plot_venn <- function(l,
     ".",
     plot_params$device
   )
-  
+
   a <- VennDiagram::venn.diagram(
     l,
     category.names = category_names,

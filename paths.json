@@ -29,10 +29,5 @@
             "path_to_pathway_lists": 
                 "data/pathway_lists.json"
         },
-    "params":
-        {
-            "dire_sheet_name":
-                "dire_all"
-        },
     "output_directory": "output"
 }
