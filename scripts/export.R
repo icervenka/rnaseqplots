@@ -131,7 +131,6 @@ get_plot_params <- function(type, plot_params) {
     config_df <- plot_params
   } else if (class(plot_params) == "character" &&
     endsWith(plot_params, "json")) {
-
     config_df <- rjson::fromJSON(file = plot_params)$plot_export_params %>%
       purrr::map_dfr(data.frame)
   }
@@ -168,7 +167,21 @@ ggsave_param <- function(output_dir,
     plot_params$device
   )
   plot_params$filename <- NULL
-  rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!plot_params)
+
+  # Complex Heatmap needs to be saved in specific manner
+  if (attr(class(plot), "package") == "ComplexHeatmap") {
+    get(plot_params$device)(
+      out_filename,
+      width = plot_params$width,
+      height = plot_params$height,
+      units = plot_params$units,
+      res = plot_params$dpi
+    )
+    ComplexHeatmap::draw(plot)
+    dev.off()
+  } else {
+    rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!plot_params)
+  }
 }
 
 ggsave_param_wrapper <- function(graph_type, ...) {
