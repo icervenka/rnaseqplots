@@ -1,7 +1,7 @@
 # load metadata
 if (nchar(path_to_metadata) > 0) {
   metadata <- read_data(path_to_metadata) %>%
-    dplyr::select(-c(fq, lane, read)) %>%
+    dplyr::select(-dplyr::any_of(c("fq", "lane", "read"))) %>%
     #dplyr::select(sample, group) %>%
     base::unique() %>%
     dplyr::mutate(group = factor(group, levels = group_levels)) %>%
@@ -66,7 +66,20 @@ if (nchar(path_to_gsea_files) > 0) {
 
 # load gene list json file
 if (nchar(path_to_gene_lists) > 0) {
+  if(nchar(modify_gene_lists) == 0) {
+    modify_gene_lists = identity
+  } else {
+    modify_gene_lists = get(modify_gene_lists)
+  }
+  
   gene_lists <- rjson::fromJSON(file = path_to_gene_lists)
+  gene_lists_to_read = gene_lists[map_int(gene_lists, length) == 1]
+  gene_lists_updated = purrr::map(gene_lists_to_read, 
+                                  read_gene_list_from_file) %>%
+    setNames(names(gene_lists_to_read)) 
+  gene_lists[names(gene_lists_updated)] = NULL
+  gene_lists = append(gene_lists, gene_lists_updated) %>%
+    purrr::map(modify_gene_lists)
 }
 
 # load pathway ranks json file

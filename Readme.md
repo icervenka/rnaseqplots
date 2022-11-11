@@ -69,6 +69,8 @@ Specified in `config.json` file in the root directory. Following configurations 
 ### Heatmaps
 ![Gene expression heatmap](output/heatmap.png)
 
+![Gene expression with log2 fold-change and p-value annotations](output/heatmap_fc.png)
+
 ### Dire transcription factor plots
 ![Labeled DIRE plot](output/dire.png)
 
@@ -102,4 +104,8 @@ Specified in `config.json` file in the root directory. Following configurations 
 List of required packages can be found in `scripts/load_packages.R` file. 
 
 ## Issues
-
+- Venn diagram function takes parameters for plot export as function arguments instead of calling ggsave functions
+- GSEA MSigDb pathways could use the name prettifier function
+- pheatmap and ComplexHeatmap package can't use last_plot() function from ggplot2 package,
+the created plot has to be piped to the ggsave_param(_wrapper) functions
+- gene list for heatmaps can't be NULL

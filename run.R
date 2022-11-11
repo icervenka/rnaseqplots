@@ -4,7 +4,7 @@ source("scripts/load_all.R", local = TRUE)
 
 ############################# test functions ###################################
 ## pca plots -------------------------------------------------------------------
-# A
+# A)
 plot_pca_deseq(dds)
 ggsave_param(
   output_directory,
@@ -12,9 +12,12 @@ ggsave_param(
   filename_suffix = "_deseq"
 )
 
+# B)
+# not exported
 plot_pca_common(expression_data, metadata)
-#ggsave_param_wrapper("pca")
 
+# C)
+# not exported
 plot_pca_common(
   expression_data,
   metadata,
@@ -25,6 +28,7 @@ plot_pca_common(
 )
 
 ## ma plot ---------------------------------------------------------------------
+# A)
 ma_plot(
   diffexp_data$ex_1,
   label_top_n = 5,
@@ -33,7 +37,7 @@ ma_plot(
 ggsave_param_wrapper("ma")
 
 ## volcano plots ---------------------------------------------------------------
-# A
+# A)
 volcano_plot(
   diffexp_data$ex_1,
   label_bottom_n = 5,
@@ -52,7 +56,8 @@ ggsave_param(
   filename_suffix = "_top"
 )
 
-# B
+# B)
+# not exported
 volcano_plot(
   diffexp_data$ex_1,
   label = SYMBOL,
@@ -73,8 +78,10 @@ volcano_plot(
 # TODO add cuffdiff volcano plot
 
 ## heatmaps  -------------------------------------------------------------------
-# TODO ggsave cant save heatmaps
-# A
+# pheatmap and ComplexHeatmap package can't use last_plot() function,
+# created plot has to be piped to the ggsave_param(_wrapper) functions
+# A)
+# not exported
 plot_heatmap(
   expression_data,
   metadata,
@@ -82,11 +89,11 @@ plot_heatmap(
   show_rownames = FALSE
 )
 
-# B
+# B)
 plot_heatmap(
   expression_data,
   metadata,
-  gene_list = gene_lists[["metabolism"]],
+  gene_list = gene_lists$oxphos,
   geneid_colname = SYMBOL,
   metadata_sample_colname = sample,
   gene_ranking_fun = rowMeans,
@@ -95,22 +102,22 @@ plot_heatmap(
 ) %>%
 ggsave_param_wrapper("heatmap", plot = .)
 
-# C
-# why tfs gene list doesn't work
+# C)
+# not exported
 plot_heatmap_fc(
   expression_data,
-  diffexp_data$ex_1,
+  diffexp_data$ex_1 %>% dplyr::mutate(padj = tidyr::replace_na(padj, 1)),
   metadata,
-  gene_lists[["structure"]]
+  gene_lists$oxphos
 )
 
 # D
-# TODO only does lfcc pval of one comparison
-p <- plot_heatmap_fc(
+plot_heatmap_fc(
   expression_data,
-  diffexp_data$ex_1,
+  diffexp_data$ex_2,
   metadata,
-  gene_lists[["heatmap_fc_example"]],
+  gene_lists[["heatmap_fc_example_2"]],
+  include_groups = c("ctrl", "ne", "cgrp"),
   id_colname = SYMBOL,
   fc_colname = log2FoldChange,
   .fc_colors = c("darkred", "steelblue"),
@@ -124,11 +131,11 @@ p <- plot_heatmap_fc(
     "npy" = "tomato4",
     "sp" = "lightgoldenrod2"
   ))
-)
-ggsave_param_wrapper("heatmap_fc", plot = p)
+) %>%
+ggsave_param_wrapper("heatmap_fc", plot = .)
 
 ## compare two datasets --------------------------------------------------------
-# A
+# A)
 plot_param_corr(
   expression_data,
   metadata,
@@ -138,7 +145,7 @@ plot_param_corr(
 )
 ggsave_param_wrapper("param_correlation")
 
-# B
+# B)
 plot_lfc_scatter(
   diffexp_data$ex_1,
   diffexp_data$ex_2,
@@ -147,7 +154,7 @@ plot_lfc_scatter(
 )
 ggsave_param_wrapper("lfc_scatter")
 
-# C
+# C)
 ## Venn diagram function takes parameters for plot export as one of the
 ## function arguments
 plot_venn(
@@ -160,10 +167,11 @@ plot_venn(
 )
 
 ## TF dire (dcode) plots -------------------------------------------------------
-# A
+# A)
+# not exported
 plot_dire(dire %>% filter_file("dire_1"))
 
-# B
+# B)
 plot_dire_labeled(
   dire %>% filter_file("dire_2"),
   occurrence_threshold = 0.10,
@@ -172,8 +180,7 @@ plot_dire_labeled(
 ggsave_param_wrapper("dire")
 
 ## gsea plots  -----------------------------------------------------------------
-# TODO write pathway name prettifier
-# A
+# A)
 plot_pathways_rank(
   gsea_data %>% filter_name("HALLMARK"),
   pathway_lists[["example_1"]],
@@ -184,7 +191,7 @@ plot_pathways_rank(
 )
 ggsave_param_wrapper("pathways_rank")
 
-# B
+# B)
 plot_pathways_volcano(
   gsea_data %>% filter_name("KEGG"),
   x_axis = nes,
@@ -199,11 +206,11 @@ plot_pathways_volcano(
 ggsave_param_wrapper("pathways_volcano")
 
 ## other pathway plots (amigo, clusterprofiler, etc.)  -------------------------
-# A
+# A)
 plot_cp_pathways_meta(cp_pathways, top_pathways = 30)
 ggsave_param_wrapper("pathways_meta")
 
-# B
+# B)
 plot_cp_pathways_bargraph(
   cp_pathways,
   pathway_source_pattern = "KEGG_GSEA",
