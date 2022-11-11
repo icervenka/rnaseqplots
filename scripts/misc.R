@@ -36,3 +36,21 @@ rank_how <- function(descending) {
     return(identity)
   }
 }
+
+modify_gene_symbols = function(gene_list, 
+                               text_replacements, 
+                               text_modifications) {
+  gene_list = gene_list %>%
+    stringr::str_replace_all(regex(text_replacements, ignore_case = TRUE)) %>%
+    purrr::map_chr(purrr::compose(!!!text_modifications))
+  return(gene_list)
+}
+
+mouseify_gene_symbols = function(gene_list) {
+  modify_gene_symbols(gene_list,
+                      text_replacements = c(
+                        mito_atp_replacer,
+                        c("MT-CO" = "MT-COX", "MT-" = "")
+                      ),
+                      text_modifications = list(tools::toTitleCase, tolower))
+}

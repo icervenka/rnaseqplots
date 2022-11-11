@@ -105,7 +105,7 @@ plot_heatmap_fc <- function(expression_data,
 
   diffexp_data_fil <- diffexp_data %>%
     dplyr::arrange({{ id_colname }}) %>%
-    dplyr::filter({{ id_colname }} %in% gene_list)
+    dplyr::filter(tolower({{ id_colname }}) %in% tolower(gene_list))
 
   log2fc_vals <- diffexp_data_fil %>%
     dplyr::pull({{ fc_colname }})
@@ -166,7 +166,7 @@ plot_heatmap_fc <- function(expression_data,
     name = "expression",
     right_annotation = har,
     top_annotation = hat,
-    cluster_columns = FALSE,
+    cluster_columns = TRUE,
     show_column_names = FALSE,
     border_gp = grid::gpar(col = "black", lty = 1),
     rect_gp = grid::gpar(col = "black", lwd = 1),

@@ -169,7 +169,8 @@ ggsave_param <- function(output_dir,
   plot_params$filename <- NULL
 
   # Complex Heatmap needs to be saved in specific manner
-  if (attr(class(plot), "package") == "ComplexHeatmap") {
+  if (!is.null(attr(class(plot), "package")) && 
+      attr(class(plot), "package") == "ComplexHeatmap") {
     get(plot_params$device)(
       out_filename,
       width = plot_params$width,

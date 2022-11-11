@@ -47,6 +47,14 @@ read_data <- function(filename) {
   return(data)
 }
 
+read_gene_list_from_file = function(filename) {
+  gene_list = readr::read_delim(filename, 
+                                delim = "\t", 
+                                col_names = c("SYMBOL")) %>%
+    dplyr::pull(SYMBOL)
+  return(gene_list)
+}
+
 read_cuffdiff <- function(dir) {
   cuff <- cummeRbund::readCufflinks(dir)
   annot <- read.delim(paste0(dir, "/gene_exp.diff"),

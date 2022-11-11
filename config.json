@@ -11,6 +11,7 @@
     "cp_pathways_pattern": "_contrast",
     "dire_pattern": "",
     "dire_sheet_name": "dire_all",
+    "modify_gene_lists": "mouseify_gene_symbols",
     "plot_export_params": [
         {
             "graph_type": "pca",
@@ -54,8 +55,8 @@
             "device": "png",
             "dpi": 600,
             "unit": "cm",
-            "width": 10,
-            "height": 8
+            "width": 5,
+            "height": 5
         },
         {
             "graph_type": "param_correlation",

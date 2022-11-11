@@ -9,7 +9,8 @@ config_items <- c(
   "gsea_fdr_cutoff",
   "dire_pattern",
   "cp_pathways_pattern",
-  "dire_sheet_name"
+  "dire_sheet_name",
+  "modify_gene_lists"
 )
 purrr::walk(config_items, function(x, config) {
   if (validate_config(x, config)) {
