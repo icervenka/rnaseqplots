@@ -93,7 +93,7 @@ plot_heatmap(
 plot_heatmap(
   expression_data,
   metadata,
-  gene_list = gene_lists$oxphos,
+  gene_list = gene_lists[["oxphos"]],
   geneid_colname = SYMBOL,
   metadata_sample_colname = sample,
   gene_ranking_fun = rowMeans,

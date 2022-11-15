@@ -47,7 +47,7 @@
             "dpi": 600,
             "unit": "cm",
             "width": 10,
-            "height": 7
+            "height": 9
         },
         {
             "graph_type": "heatmap_fc",
