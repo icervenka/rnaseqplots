@@ -1,5 +1,18 @@
 library(magrittr, include.only = "%>%")
 
+#' Creates plot from dire.dcode.com upstream transcription factor data
+#'
+#' @param df data frame containing column of transcription factor names,
+#' Occurence and Importance columns
+#' @param dot_size size of scatter plot symbols
+#' @param color color of scatter plot symbols
+#'
+#' @return ggplot scatter plot 
+#' @export
+#' 
+#' @importFrom ggplot2 ggplot aes geom_point theme_bw
+#'
+#' @examples
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   p <- df %>%
     ggplot2::ggplot(ggplot2::aes(x = Occurrence, y = Importance)) +
@@ -8,6 +21,29 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   return(p)
 }
 
+#' Creates labeled plot from dire.dcode.com upstream transcription factor data
+#'
+#' @param df data frame containing column of transcription factor names,
+#' Occurence and Importance columns
+#' @param occurrence_threshold double, minimum occurrence value to plot gene 
+#' labels
+#' @param importance_threshold double, minimum importance value to plot gene 
+#' labels
+#' @param label_genes character vector, label specific set of genes, overrides
+#' occurrence and importance thresholds
+#' @param combine_thresholds binary logical operator, how to combine the 
+#' occurrence and importance thresholds, default '&'
+#' @param ... other parameters to plot_dire function
+#'
+#' @return ggplot scatter plot with labeled transcription factors of interest
+#' @export 
+#' 
+#' @importFrom dplyr filter
+#' @importFrom ggrepel geom_label_repel
+#' @importFrom ggplot2 aes
+#' @importFrom grid unit
+#'
+#' @examples
 plot_dire_labeled <- function(df,
                               occurrence_threshold = 0.05,
                               importance_threshold = 0.05,
