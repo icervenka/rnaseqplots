@@ -1,4 +1,4 @@
-mito_atp_replacer = c(
+mito_atp_replacer <- c(
   "Atp5f1a" = "Atp5a1",
   "Atp5f1b" = "Atp5b",
   "Atp5f1c" = "Atp5c1",

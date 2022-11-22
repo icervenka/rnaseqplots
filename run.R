@@ -1,5 +1,6 @@
 # run master loading script that loads all the necessary, packages, functions
 # and data
+# TODO think about moving config and path scripts to main run script
 source("scripts/load_all.R", local = TRUE)
 
 ############################# test functions ###################################
