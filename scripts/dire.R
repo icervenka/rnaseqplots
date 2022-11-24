@@ -7,9 +7,9 @@ library(magrittr, include.only = "%>%")
 #' @param dot_size size of scatter plot symbols
 #' @param color color of scatter plot symbols
 #'
-#' @return ggplot scatter plot 
+#' @return ggplot scatter plot
 #' @export
-#' 
+#'
 #' @importFrom ggplot2 ggplot aes geom_point theme_bw
 #'
 #' @examples
@@ -25,19 +25,19 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
 #'
 #' @param df data frame containing column of transcription factor names,
 #' Occurence and Importance columns
-#' @param occurrence_threshold double, minimum occurrence value to plot gene 
+#' @param occurrence_threshold double, minimum occurrence value to plot gene
 #' labels
-#' @param importance_threshold double, minimum importance value to plot gene 
+#' @param importance_threshold double, minimum importance value to plot gene
 #' labels
-#' @param label_genes character vector, label specific set of genes, overrides
+#' @param gene_list character vector, label specific set of genes, overrides
 #' occurrence and importance thresholds
-#' @param combine_thresholds binary logical operator, how to combine the 
+#' @param combine_thresholds binary logical operator, how to combine the
 #' occurrence and importance thresholds, default '&'
 #' @param ... other parameters to plot_dire function
 #'
 #' @return ggplot scatter plot with labeled transcription factors of interest
-#' @export 
-#' 
+#' @export
+#'
 #' @importFrom dplyr filter
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggplot2 aes
@@ -47,21 +47,21 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
 plot_dire_labeled <- function(df,
                               occurrence_threshold = 0.05,
                               importance_threshold = 0.05,
-                              label_genes = NULL,
+                              gene_list = NULL,
                               combine_thresholds = `&`,
                               ...) {
   p <- df %>%
     plot_dire(...)
 
-  if (is.null(label_genes)) {
+  if (is.null(gene_list)) {
     label_data <- df %>%
       dplyr::filter(combine_thresholds(
         Occurrence > occurrence_threshold,
-        Importance > importance_threshold)
-      )
-  } else if (is.vector(label_genes, mode = "character")) {
+        Importance > importance_threshold
+      ))
+  } else if (is.vector(gene_list, mode = "character")) {
     label_data <- df %>%
-      dplyr::filter(`Transcription Factor` %in% label_genes)
+      dplyr::filter(`Transcription Factor` %in% gene_list)
   }
 
   p <- p +

@@ -3,7 +3,6 @@ library(magrittr, include.only = "%>%")
 
 #' Checks is item is present in a configuration dictionary
 #'
-#' #'
 #' @param entry character string to check
 #' @param config_dict named list usually obtained by parsing json configuration
 #' file

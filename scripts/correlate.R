@@ -3,20 +3,20 @@ library(magrittr, include.only = "%>%")
 #' Create a correlation graph of gene expression and sample parameter
 #'
 #' @param expression_data data frame of normalized gene expression with samples
-#'as columns and an id column for gene names/symbols
-#' @param metadata data frame with column of samples names, column for group 
-#' names and optionally other columns describing the sample features that will 
+#' as columns and an id column for gene names/symbols
+#' @param metadata data frame with column of samples names, column for group
+#' names and optionally other columns describing the sample features that will
 #' be correlated with gene expression
-#' @param gene_list character vector of gene IDs/symbols, which will be used 
+#' @param gene_list character vector of gene IDs/symbols, which will be used
 #' to  plot the correlations
-#' @param params character vector stating which parameter columns to choose 
+#' @param params character vector stating which parameter columns to choose
 #' from metadata to plot the  gene expression
 #' @param id_colname column name of gene IDs/symbols in expression data file,
 #' supplied as variable
+#' @param sample_colname column name of samples in metadata file, supplied as
+#' variable. default: sample
 #' @param group_colname column name of experimental groups in metadata file,
-#' supplied as variable
-#' @param sample_colname column name of samples in metadata file, supplied as 
-#' variable
+#' supplied as variable. default: group
 #' @param palette character vector of color palette, length has to be equal to
 #' the amount of groups in metadata file
 #' @param show_regression logical, whether to show regression line on the graph
@@ -26,7 +26,7 @@ library(magrittr, include.only = "%>%")
 #' @export
 #'
 #' @importFrom dplyr filter select left_join group_by
-#' @importFrom tidyr pivot_longer 
+#' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes geom_point scale_color_manual stat_smooth
 #' facet_grid theme_bw xlab ylab
 #'
@@ -36,8 +36,8 @@ plot_param_corr <- function(expression_data,
                             gene_list,
                             params,
                             id_colname = SYMBOL,
-                            group_colname = group,
                             sample_colname = sample,
+                            group_colname = group,
                             palette = NULL,
                             show_regression = TRUE) {
   sample_colname_str <- deparse(substitute(sample_colname))
@@ -78,7 +78,7 @@ plot_param_corr <- function(expression_data,
   p <- param_df %>%
     ggplot2::ggplot(ggplot2::aes(x = param_value, y = gene_expression)) +
     ggplot2::geom_point(aes(color = {{ group_colname }})) +
-    { #nolint
+    { # nolint
       if (!is.null(palette)) ggplot2::scale_color_manual(values = palette)
     } +
     ggplot2::stat_smooth(
@@ -99,28 +99,28 @@ plot_param_corr <- function(expression_data,
 #'
 #' @param diffexp_data_1 data frame of differential expression of first data set
 #' @param diffexp_data_2 data frame of differential expression of second data set
-#' @param data_colnames_1 named character vector of length 3 with names 'id', 
+#' @param data_colnames_1 named character vector of length 3 with names 'id',
 #' 'log2fc' and 'pvalue' corresponding to the names of these columns in first
 #' data set
-#' @param data_colnames_2 named character vector of length 3 with names 'id', 
+#' @param data_colnames_2 named character vector of length 3 with names 'id',
 #' 'log2fc' and 'pvalue' corresponding to the names of these columns in second
 #' data set
-#' @param pvalue_threshold double, maximal p-value threshold of the gene to be 
+#' @param pvalue_threshold double, maximal p-value threshold of the gene to be
 #' displayed on graph based on combined p-values from two data sets
-#' @param color_quadrants logical value denoting whether points should be 
+#' @param color_quadrants logical value denoting whether points should be
 #' colored based on graph quadrant, squared error is used otherwise
-#' @param alpha double, transparency of points in the graph 
+#' @param alpha double, transparency of points in the graph
 #'
 #' @return ggplot2 scatter plot of log2 fold changes in x and y axes and point
 #' size based on combined p-values
 #' @export
 #'
 #' @importFrom dplyr filter pull select left_join mutate case_when
-#' @importFrom tidyr pivot_longer 
+#' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes geom_point labs theme_bw
 #' @importFrom colorspace scale_colour_continuous_sequential
 #' @importFrom stats pchisq
-#' 
+#'
 #' @examples
 plot_lfc_scatter <- function(diffexp_data_1,
                              diffexp_data_2,
