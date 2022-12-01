@@ -68,7 +68,7 @@ plot_heatmap <- function(expression_data,
     if (is.character(gene_list)) {
       expression_data <- expression_data %>%
         dplyr::filter(tolower({{ id_colname }}) %in% tolower(gene_list))
-    # If integer, select top genes
+      # If integer, select top genes
     } else if (is.numeric(gene_list)) {
       # Create matrix
       expr_matrix <- expression_data %>%
@@ -88,7 +88,7 @@ plot_heatmap <- function(expression_data,
     stop("Filtered expression dataset is empty.")
   }
 
-  # Process duplicated gene IDs/symbols. Required because row names of matrix 
+  # Process duplicated gene IDs/symbols. Required because row names of matrix
   # create later need to be unique
   expression_data <- expression_data %>%
     dplyr::select({{ id_colname }}, dplyr::matches(samples)) %>%
@@ -129,7 +129,8 @@ plot_heatmap <- function(expression_data,
 #'
 #' @param expression_data data frame of normalized gene expression with samples
 #' as columns and an id column for gene names/symbols
-#' @param diffexp_data
+#' @param diffexp_data data frame of gene differential expression, must contain
+#' column for gene IDs/symbols, log2 fold-changes and a p-value
 #' @param metadata data frame with column of samples names, column for group
 #' names and optionally other columns describing the sample features
 #' @param gene_list character vector of gene IDs/symbols to display
@@ -213,7 +214,7 @@ plot_heatmap_fc <- function(expression_data,
 
   # Complexheatmap requires the row annotation to be a vector of values
   pvals <- diffexp_data_fil %>%
-  # min double is added to pval, in cas of pval = 0 it becomes Inf
+    # min double is added to pval, in cas of pval = 0 it becomes Inf
     dplyr::mutate(log_pval = -log10({{ pval_colname }} +
       .Machine$double.xmin)) %>%
     dplyr::pull(log_pval)
