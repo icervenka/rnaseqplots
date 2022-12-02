@@ -1,68 +1,116 @@
 library(magrittr, include.only = "%>%")
 
+#' Wrapper for cor.test for data frames
+#'
+#'
+#' @param df data frame with numeric data to correlate, usually grouped by
+#' another column
+#' @param x numeric data frame colum, supplied as variable
+#' @param y numeric data frame colum, supplied as variable
+#'
+#' @return tidy data frame of correlations
+#' @export
+#'
+#' @examples
 cor_test_df <- function(df, x, y) {
-  cor.test(
+  df <- cor.test(
     df[[deparse(substitute(x))]],
     df[[deparse(substitute(y))]],
     method = "pearson"
   ) %>%
     tidy()
+  return(df)
 }
 
-merge_cuffdiff_fc <- function(x, y, annot, by = "gene") {
-  lfcs <- merge(x %>%
-    dplyr::select(gene, gene_id, log2_fold_change, q_value),
-  y %>%
-    dplyr::select(gene, gene_id, log2_fold_change, q_value),
-  by = by
-  )
-  lfcs <- lfcs %>%
-    # Fisher method of combining p-values
-    dplyr::mutate(chi_pcomb = -2 * (log(q_value.x) + log(q_value.y))) %>%
-    # calculate significance of combined p-values
-    dplyr::mutate(p_chi = pchisq(chi_pcomb, df = 4, lower.tail = FALSE)) %>%
-    # calculate squared error of genes for ranking
-    dplyr::mutate(err_sq = (log2_fold_change.y - log2_fold_change.x)^2)
-
-  lfcs <- lfcs %>%
-    dplyr::mutate(err_sq = (log2_fold_change.y - log2_fold_change.x)^2)
-  return(lfcs)
-}
-
-filter_deseq_results <- function(res, padj_threshold = 0.05) {
-  filtered_res <- res %>%
-    data.frame() %>%
-    tibble::rownames_to_column("ensembl_gene_id")
-
-  if (!is.null(padj_threshold)) {
-    filtered_res <- filtered_res %>%
-      filter(padj < padj_threshold)
+#' Filter DESeq2 result object
+#'
+#' Converts to data frame and adds a column of values based on rownames
+#'
+#' @param res DESEeq2 result object
+#' @param colname column to filter, supplied as variable. default: padj
+#' @param threshold double, filtering threshold. Will be applied on absolute
+#' values in colname. default: 0.05
+#' @param rownames_to character string, name of the column that will be created
+#' from rownames of DESeq2 result object. default ensembl_gene_id
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
+filter_deseq_results <- function(res,
+                                 colname = padj,
+                                 threshold = 0.05,
+                                 comparison = `<`,
+                                 rownames_to = "ensembl_gene_id") {
+  if (!(rownames_to %in% names(res))) {
+    res <- res %>%
+      data.frame() %>%
+      tibble::rownames_to_column(rownames_to)
   }
-  return(filtered_res)
+
+  if (!is.null(colname)) {
+    res <- res %>%
+      filter(comparison(abs(colname), threshold))
+  }
+  return(res)
 }
 
-filter_file <- function(df, str) {
-  df %>%
-    dplyr::filter(grepl(str, file))
+#' Filter column values based on regex
+#'
+#' @param df data frame to filter 
+#' @param colname character string column name of values to filter
+#' @param str regex to filter by
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
+filter_string <- function(df, colname, str) {
+  df <- df %>%
+    dplyr::filter(grepl(str, colname))
+  return(df)
 }
 
-filter_name <- function(df, str) {
-  df %>%
-    dplyr::filter(grepl(str, name))
-}
-
+#' Get significantly regulated genes in character vector
+#'
+#' @param diffexp_data data frame of gene differential expression, must contain
+#' column for gene IDs/symbols and a p-value
+#' @param id_colname column name of gene IDs/symbols in differential expression
+#' data file, supplied as variable
+#' @param filter_sig_on usually column name of p-values in differential
+#' expression data file values of which will determine significance,
+#' supplied as variable. default: padj
+#' @param sig_threshold double, significance threshold for filter_sig_on column
+#'
+#' @return character vector of significant gene IDs/symbols
+#' @export
+#'
+#' @examples
 get_sig_genes <- function(diffexp_data,
-                          colname = SYMBOL,
-                          sig_threshold = 0.05,
-                          filter_sig_on = padj) {
+                          id_colname = SYMBOL,
+                          filter_sig_on = padj
+                          sig_threshold = 0.05) {
   gene_vec <- diffexp_data %>%
     dplyr::filter({{ filter_sig_on }} < sig_threshold) %>%
-    pull({{ colname }})
+    pull({{ id_colname }})
   return(gene_vec)
 }
 
+#' Get gene ID mapping from biomart
+#'
+#' An alternative to clusterProfiler::bitr function
+#' 
+#' @param mart biomart mart to use
+#' @param id_attribute character string, source attribute name
+#' @param mapped_attribute character vector, names of target attributes
+#' @param ... other parameters to biomart::getBM function
+#'
+#' @return data frame of id_attributed IDs mapped to mapped_attribute IDs
+#' @export
+#'
+#' @examples
 get_biomart_gene_mapping <- function(mart,
-                                     id_attribute,
+                                     id_attribute, 
                                      mapped_attribute,
                                      ...) {
   if (!all(c(
