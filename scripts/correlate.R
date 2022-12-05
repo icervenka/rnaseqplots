@@ -25,11 +25,6 @@ library(magrittr, include.only = "%>%")
 #' and gene expression of selected genes
 #' @export
 #'
-#' @importFrom dplyr filter select left_join group_by
-#' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes geom_point scale_color_manual stat_smooth
-#' facet_grid theme_bw xlab ylab
-#'
 #' @examples
 plot_param_corr <- function(expression_data,
                             metadata,
@@ -114,12 +109,6 @@ plot_param_corr <- function(expression_data,
 #' @return ggplot2 scatter plot of log2 fold changes in x and y axes and point
 #' size based on combined p-values
 #' @export
-#'
-#' @importFrom dplyr filter pull select left_join mutate case_when
-#' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot aes geom_point labs theme_bw
-#' @importFrom colorspace scale_colour_continuous_sequential
-#' @importFrom stats pchisq
 #'
 #' @examples
 plot_lfc_scatter <- function(diffexp_data_1,

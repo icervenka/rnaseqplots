@@ -10,8 +10,6 @@ library(magrittr, include.only = "%>%")
 #' @return ggplot scatter plot
 #' @export
 #'
-#' @importFrom ggplot2 ggplot aes geom_point theme_bw
-#'
 #' @examples
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
   p <- df %>%
@@ -37,11 +35,6 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
 #'
 #' @return ggplot scatter plot with labeled transcription factors of interest
 #' @export
-#'
-#' @importFrom dplyr filter
-#' @importFrom ggrepel geom_label_repel
-#' @importFrom ggplot2 aes
-#' @importFrom grid unit
 #'
 #' @examples
 plot_dire_labeled <- function(df,

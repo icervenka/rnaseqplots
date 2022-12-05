@@ -13,10 +13,6 @@ library(magrittr, include.only = "%>%")
 #' @return ggplot PCA plot
 #' @export
 #'
-#' @importFrom dplyr select left_join group_by summarise matches
-#' @importFrom DESeq2 vst rlog plotPCA
-#' @importFrom tibble rownames_to_column
-#'
 #' @examples
 plot_pca_deseq <- function(dds,
                            norm = "vst",
@@ -71,10 +67,6 @@ plot_pca_deseq <- function(dds,
 #'
 #' @return ggplot PCA plot
 #' @export
-#'
-#' @importFrom dplyr select left_join group_by summarise matches
-#' @importFrom tibble rownames_to_column
-#' @importFrom
 #'
 #' @examples
 plot_pca_common <- function(expression_data,
@@ -143,10 +135,6 @@ plot_pca_common <- function(expression_data,
 #'
 #' @return ggplot PCA plot
 #' @export
-#'
-#' @importFrom ggplot2 ggolot aes geom_point geom_segment xlab ylab theme_bw
-#' @importFrom ggplot2 theme scale_color_manual
-#' @importFrom viridis viridis
 #'
 #' @examples
 plot_pca <- function(pca_data,

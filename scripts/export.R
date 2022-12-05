@@ -63,8 +63,6 @@ ggsave_fixed <- function(file, plot = last_plot(), units = "mm", margin = 1,
 #' analysis, if out is supplied, it will besaved to the corresponding file
 #' @export
 #'
-#' @importFrom dplyr select mutate relocate
-#'
 #' @examples
 create_gsea_normalized <- function(data,
                                    metadata,
@@ -121,9 +119,6 @@ create_gsea_normalized <- function(data,
 #' @return formatted text GSEA class file, if out is supplied, text will be
 #' saved to the corresponding file
 #' @export
-#'
-#' @importFrom dplyr select
-#' @importFrom stringr str_replace_all
 #'
 #' @examples
 create_gsea_cls <- function(data,
@@ -182,10 +177,6 @@ create_gsea_cls <- function(data,
 #' if out is supplied, it will besaved to the corresponding file
 #' @export
 #'
-#' @importFrom dplyr mutate select arrange filter desc pull
-#' @importFrom lazyeval f_rhs
-#' @importFrom tidyr drop_na
-#'
 #' @examples
 create_gsea_rank <- function(data,
                              out = NULL,
@@ -243,10 +234,6 @@ create_gsea_rank <- function(data,
 #' @return named list of plot export parameters
 #' @export
 #'
-#' @importFrom dplyr filter select
-#' @importFrom purrr map_dfr
-#' @importFrom rjson fromJSON
-#'
 #' @examples
 get_plot_params <- function(type, plot_params) {
   # check whether plot params are a data frame of path to config file
@@ -288,10 +275,6 @@ get_plot_params <- function(type, plot_params) {
 #'
 #' @return NULL
 #' @export
-#'
-#' @importFrom ComplexHeatmap draw
-#' @importFrom rlang exec
-#' @importFrom ggplot2 ggsave
 #'
 #' @examples
 ggsave_param <- function(output_dir,

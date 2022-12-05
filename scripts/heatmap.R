@@ -32,11 +32,6 @@ library(magrittr, include.only = "%>%")
 #' @return pheatmap plot
 #' @export
 #'
-#' @importFrom dplyr filter select group_by summarise across matches
-#' @importFrom tibble column_to_rownames
-#' @importFrom pheatmap pheatmap
-#' @importFrom RColorBrewer brewer.pal
-#'
 #' @examples
 plot_heatmap <- function(expression_data,
                          metadata,
@@ -160,14 +155,6 @@ plot_heatmap <- function(expression_data,
 #'
 #' @return ComplexHeatmap heatmap
 #' @export
-#'
-#' @importFrom rlang enexpr
-#' @importFrom dplyr filter pull arrange select matches mutate contains
-#' @importFrom tibble column_to_rownames
-#' @importFrom circlize colorRamp2
-#' @importFrom ComplexHeatmap Legend rowAnnotation anno_simple anno_barplot
-#' columnAnnotation Heatmap draw
-#' @importFrom grid unit gpar
 #'
 #' @examples
 plot_heatmap_fc <- function(expression_data,
