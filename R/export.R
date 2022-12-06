@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Save ggplot graph with fixed panel sizes
 #'
 #' Useful when the axis labels between group of graphs are of different sizes
@@ -18,9 +16,7 @@ library(magrittr, include.only = "%>%")
 #' @return ggplot graph with fixed panel sizes
 #' @export
 #'
-#' @importFrom egg set_panel_size
-#' @importFrom grid unit
-#' @importFrom ggplot2 ggsave
+#' @importFrom magrittr %>%
 #'
 #' @examples
 ggsave_fixed <- function(file, plot = last_plot(), units = "mm", margin = 1,
@@ -62,6 +58,8 @@ ggsave_fixed <- function(file, plot = last_plot(), units = "mm", margin = 1,
 #' @return formatted data frame with normalized gene expression for  GSEA
 #' analysis, if out is supplied, it will besaved to the corresponding file
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 create_gsea_normalized <- function(data,
@@ -120,6 +118,8 @@ create_gsea_normalized <- function(data,
 #' saved to the corresponding file
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 create_gsea_cls <- function(data,
                             metadata,
@@ -177,6 +177,8 @@ create_gsea_cls <- function(data,
 #' if out is supplied, it will besaved to the corresponding file
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 create_gsea_rank <- function(data,
                              out = NULL,
@@ -233,6 +235,8 @@ create_gsea_rank <- function(data,
 #'
 #' @return named list of plot export parameters
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 get_plot_params <- function(type, plot_params) {
@@ -305,7 +309,7 @@ ggsave_param <- function(output_dir,
 
   # Complex Heatmap needs to be saved in specific manner
   if (!is.null(attr(class(plot), "package")) &&
-      attr(class(plot), "package") == "ComplexHeatmap") {
+    attr(class(plot), "package") == "ComplexHeatmap") {
     get(plot_params$device)(
       out_filename,
       width = plot_params$width,
@@ -331,8 +335,8 @@ ggsave_param <- function(output_dir,
 #' property in the config file
 #' @param ... other parameters passed to the ggsave_param function
 #'
-#' @return
-#' @export NULL
+#' @return NULL
+#' @export
 #'
 #' @examples
 ggsave_param_wrapper <- function(graph_type, ...) {

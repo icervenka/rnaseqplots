@@ -32,8 +32,10 @@
 #' @return MA plot with colored significat genes and optionally gene labels
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
-ma_plot <- function(diffexp_data,
+plot_ma <- function(diffexp_data,
                     x = baseMean,
                     y = log2FoldChange,
                     id_colname = SYMBOL,

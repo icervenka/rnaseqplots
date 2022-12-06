@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Wrapper for cor.test for data frames
 #'
 #'
@@ -10,6 +8,8 @@ library(magrittr, include.only = "%>%")
 #'
 #' @return tidy data frame of correlations
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 cor_test_df <- function(df, x, y) {
@@ -35,6 +35,8 @@ cor_test_df <- function(df, x, y) {
 #'
 #' @return data frame
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 filter_deseq_results <- function(res,
@@ -64,6 +66,8 @@ filter_deseq_results <- function(res,
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 filter_string <- function(df, colname, str) {
   df <- df %>%
@@ -84,6 +88,8 @@ filter_string <- function(df, colname, str) {
 #'
 #' @return character vector of significant gene IDs/symbols
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 get_sig_genes <- function(diffexp_data,
@@ -107,6 +113,8 @@ get_sig_genes <- function(diffexp_data,
 #'
 #' @return data frame of id_attributed IDs mapped to mapped_attribute IDs
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 get_biomart_gene_mapping <- function(mart,

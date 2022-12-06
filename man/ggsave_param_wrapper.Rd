@@ -12,9 +12,6 @@ property in the config file}
 
 \item{...}{other parameters passed to the ggsave_param function}
 }
-\value{
-
-}
 \description{
 To make saving graphs easier, only graph_type property from the config file
 needs to be supplied. Functions assumes there is a file called 'config.json'

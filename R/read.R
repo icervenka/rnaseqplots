@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Upgrade of addFeatures from cummeRbund package
 #'
 #' It was using some deprected function
@@ -80,6 +78,8 @@ read_data <- function(filename) {
 #' @return character vector
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 read_gene_list_from_file <- function(filename) {
   gene_list <- readr::read_delim(filename,
@@ -133,6 +133,8 @@ read_cuffdiff <- function(dir) {
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
   if (grepl(".xlsx", filename)) {
@@ -161,6 +163,8 @@ read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
 #'
 #' @return data frame
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 collate_dire_pathways <- function(pathway_files_basepath,
@@ -225,6 +229,8 @@ collate_dire_pathways <- function(pathway_files_basepath,
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 read_amigo_json <- function(jsonfile) {
 
@@ -277,6 +283,8 @@ read_amigo_json <- function(jsonfile) {
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 read_gsea <- function(filename,
                       rank_by = NES,
@@ -309,6 +317,8 @@ read_gsea <- function(filename,
 #'
 #' @return data frame containg the locations of result files and their paths
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 get_gsea_files_from_dir <- function(dirpath, pattern, recursive = TRUE) {
@@ -343,6 +353,8 @@ get_gsea_files_from_dir <- function(dirpath, pattern, recursive = TRUE) {
 #'
 #' @return filtered pathway_data data frame
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 filter_pathways <- function(pathway_data,
@@ -385,6 +397,8 @@ filter_pathways <- function(pathway_data,
 #' @return data frame with parsed GSEA data
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
 batch_read_filter_gsea <- function(dir = ".",
                                    pattern = "gsea_report_for",
@@ -422,8 +436,10 @@ batch_read_filter_gsea <- function(dir = ".",
 #' @param descending logical, whether ranking should be done from highest to
 #' lowest value. default: TRUE
 #'
-#' @return
-#' @export data frame
+#' @return data frame
+#' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
@@ -446,6 +462,8 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 #'
 #' @return data frame with IPA pathways
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 collate_ipa_pathways <- function(pathway_files_basepath,
@@ -475,6 +493,8 @@ collate_ipa_pathways <- function(pathway_files_basepath,
 #' @param pattern character string, regex pattern for filenames to include.
 #' @param padj_threshold double, p-value significance threshold fo filtering
 #' pathways
+#'
+#' @importFrom magrittr %>%
 #'
 #' @return data frame
 #' @export

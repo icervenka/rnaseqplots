@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Creates plot from dire.dcode.com upstream transcription factor data
 #'
 #' @param df data frame containing column of transcription factor names,
@@ -9,6 +7,8 @@ library(magrittr, include.only = "%>%")
 #'
 #' @return ggplot scatter plot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
@@ -35,6 +35,8 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
 #'
 #' @return ggplot scatter plot with labeled transcription factors of interest
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_dire_labeled <- function(df,
