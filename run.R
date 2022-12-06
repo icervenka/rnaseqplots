@@ -76,8 +76,6 @@ volcano_plot(
   color_palette = c("bisque2", "darkorchid4", "cyan4")
 )
 
-# TODO add cuffdiff volcano plot
-
 ## heatmaps  -------------------------------------------------------------------
 # pheatmap and ComplexHeatmap package can't use last_plot() function,
 # created plot has to be piped to the ggsave_param(_wrapper) functions

@@ -1,7 +1,5 @@
 library(magrittr, include.only = "%>%")
 
-# TODO decide for collation functions to work recursively
-
 # upgrade of addFeatures from cummeRbund package, was using deprecated functions
 .addFeatures <- function(object, features, level = "genes", ...) { # nolint
   if (!is.data.frame(features)) {
@@ -136,7 +134,6 @@ read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
   return(df)
 }
 
-# TODO read only dire type of data, ignoring other
 #' Batch reading of dire data from directory
 #'
 #' Function will attempt to read all text and excel files in directory that
@@ -157,20 +154,48 @@ read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
 #' @examples
 collate_dire_pathways <- function(pathway_files_basepath,
                                   pattern = "",
-                                  sheet_name = "Sheet1") {
+                                  sheet_name = "Sheet1",
+                                  recursive = TRUE) {
+  empty_dire_df <- data.frame(
+    `Transcription Factor` = character(0),
+    Occurrence = numeric(0),
+    Importance = numeric(0)
+  )
+
   pathway_files <- list.files(
     pathway_files_basepath,
     pattern = pattern,
-    full.names = TRUE
+    full.names = TRUE,
+    recursive = recursive
   )
 
   dire_pathways <- purrr::map_dfr(pathway_files, function(x) {
     if (endsWith(x, "xlsx")) {
-      dire_df <- read_dire_xlsx(x, dire_sheet_name)
+      tryCatch(
+        {
+          dire_df <- read_dire_xlsx(x, dire_sheet_name)
+        },
+        error = function(cond) {
+          message("There were problems dire xlsx file, please check that the
+          specifications are correct, skipping.")
+          message(cond)
+          return(empty_dire_df)
+        }
+      )
     } else {
-      dire_df <- read_data(x) %>%
-        dplyr::select(-`#`) %>%
-        mutate(Occurrence = as.numeric(gsub("%", "", Occurrence)) / 100)
+      tryCatch(
+        {
+          dire_df <- read_data(x) %>%
+            dplyr::select(-`#`) %>%
+            mutate(Occurrence = as.numeric(gsub("%", "", Occurrence)) / 100)
+        },
+        error = function(cond) {
+          message("There were problems dire text file, please check that the
+          specifications are correct, skipping.")
+          message(cond)
+          return(empty_dire_df)
+        }
+      )
     }
     dire_df <- dire_df %>%
       dplyr::mutate(file = x)
@@ -275,11 +300,11 @@ read_gsea <- function(filename,
 #' @export
 #'
 #' @examples
-get_gsea_files_from_dir <- function(dirpath, pattern) {
+get_gsea_files_from_dir <- function(dirpath, pattern, recursive = TRUE) {
   file_df <- data.frame(full_path = dir(dirpath,
     pattern = paste0(pattern, ".*tsv"),
     full.names = TRUE,
-    recursive = TRUE
+    recursive = recursive
   )) %>%
     tidyr::separate(full_path,
       into = c("path", "file"),
@@ -356,9 +381,10 @@ batch_read_filter_gsea <- function(dir = ".",
                                    score_threshold = 0,
                                    pvalue_column = fdr_qval,
                                    pvalue_threshold = 0.05,
-                                   rank_by = nes) {
+                                   rank_by = nes,
+                                   recursive = TRUE) {
   # read the data frame of files
-  files_df <- get_gsea_files_from_dir(dir, pattern)
+  files_df <- get_gsea_files_from_dir(dir, pattern, recursive = recursive)
 
   # process files
   purrr::map_dfr(unique(files_df$path), function(x) {
@@ -377,7 +403,7 @@ batch_read_filter_gsea <- function(dir = ".",
   })
 }
 
-#' Read analysis file from ipa_reports_snakemake 
+#' Read analysis file from ipa_reports_snakemake
 #'
 #' @param filename character string, text file with IPA pathways to process
 #' @param rank_by which column to rank the data on, supplied as variable.
@@ -399,7 +425,7 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 
 #' Batch read IPA files into one data frame
 #'
-#' @param pathway_files_basepath character string, directory path where the 
+#' @param pathway_files_basepath character string, directory path where the
 #' result files are located.
 #' @param pattern character string, regex pattern for filenames to include.
 #' @param rank_by which column to rank the data on, supplied as variable.
@@ -414,24 +440,26 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 collate_ipa_pathways <- function(pathway_files_basepath,
                                  pattern,
                                  rank_by = zscore,
-                                 descending = TRUE) {
+                                 descending = TRUE, 
+                                 recursive = TRUE) {
   pathway_files <- list.files(
     pathway_files_basepath,
     pattern = pattern,
     full.names = FALSE
+    recursive = recursive
   )
 
   ipa_pathways <- purrr::map_dfr(pathway_files, function(x) {
-    # TODO add df type to ipa pipeline
+    # TODO add df type to ipa snakemake pipeline
     read_ipa(x, rank_by = rank_by, descending = descending) %>%
-    dplyr::mutate(file = x)
+      dplyr::mutate(file = x)
   })
   return(ipa_pathways)
 }
 
 #' Batch read files from  clusterprofiler_reports_snakemake into one data frame
 #'
-#' @param pathway_files_basepath character string, directory path where the 
+#' @param pathway_files_basepath character string, directory path where the
 #' result files are located.
 #' @param pattern character string, regex pattern for filenames to include.
 #' @param padj_threshold double, p-value significance threshold fo filtering
@@ -443,10 +471,12 @@ collate_ipa_pathways <- function(pathway_files_basepath,
 #' @examples
 collate_cp_pathways <- function(pathway_files_basepath,
                                 pattern,
-                                pval_threshold = 0.05) {
+                                pval_threshold = 0.05,
+                                recursive = TRUE) {
   pathway_files <- list.files(pathway_files_basepath,
     pattern = pattern,
-    full.names = FALSE
+    full.names = FALSE,
+    recursive = recursive
   )
 
   cp_unified_colnames <- c(
@@ -461,13 +491,8 @@ collate_cp_pathways <- function(pathway_files_basepath,
       show_col_types = FALSE
     ) %>%
       setNames(cp_unified_colnames) %>%
-      # TODO needs to be changed
-      dplyr::mutate(
-        source = gsub("_contrast.txt", "", x),
-        ID = as.character(ID)
-      ) %>%
-      # might not reflect actual columns
-      # TODO fix
+      dplyr::mutate(ID = as.character(ID)) %>%
+      # TODO might not reflect actual columns, check with cp reports package
       dplyr::select(-SYMBOL, -ENTREZID, -log2FoldChange) %>%
       unique()
   }) %>%

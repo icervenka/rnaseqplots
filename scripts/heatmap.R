@@ -141,6 +141,8 @@ plot_heatmap <- function(expression_data,
 #' @param pval_colname column name of p-values or adjusted p-values in the
 #' data frame with differential expression data, supplied as variable.
 #' default: padj
+#' @param pval_threshold double, significance threshold for p-values, used for 
+#' mapping the lower value from .pval_colors to this value. default: 0.05
 #' @param .pval_colors character vector of length 2, colors that will be mapped
 #' to highest and lowest p-values respectively. default: c("white", "steelblue")
 #' @param sample_colname column name of samples in metadata file, supplied as
@@ -166,6 +168,7 @@ plot_heatmap_fc <- function(expression_data,
                             fc_colname = log2FoldChange,
                             .fc_colors = c("darkred", "steelblue"),
                             pval_colname = padj,
+                            pval_threshold = 0.05,
                             .pval_colors = c("white", "steelblue"),
                             sample_colname = sample,
                             group_colname = group,
@@ -206,9 +209,8 @@ plot_heatmap_fc <- function(expression_data,
       .Machine$double.xmin)) %>%
     dplyr::pull(log_pval)
   # Assign corresponding colors to values
-  # TODO fix min value should be user supplied
   pvals_colors <- circlize::colorRamp2(
-    breaks = c(-log10(0.05), max(pvals)),
+    breaks = c(-log10(pval_threshold), max(pvals)),
     colors = .pval_colors
   )
   # Create ComplexHeatmap legend for pvalues

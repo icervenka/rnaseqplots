@@ -82,8 +82,8 @@ plot_param_corr <- function(expression_data,
       size = 0.5,
       color = "steelblue4"
     ) +
-    # TODO replace symbol with proper column name
-    ggplot2::facet_grid(SYMBOL ~ param, scales = "free") +
+
+    ggplot2::facet_grid(!!as.symbol(id_colname) ~ param, scales = "free") +
     ggplot2::theme_bw() +
     ggplot2::xlab("parameters") +
     ggplot2::ylab("normalized gene expression ")
@@ -175,7 +175,6 @@ plot_lfc_scatter <- function(diffexp_data_1,
         log(!!as.symbol(data_colnames_2["pvalue"])))
     ) %>%
     # calculate significance of combined p-values
-    # TODO check the degrees of freedom
     dplyr::mutate(p_chi = stats::pchisq(chi_pcomb,
       df = 1,
       lower.tail = FALSE
