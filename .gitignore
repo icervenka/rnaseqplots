@@ -3,3 +3,4 @@
 paths.R
 .lintr
 data/cuffdiff
+.Rproj.user

@@ -1,6 +1,17 @@
 library(magrittr, include.only = "%>%")
 
-# upgrade of addFeatures from cummeRbund package, was using deprecated functions
+#' Upgrade of addFeatures from cummeRbund package
+#'
+#' It was using some deprected function
+#'
+#' @param object aaa
+#' @param features bbb
+#' @param level ccc
+#' @param ... ddd
+#'
+#' @return dbi
+#'
+#' @examples
 .addFeatures <- function(object, features, level = "genes", ...) { # nolint
   if (!is.data.frame(features)) {
     stop("features must be a data.frame")
@@ -28,7 +39,7 @@ library(magrittr, include.only = "%>%")
   )
   res <- DBI::dbExecute(object@DB, indexQuery)
 }
-setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
+# setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
 
 # user defined reading functions -----------------------------------------------
 
@@ -440,12 +451,12 @@ read_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
 collate_ipa_pathways <- function(pathway_files_basepath,
                                  pattern,
                                  rank_by = zscore,
-                                 descending = TRUE, 
+                                 descending = TRUE,
                                  recursive = TRUE) {
   pathway_files <- list.files(
     pathway_files_basepath,
     pattern = pattern,
-    full.names = FALSE
+    full.names = FALSE,
     recursive = recursive
   )
 

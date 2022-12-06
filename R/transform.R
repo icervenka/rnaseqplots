@@ -57,7 +57,7 @@ filter_deseq_results <- function(res,
 
 #' Filter column values based on regex
 #'
-#' @param df data frame to filter 
+#' @param df data frame to filter
 #' @param colname character string column name of values to filter
 #' @param str regex to filter by
 #'
@@ -88,7 +88,7 @@ filter_string <- function(df, colname, str) {
 #' @examples
 get_sig_genes <- function(diffexp_data,
                           id_colname = SYMBOL,
-                          filter_sig_on = padj
+                          filter_sig_on = padj,
                           sig_threshold = 0.05) {
   gene_vec <- diffexp_data %>%
     dplyr::filter({{ filter_sig_on }} < sig_threshold) %>%
@@ -99,7 +99,7 @@ get_sig_genes <- function(diffexp_data,
 #' Get gene ID mapping from biomart
 #'
 #' An alternative to clusterProfiler::bitr function
-#' 
+#'
 #' @param mart biomart mart to use
 #' @param id_attribute character string, source attribute name
 #' @param mapped_attribute character vector, names of target attributes
@@ -110,7 +110,7 @@ get_sig_genes <- function(diffexp_data,
 #'
 #' @examples
 get_biomart_gene_mapping <- function(mart,
-                                     id_attribute, 
+                                     id_attribute,
                                      mapped_attribute,
                                      ...) {
   if (!all(c(
