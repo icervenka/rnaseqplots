@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Draw PCA plot from DESeq2 dds data
 #'
 #' Adds optional group centers and palette.
@@ -12,6 +10,8 @@ library(magrittr, include.only = "%>%")
 #'
 #' @return ggplot PCA plot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_pca_deseq <- function(dds,
@@ -67,6 +67,8 @@ plot_pca_deseq <- function(dds,
 #'
 #' @return ggplot PCA plot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_pca_common <- function(expression_data,
@@ -135,6 +137,8 @@ plot_pca_common <- function(expression_data,
 #'
 #' @return ggplot PCA plot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_pca <- function(pca_data,

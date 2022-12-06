@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Draws a heatmap of gene expression
 #'
 #' Uses pheatmap package.
@@ -31,6 +29,8 @@ library(magrittr, include.only = "%>%")
 #'
 #' @return pheatmap plot
 #' @export
+#' 
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_heatmap <- function(expression_data,
@@ -157,6 +157,8 @@ plot_heatmap <- function(expression_data,
 #'
 #' @return ComplexHeatmap heatmap
 #' @export
+#' 
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_heatmap_fc <- function(expression_data,

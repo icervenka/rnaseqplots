@@ -16,7 +16,7 @@ default: zscore}
 lowest value. default: TRUE}
 }
 \value{
-
+data frame
 }
 \description{
 Read analysis file from ipa_reports_snakemake

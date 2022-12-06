@@ -1,6 +1,3 @@
-library(magrittr, include.only = "%>%")
-
-
 #' Checks is item is present in a configuration dictionary
 #'
 #' @param entry character string to check
@@ -77,8 +74,6 @@ gg_color_hue <- function(i) {
 #' @return function  for ranking data frame entries
 #' @export
 #'
-#' @importFrom dplyr desc
-#'
 #' @examples
 rank_how <- function(descending) {
   if (descending == TRUE) {
@@ -99,8 +94,7 @@ rank_how <- function(descending) {
 #' @return character vector of modified gene names
 #' @export
 #'
-#' @importFrom stringr str_replace_all
-#' @importFrom purrr compose
+#' @importFrom magrittr %>%
 #'
 #' @examples
 modify_gene_symbols <- function(gene_list,
@@ -123,8 +117,6 @@ modify_gene_symbols <- function(gene_list,
 #'
 #' @return character vector of modified gene names
 #' @export
-#'
-#' @importFrom tools toTitleCase
 #'
 #' @examples
 mouseify_gene_symbols <- function(gene_list) {

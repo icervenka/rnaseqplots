@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Create an annotated volcano plot
 #'
 #' @param diffexp_data data frame of gene differential expression, must contain
@@ -36,8 +34,10 @@ library(magrittr, include.only = "%>%")
 #' @return ggplot volcano plot
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
-volcano_plot <- function(diffexp_data,
+plot_volcano <- function(diffexp_data,
                          x = log2FoldChange,
                          y = pvalue,
                          id_colname = SYMBOL,
@@ -149,8 +149,10 @@ volcano_plot <- function(diffexp_data,
 #' @return ggplot volcano plot
 #' @export
 #'
+#' @importFrom magrittr %>%
+#'
 #' @examples
-volcano_plot_cuffdiff <- function(diffexp_data, group1, group2, ...) {
+plot_volcano_cuffdiff <- function(diffexp_data, group1, group2, ...) {
   df <- diffexp_data %>%
     dplyr::filter(sample_1 == group1 & sample_2 == group2)
   return(volcano_plot(df, ...))

@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Create a correlation graph of gene expression and sample parameter
 #'
 #' @param expression_data data frame of normalized gene expression with samples
@@ -24,6 +22,8 @@ library(magrittr, include.only = "%>%")
 #' @return ggplot facet graph of correlation between specified sample parameters
 #' and gene expression of selected genes
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_param_corr <- function(expression_data,
@@ -82,7 +82,6 @@ plot_param_corr <- function(expression_data,
       size = 0.5,
       color = "steelblue4"
     ) +
-
     ggplot2::facet_grid(!!as.symbol(id_colname) ~ param, scales = "free") +
     ggplot2::theme_bw() +
     ggplot2::xlab("parameters") +
@@ -109,6 +108,8 @@ plot_param_corr <- function(expression_data,
 #' @return ggplot2 scatter plot of log2 fold changes in x and y axes and point
 #' size based on combined p-values
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_lfc_scatter <- function(diffexp_data_1,

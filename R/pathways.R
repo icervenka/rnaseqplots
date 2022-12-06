@@ -1,5 +1,3 @@
-library(magrittr, include.only = "%>%")
-
 #' Simple barplot of differentally regulated pathways
 #'
 #' Uses data from clusterprofiler_reports_snakemake analysis.
@@ -16,6 +14,8 @@ library(magrittr, include.only = "%>%")
 #'
 #' @return ggplot barplot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_cp_pathways_bargraph <- function(pathway_data,
@@ -105,6 +105,8 @@ plot_cp_pathways_bargraph <- function(pathway_data,
 #'
 #' @return ggplot barplot with pathway ranking
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_pathways_rank <- function(pathway_data,
@@ -209,6 +211,8 @@ plot_pathways_rank <- function(pathway_data,
 #'
 #' @return ggplot pathway volcano plot
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_pathways_volcano <- function(pathway_data,
@@ -317,6 +321,8 @@ plot_pathways_volcano <- function(pathway_data,
 #'
 #' @return grid of 3 ggplot plots
 #' @export
+#'
+#' @importFrom magrittr %>%
 #'
 #' @examples
 plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
