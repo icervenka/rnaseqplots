@@ -1,0 +1,128 @@
+[
+    {
+        "graph_type": "pca",
+        "filename": "pca",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 10,
+        "height": 8
+    },
+    {
+        "graph_type": "ma",
+        "filename": "ma",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 10,
+        "height": 10
+    },
+    {
+        "graph_type": "volcano",
+        "filename": "volcano",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 10,
+        "height": 10
+    },
+    {
+        "graph_type": "heatmap",
+        "filename": "heatmap",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 10,
+        "height": 9
+    },
+    {
+        "graph_type": "heatmap_fc",
+        "filename": "heatmap_fc",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 5,
+        "height": 5
+    },
+    {
+        "graph_type": "param_correlation",
+        "filename": "param_correlation",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 8,
+        "height": 12
+    },
+    {
+        "graph_type": "lfc_scatter",
+        "filename": "lfc_scatter",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 14,
+        "height": 10
+    },
+    {
+        "graph_type": "venn",
+        "filename": "venn",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 4,
+        "height": 4
+    },
+    {
+        "graph_type": "dire",
+        "filename": "dire",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 12,
+        "height": 8
+    },
+    {
+        "graph_type": "dire_labeled",
+        "filename": "dire_labeled",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 12,
+        "height": 8
+    },
+    {
+        "graph_type": "pathways_rank",
+        "filename": "pathways_rank",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 14,
+        "height": 8
+    },
+    {
+        "graph_type": "pathways_volcano",
+        "filename": "pathways_volcano",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 12,
+        "height": 12
+    },
+    {
+        "graph_type": "pathways_meta",
+        "filename": "pathways_meta",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 26,
+        "height": 10
+    },
+    {
+        "graph_type": "pathways_bargraph",
+        "filename": "pathways_bargraph",
+        "device": "png",
+        "dpi": 600,
+        "unit": "cm",
+        "width": 13,
+        "height": 6
+    }
+]

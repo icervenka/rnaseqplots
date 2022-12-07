@@ -1,0 +1,15 @@
+{
+    "group_levels": [
+        "ctrl",
+        "ne",
+        "cgrp",
+        "npy",
+        "sp"
+    ],
+    "padj_sig_cutoff": 0.05,
+    "gsea_fdr_cutoff": 0.25,
+    "cp_pathways_pattern": "_contrast",
+    "dire_pattern": "",
+    "dire_sheet_name": "dire_all",
+    "modify_gene_lists": "mouseify_gene_symbols"
+}
