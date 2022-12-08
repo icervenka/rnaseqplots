@@ -1,0 +1,6 @@
+cp_pathways <- load_cp_pathways(
+    "../inst/extdata/rnaseq/cp_pathways",
+    list(cp_pathways_pattern = "_contrast")
+)
+
+usethis::use_data(cp_pathways, overwrite = TRUE)
