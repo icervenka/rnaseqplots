@@ -37,6 +37,7 @@
   )
   res <- DBI::dbExecute(object@DB, indexQuery)
 }
+# TODO fix
 # setMethod("addFeatures", signature(object = "CuffSet"), .addFeatures)
 
 # user defined reading functions -----------------------------------------------
