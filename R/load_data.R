@@ -1,5 +1,13 @@
-#TODO add amigo and ipa data load
-
+#' Parse json config file
+#'
+#' @param config charcter string, path to json config file to load
+#' @param into character string, one of c("list", "env") whether to return
+#' loaded config file as list or as an environment
+#'
+#' @return list or environment of parsed config file
+#' @export
+#'
+#' @examples
 load_json_config <- function(config, into = "list") {
   config_list <- rjson::fromJSON(file = config)
 
@@ -12,7 +20,20 @@ load_json_config <- function(config, into = "list") {
   return(out)
 }
 
-# TODO reorganize due to params
+#' Load metadata information
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to metadata file
+#' @param params list of parameters parsed from config file, requires
+#' sample_colname, group_colname and group_levels to be present
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_metadata <- function(path, params) {
   metadata <- read_data(path) %>%
     # dplyr::select(-dplyr::any_of(c("fq", "lane", "read"))) %>%
@@ -26,11 +47,38 @@ load_metadata <- function(path, params) {
   return(metadata)
 }
 
+#' Load normalized expression data
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to metadata file
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_expression_data <- function(path, params) {
   expression_data <- read_data(path)
   return(expression_data)
 }
 
+#' Load data containing differetial expression
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path named list, names have to be unique, values are character strings
+#' corresponding to file paths of data with differential expression
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_diffexp_data <- function(path, params) {
   diffexp_data <- purrr::map(path, function(x) {
     if (nchar(x) > 0) {
@@ -41,6 +89,22 @@ load_diffexp_data <- function(path, params) {
   return(diffexp_data)
 }
 
+#' Load dire analysis files
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to directory containing files with dire
+#' analysis. Will search the path recursively, see collate_dire_pathways for
+#' more information
+#' @param params list of parameters parsed from config file. Requires
+#' dire_pattern and dire_sheet_name to be present
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_dire <- function(path, params) {
   dire <- collate_dire_pathways(
     path,
@@ -50,15 +114,57 @@ load_dire <- function(path, params) {
   return(dire)
 }
 
+#' Load DESeq2 dds file
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to dds file
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_deseq <- function(path, params) {
   dds <- readRDS(path)
 }
 
+#' Load data from cuffdiff analysis
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to directory with cuffdiff data
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_cuffdiff <- function(path, params) {
   cufdiff_diff <- read_cuffdiff(append_dir_slash(path))
   return(cuffdiff_diff)
 }
 
+#' Load data from clusterProfiler analysis
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file. Accepts file from https://github.com/icervenka/clusterprofiler_reports_snakemake
+#'
+#' @param path character string, path to directory with
+#' clusterprofiler_reports_snakemake csv output. Will search the path
+#' recursively, see collate_cp_pathways for more information
+#' @param params list of parameters parsed from config file. Requires
+#' cp_pathways_pattern_to be present
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
 load_cp_pathways <- function(path, params) {
   cp_pathways <- collate_cp_pathways(
     append_dir_slash(path),
@@ -67,6 +173,23 @@ load_cp_pathways <- function(path, params) {
   return(cp_pathways)
 }
 
+#' Load data from GSEA analysis
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file. Accepts data from GUI GSEA app.
+#'
+#' @param path character string, path to directory with GSEA analysis.
+#' Will search the path recursively, see batch_read_filter_gsea for more
+#' information
+#' @param params list of parameters parsed from config file. Requires
+#' pvalue_threshold to be present
+#'
+#' @return data frame
+#' @export
+#'
+#'
+#' @examples
 load_gsea_pathways <- function(path, params) {
   gsea_data <- batch_read_filter_gsea(
     dir = append_dir_slash(path),
@@ -75,10 +198,49 @@ load_gsea_pathways <- function(path, params) {
   return(gsea_data)
 }
 
-load_ipa <- function(path) {
+#' Title
+#'
+#' @param path
+#' @param params
+#'
+#' @return
+#' @export
+#'
+#' @examples
+load_ipa <- function(path, params) {
 
 }
 
+#' Title
+#'
+#' @param path
+#' @param params
+#'
+#' @return
+#' @export
+#'
+#' @examples
+load_amigo <- function(path, params) {
+
+}
+
+#' Load user specified gene lists from json file
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file. Gene list json file has user specified names and values can be
+#' either lists of lenght > 1 containing gene symbols or lists of length == 1
+#' containing path to text file with gene list to be read. File based gene lists
+#' contain single column of gene names without header.
+#'
+#' @param path character string, path to json gene list file
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return named list, where names correspond to gene list names supplied by
+#' user and values are character vectors of gene symbols/IDs
+#' @export
+#'
+#' @examples
 load_gene_lists <- function(path, params) {
   if (nchar(params$modify_gene_lists) == 0) {
     modify_gene_lists <- identity
@@ -99,10 +261,27 @@ load_gene_lists <- function(path, params) {
   return(gene_lists)
 }
 
+#' Load user specified pathway lists from json file
+#'
+#' Wrapper function for loading data that exposes common interface consisting
+#' of path to file/directory and parameter list parsed from json config file.
+#' Gene list json file has user specified names and values can be either
+#' integer lists corresponding to the rank of the pathway in data or character
+#' list with names of pathways.
+#'
+#' @param path character string, path to json pathway list file
+#' @param params list of parameters parsed from config file. Currently unused
+#'
+#' @return
+#' @export named list, where names correspond to gene list names supplied by
+#' user and values are integer or character vectors
+#'
+#' @examples
 load_pathway_lists <- function(path, params) {
   pathway_lists <- rjson::fromJSON(file = path)
 }
 
+# lookup table mapping path values from input config file to loading functions
 load_function_map <- list(
   "path_to_metadata" = load_metadata,
   "path_to_expression_data" = load_expression_data,
@@ -112,17 +291,36 @@ load_function_map <- list(
   "path_to_cp_pathway_files" = load_cp_pathways,
   "path_to_gsea_files" = load_gsea_pathways,
   "path_to_ipa_files" = load_ipa,
- # "path_to_amigo_files" = load_amigo,
+  "path_to_amigo_files" = load_amigo,
   "path_to_dire_files" = load_dire,
   "path_to_gene_lists" = load_gene_lists,
   "path_to_pathway_lists" = load_pathway_lists
 )
 
-load_data <- function(input_config,
-                      param_config,
-                      load_function_map,
-                      into = "list") {
+#' Loads all user supplied data conforming to parameters specified
+#'
+#' @param input_config character string, list or environment or path to json
+#' file containing locations of data files/directories to load
+#' @param param_config character string, list or environment or path to json
+#' file containing locations of parameter data file to load
+#' @param load_function_map named list mapping input config file paths to data
+#' loading function, where names are path_to_* names from input config and
+#' values are load_* functions
+#' @param into character string, one of c("list", "env") whether to return
+#' loaded config file as list or as an environment
+#'
+#' @return list or environment with loaded data files
+#' @export
+#'
+#' @examples
+load_all_data <- function(input_config,
+                          param_config,
+                          load_function_map,
+                          into = "list") {
+  match.arg(into, c("list", "env"))
 
+
+  # TODO move to helper function
   if (is.character(input_config) && endsWith("json")) {
     paths <- load_json_config(input_config)
   } else if (is.environment(input_config)) {
@@ -130,13 +328,23 @@ load_data <- function(input_config,
   } else if (is.list(input_config)) {
     paths <- input_config
   } else {
-    stop("Unrecognized config type.")
+    stop("Unrecognized input config type.")
+  }
+
+  if (is.character(param_config) && endsWith("json")) {
+    params <- load_json_config(param_config)
+  } else if (is.environment(param_config)) {
+    params <- as.list(param_config)
+  } else if (is.list(param_config)) {
+    params <- param_config
+  } else {
+    stop("Unrecognized input config type.")
   }
 
   data <- list()
   purrr::walk2(names(input_config), input_config, function(x, y) {
     if (nchar(y) > 0) {
-      data[[x]] <- load_function_map$x(y, param_config)
+      data[[x]] <- load_function_map$x(y, params)
     }
   })
 
