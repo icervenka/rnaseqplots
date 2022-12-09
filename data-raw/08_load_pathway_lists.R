@@ -1,5 +1,5 @@
-gene_lists <- load_pathway_lists(
-    "../inst/extdata/rnaseq/lists/pathway_lists.json",
+pathway_lists <- load_pathway_lists(
+    "inst/extdata/lists/pathway_lists.json",
     list()
 )
 

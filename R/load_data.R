@@ -1,3 +1,5 @@
+#TODO add amigo and ipa data load
+
 load_json_config <- function(config, into = "list") {
   config_list <- rjson::fromJSON(file = config)
 
@@ -5,12 +7,6 @@ load_json_config <- function(config, into = "list") {
     out <- config_list
   } else if (into == "env") {
     out <- new.env()
-    # purrr::walk2(
-    #   names(config_list), config_list,
-    #   function(x, y) {
-    #     assign(x, y, envir = out)
-    #   }
-    # )
     list2env(config_list, envir = out)
   }
   return(out)
@@ -20,12 +16,12 @@ load_json_config <- function(config, into = "list") {
 load_metadata <- function(path, params) {
   metadata <- read_data(path) %>%
     # dplyr::select(-dplyr::any_of(c("fq", "lane", "read"))) %>%
-    dplyr::select({{ sample_colname }}, {{ group_colname }}) %>%
+    dplyr::select(all_of(c(params$sample_colname, params$group_colname))) %>%
     base::unique() %>%
-    dplyr::mutate({{ group_colname }} := factor(group,
-      levels = group_levels
+    dplyr::mutate(!!as.symbol(params$group_colname) := factor(group,
+      levels = params$group_levels
     )) %>%
-    dplyr::arrange({{ group_colname }})
+    dplyr::arrange(!!as.symbol(params$group_colname))
   rownames(metadata) <- NULL
   return(metadata)
 }
@@ -116,10 +112,10 @@ load_function_map <- list(
   "path_to_cp_pathway_files" = load_cp_pathways,
   "path_to_gsea_files" = load_gsea_pathways,
   "path_to_ipa_files" = load_ipa,
-  "path_to_amigo_files" = load_amigo,
+ # "path_to_amigo_files" = load_amigo,
   "path_to_dire_files" = load_dire,
   "path_to_gene_lists" = load_gene_lists,
-  "path_to_pathway_lists" = load_pathway_lists,
+  "path_to_pathway_lists" = load_pathway_lists
 )
 
 load_data <- function(input_config,

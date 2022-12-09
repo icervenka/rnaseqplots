@@ -1,5 +1,8 @@
 diffexp_data <- load_diffexp_data(
-    "../inst/extdata/rnaseq/diffexp_data.txt",
+    list(
+        ex_1 = "inst/extdata/rnaseq/diffexp_data_1.txt",
+        ex_2 = "inst/extdata/rnaseq/diffexp_data_2.txt"
+    ),
     list()
 )
 

@@ -1,5 +1,5 @@
 dire <- load_dire(
-    "../inst/extdata/rnaseq/dire",
+    "inst/extdata/rnaseq/dire",
     list(dire_pattern = "", dire_sheet_name = "dire_all")
 )
 

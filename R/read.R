@@ -1,3 +1,5 @@
+# TODO unify the reading functions parameter names and inside variables
+
 #' Upgrade of addFeatures from cummeRbund package
 #'
 #' It was using some deprected function
@@ -505,6 +507,7 @@ collate_cp_pathways <- function(pathway_files_basepath,
                                 pattern,
                                 pval_threshold = 0.05,
                                 recursive = TRUE) {
+  pathway_files_basepath <- append_dir_slash(pathway_files_basepath)
   pathway_files <- list.files(pathway_files_basepath,
     pattern = pattern,
     full.names = FALSE,

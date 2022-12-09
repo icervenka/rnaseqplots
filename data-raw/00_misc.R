@@ -13,3 +13,5 @@ mito_atp_replacer <- c(
   "Atp5po" = "Atp5o",
   "Cyb" = "Cytb"
 )
+
+usethis::use_data(mito_atp_replacer, overwrite = TRUE)
