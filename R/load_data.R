@@ -1,3 +1,14 @@
+load_into <- function(x, into) {
+  match.arg(into, c("list", "env"))
+  if (into == "env") {
+    e <- new.env()
+    list2env(x, envir = e)
+    return(e)
+  } else {
+    return(x)
+  }
+}
+
 #' Parse json config file
 #'
 #' @param config charcter string, path to json config file to load
@@ -8,16 +19,22 @@
 #' @export
 #'
 #' @examples
-load_json_config <- function(config, into = "list") {
-  config_list <- rjson::fromJSON(file = config)
+load_json_config <- function(x, into = "list", ...) {
+  UseMethod("load_json_config", x)
+}
 
-  if (into == "list") {
-    out <- config_list
-  } else if (into == "env") {
-    out <- new.env()
-    list2env(config_list, envir = out)
-  }
-  return(out)
+load_json_config.character <- function(x, into = "list", ...) {
+  stopifnot(endsWith(x, "json"))
+  config_list <- rjson::fromJSON(file = x)
+  return(load_into(config_list, into))
+}
+
+load_json_config.list <- function(x, into = "list", ...) {
+  return(load_into(x, into))
+}
+
+load_json_config.environment <- function(x, into = "list", ...) {
+  return(load_into(as.list(x), into))
 }
 
 #' Load metadata information
@@ -34,7 +51,7 @@ load_json_config <- function(config, into = "list") {
 #' @export
 #'
 #' @importFrom magrittr %>%
-#' 
+#'
 #' @examples
 load_metadata <- function(path, params) {
   metadata <- read_data(path) %>%
@@ -327,28 +344,9 @@ load_all_data <- function(input_config,
                           into = "list") {
   match.arg(into, c("list", "env"))
 
-
-  # TODO move to helper function
-  if (is.character(input_config) && endsWith("json")) {
-    paths <- load_json_config(input_config)
-  } else if (is.environment(input_config)) {
-    paths <- as.list(input_config)
-  } else if (is.list(input_config)) {
-    paths <- input_config
-  } else {
-    stop("Unrecognized input config type.")
-  }
-
-  if (is.character(param_config) && endsWith("json")) {
-    params <- load_json_config(param_config)
-  } else if (is.environment(param_config)) {
-    params <- as.list(param_config)
-  } else if (is.list(param_config)) {
-    params <- param_config
-  } else {
-    stop("Unrecognized input config type.")
-  }
-
+  paths <- load_json_config(input_config)
+  params <- load_json_config(param_config)
+  
   data <- list()
   purrr::walk2(names(input_config), input_config, function(x, y) {
     if (nchar(y) > 0) {
