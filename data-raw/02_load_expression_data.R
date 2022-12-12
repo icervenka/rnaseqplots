@@ -1,4 +1,4 @@
-expression_data <- load_expression_data(
+expression_data <- load_data_expression(
     "inst/extdata/rnaseq/expression_data.txt",
     list()
 )

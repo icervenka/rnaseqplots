@@ -8,6 +8,7 @@
     ],
     "padj_sig_cutoff": 0.05,
     "gsea_fdr_cutoff": 0.25,
+    "ipa_rank_by": "zscore",
     "cp_pathways_pattern": "_contrast",
     "dire_pattern": "",
     "dire_sheet_name": "dire_all",
