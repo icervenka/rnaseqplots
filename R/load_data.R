@@ -33,6 +33,8 @@ load_json_config <- function(config, into = "list") {
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#' 
 #' @examples
 load_metadata <- function(path, params) {
   metadata <- read_data(path) %>%
@@ -60,7 +62,7 @@ load_metadata <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_expression_data <- function(path, params) {
+load_data_expression <- function(path, params) {
   expression_data <- read_data(path)
   return(expression_data)
 }
@@ -78,8 +80,10 @@ load_expression_data <- function(path, params) {
 #' @return data frame
 #' @export
 #'
+#' @importFrom magrittr %>%
+#' 
 #' @examples
-load_diffexp_data <- function(path, params) {
+load_data_diffexp <- function(path, params) {
   diffexp_data <- purrr::map(path, function(x) {
     if (nchar(x) > 0) {
       read_data(x)
@@ -87,31 +91,6 @@ load_diffexp_data <- function(path, params) {
   }) %>%
     setNames(names(path))
   return(diffexp_data)
-}
-
-#' Load dire analysis files
-#'
-#' Wrapper function for loading data that exposes common interface
-#' consisting of path to file/directory and parameter list parsed from json
-#' config file
-#'
-#' @param path character string, path to directory containing files with dire
-#' analysis. Will search the path recursively, see collate_dire_pathways for
-#' more information
-#' @param params list of parameters parsed from config file. Requires
-#' dire_pattern and dire_sheet_name to be present
-#'
-#' @return data frame
-#' @export
-#'
-#' @examples
-load_dire <- function(path, params) {
-  dire <- collate_dire_pathways(
-    path,
-    params$dire_pattern,
-    params$dire_sheet_name
-  )
-  return(dire)
 }
 
 #' Load DESeq2 dds file
@@ -127,7 +106,7 @@ load_dire <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_deseq <- function(path, params) {
+load_data_deseq <- function(path, params) {
   dds <- readRDS(path)
 }
 
@@ -144,8 +123,8 @@ load_deseq <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_cuffdiff <- function(path, params) {
-  cufdiff_diff <- read_cuffdiff(append_dir_slash(path))
+load_data_cuffdiff <- function(path, params) {
+  cufdiff_diff <- read_data_cuffdiff(append_dir_slash(path))
   return(cuffdiff_diff)
 }
 
@@ -153,11 +132,12 @@ load_cuffdiff <- function(path, params) {
 #'
 #' Wrapper function for loading data that exposes common interface
 #' consisting of path to file/directory and parameter list parsed from json
-#' config file. Accepts file from https://github.com/icervenka/clusterprofiler_reports_snakemake
+#' config file. Accepts files from 
+#' https://github.com/icervenka/clusterprofiler_reports_snakemake
 #'
 #' @param path character string, path to directory with
 #' clusterprofiler_reports_snakemake csv output. Will search the path
-#' recursively, see collate_cp_pathways for more information
+#' recursively, see collate_pathways_cp for more information
 #' @param params list of parameters parsed from config file. Requires
 #' cp_pathways_pattern_to be present
 #'
@@ -165,8 +145,8 @@ load_cuffdiff <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_cp_pathways <- function(path, params) {
-  cp_pathways <- collate_cp_pathways(
+load_pathways_cp <- function(path, params) {
+  cp_pathways <- collate_pathways_cp(
     append_dir_slash(path),
     pattern = params$cp_pathways_pattern
   )
@@ -180,7 +160,7 @@ load_cp_pathways <- function(path, params) {
 #' config file. Accepts data from GUI GSEA app.
 #'
 #' @param path character string, path to directory with GSEA analysis.
-#' Will search the path recursively, see batch_read_filter_gsea for more
+#' Will search the path recursively, see collate_pathways_gsea for more
 #' information
 #' @param params list of parameters parsed from config file. Requires
 #' pvalue_threshold to be present
@@ -190,10 +170,10 @@ load_cp_pathways <- function(path, params) {
 #'
 #'
 #' @examples
-load_gsea_pathways <- function(path, params) {
-  gsea_data <- batch_read_filter_gsea(
+load_pathways_gsea <- function(path, params) {
+  gsea_data <- collate_pathways_gsea(
     dir = append_dir_slash(path),
-    pvalue_threshold = params$pvalue_threshold
+    pvalue_threshold = params$gsea_fdr_cutoff
   )
   return(gsea_data)
 }
@@ -207,8 +187,9 @@ load_gsea_pathways <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_ipa <- function(path, params) {
-
+load_pathways_ipa <- function(path, params) {
+  ipa_data <- collate_pathways_ipa(append_dir_slash(path), params$ipa_rank_by)
+  return(ipa_data)
 }
 
 #' Title
@@ -220,8 +201,33 @@ load_ipa <- function(path, params) {
 #' @export
 #'
 #' @examples
-load_amigo <- function(path, params) {
+load_pathways_amigo <- function(path, params) {
 
+}
+
+#' Load dire analysis files
+#'
+#' Wrapper function for loading data that exposes common interface
+#' consisting of path to file/directory and parameter list parsed from json
+#' config file
+#'
+#' @param path character string, path to directory containing files with dire
+#' analysis. Will search the path recursively, see collate_pathways_dire for
+#' more information
+#' @param params list of parameters parsed from config file. Requires
+#' dire_pattern and dire_sheet_name to be present
+#'
+#' @return data frame
+#' @export
+#'
+#' @examples
+load_pathways_dire <- function(path, params) {
+  dire <- collate_pathways_dire(
+    path,
+    params$dire_pattern,
+    params$dire_sheet_name
+  )
+  return(dire)
 }
 
 #' Load user specified gene lists from json file
@@ -240,6 +246,8 @@ load_amigo <- function(path, params) {
 #' user and values are character vectors of gene symbols/IDs
 #' @export
 #'
+#' @importFrom magrittr %>%
+#' 
 #' @examples
 load_gene_lists <- function(path, params) {
   if (nchar(params$modify_gene_lists) == 0) {
@@ -284,15 +292,15 @@ load_pathway_lists <- function(path, params) {
 # lookup table mapping path values from input config file to loading functions
 load_function_map <- list(
   "path_to_metadata" = load_metadata,
-  "path_to_expression_data" = load_expression_data,
-  "path_to_diffexp_data" = load_diffexp_data,
-  "path_to_deseq_dds" = load_deseq,
-  "path_to_cuffdiff" = load_cuffdiff,
-  "path_to_cp_pathway_files" = load_cp_pathways,
-  "path_to_gsea_files" = load_gsea_pathways,
-  "path_to_ipa_files" = load_ipa,
-  "path_to_amigo_files" = load_amigo,
-  "path_to_dire_files" = load_dire,
+  "path_to_expression_data" = load_data_expression,
+  "path_to_diffexp_data" = load_data_diffexp,
+  "path_to_deseq_dds" = load_data_deseq,
+  "path_to_cuffdiff" = load_data_cuffdiff,
+  "path_to_cp_pathway_files" = load_pathways_cp,
+  "path_to_gsea_files" = load_pathways_gsea,
+  "path_to_ipa_files" = load_pathways_ipa,
+  "path_to_amigo_files" = load_pathways_amigo,
+  "path_to_dire_files" = load_pathways_dire,
   "path_to_gene_lists" = load_gene_lists,
   "path_to_pathway_lists" = load_pathway_lists
 )

@@ -1,4 +1,4 @@
-cp_pathways <- load_cp_pathways(
+cp_pathways <- load_pathways_cp(
     "inst/extdata/cp_pathways",
     list(cp_pathways_pattern = "_contrast")
 )

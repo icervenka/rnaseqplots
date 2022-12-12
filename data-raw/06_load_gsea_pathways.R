@@ -1,4 +1,4 @@
-gsea_pathways <- load_gsea_pathways(
+gsea_pathways <- load_pathways_gsea(
     "inst/extdata/rnaseq/gsea",
     list(gsea_fdr_cutoff = 0.25)
 )

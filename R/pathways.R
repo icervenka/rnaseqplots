@@ -56,7 +56,7 @@ plot_cp_pathways_bargraph <- function(pathway_data,
 # #'
 # #' @examples
 # plot_basic_amigo = function(json_file, top_pathways = 15) {
-#   df = read_amigo_json(fromJSON(file = json_file))
+#   df = read_pathways_amigo(fromJSON(file = json_file))
 #   df %>%
 #     filter(level == 0) %>%
 #     arrange(fold_enrichment) %>%
