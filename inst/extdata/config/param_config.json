@@ -7,10 +7,14 @@
         "sp"
     ],
     "padj_sig_cutoff": 0.05,
+    "gsea_pathways_pattern": "",
     "gsea_fdr_cutoff": 0.25,
-    "ipa_rank_by": "zscore",
     "cp_pathways_pattern": "_contrast",
-    "dire_pattern": "",
+    "ipa_pathways_pattern": "",
+    "ipa_rank_by": "zscore",
+    "amigo_pathways_pattern": "",
+    "amigo_filter_level_up_to": 0,
+    "dire_pathways_pattern": "",
     "dire_sheet_name": "dire_all",
     "modify_gene_lists": "mouseify_gene_symbols"
 }
