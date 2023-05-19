@@ -126,7 +126,7 @@ plot_pca_common <- function(expression_data,
       pca_data,
       percent_var_labs,
       group = group,
-      !!!list(...)
+      ...
     )
   }
   
@@ -158,9 +158,9 @@ plot_pca_common <- function(expression_data,
 plot_pca <- function(pca_data,
                      percent_var_labs,
                      group = group,
-                     ahoj = TRUE,
                      group_center = TRUE,
                      linetype = "solid",
+                     geom_point_size = 1,
                      palette = NULL) {
 
   # get number of colors needed to display
@@ -192,14 +192,14 @@ plot_pca <- function(pca_data,
       ) +
       ggplot2::geom_point(
         ggplot2::aes(x = xend, y = yend),
-        size = 1
+        size = geom_point_size
       )
   }
   
   # Add axes labels and style the graph
   p <- p +
-    ggplot2::xlab(paste0("PC1: ", percent_var_labs[1], "% variance")) +
-    ggplot2::ylab(paste0("PC2: ", percent_var_labs[2], "% variance")) +
+    ggplot2::xlab(paste0("PC1: ", percent_var_labs[1], " variance")) +
+    ggplot2::ylab(paste0("PC2: ", percent_var_labs[2], " variance")) +
     ggplot2::theme_bw() +
     ggplot2::theme(legend.position = "top")
   
