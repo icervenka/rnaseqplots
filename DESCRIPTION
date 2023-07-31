@@ -1,14 +1,15 @@
 Package: rnaseqplots
-Title: What the Package Does (One Line, Title Case)
+Title: Create publication-ready plots from RNA-Seq data
 Version: 0.0.0.9000
 Authors@R: 
-    person("Igor", "Cervenka", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Igor", "Cervenka", , "igor.cervenka@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9438-5161"))
 Depends: R(>= 3.5.0)
-Imports : magrittr
 Description: What the package does (one paragraph).
 License: MIT License
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 LazyData: true
+Imports: 
+    magrittr

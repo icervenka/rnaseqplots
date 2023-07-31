@@ -232,7 +232,7 @@ load_pathways_gsea <- function(path, params) {
 load_pathways_ipa <- function(path, params) {
   pathway_data <- collate_pathways_ipa(
     append_dir_slash(pathway_data),
-    pattern = params$ipa_pathways_pattern
+    pattern = params$ipa_pathways_pattern,
     rank_by = params$ipa_rank_by
   )
   return(ipa_data)
@@ -336,9 +336,9 @@ load_gene_lists <- function(path, params) {
 #' @param path character string, path to json pathway list file
 #' @param params list of parameters parsed from config file. Currently unused
 #'
-#' @return
-#' @export named list, where names correspond to gene list names supplied by
+#' @return named list, where names correspond to gene list names supplied by
 #' user and values are integer or character vectors
+#' @export
 #'
 #' @examples
 load_pathway_lists <- function(path, params) {

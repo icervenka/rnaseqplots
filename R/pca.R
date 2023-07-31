@@ -138,7 +138,8 @@ plot_pca_common <- function(expression_data,
 #' @param pca_data data frame of PCA data, with required PC1 and PC2 columns
 #' @param percent_var_labs double vector of length 2, numeric values of
 #' explained variance for the PCA plot axes
-#' @param group
+#' @param group column name of group in pca data data frame, supplied as
+#' variable. default: SYMBOL
 #' @param group_center logical, whether to plot the center of group in the PCA
 #' plot
 #' @param linetype character string, a valid linetype for ggplot2. If the
