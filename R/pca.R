@@ -62,6 +62,8 @@ plot_pca_deseq <- function(dds,
 #' as columns and an id column for gene names/symbols
 #' @param metadata data frame with column of samples names, column for group
 #' names and optionally other columns describing the sample features
+#' @param group column name of group in metadata data data frame, supplied as
+#' variable. default: group
 #' @param ... other parameters to the plot_pca function, see ?plot_pca for more
 #' information
 #'
@@ -76,7 +78,7 @@ plot_pca_common <- function(expression_data,
                             group = group,
                             ...) {
   # calculate PCA components for samples specified in metadata
-  pca <- prcomp(
+  pca <- stats::prcomp(
     t(
       expression_data %>%
         dplyr::select(dplyr::matches(metadata$sample))
@@ -99,7 +101,7 @@ plot_pca_common <- function(expression_data,
 
   # Join with the PCA data plot
   pca_data <- pca_data %>%
-    dplyr::left_join(segments, by = join_by({{ group }} == {{ group }}))
+    dplyr::left_join(segments, by = dplyr::join_by({{ group }} == {{ group }}))
 
   # Create numeric values for variance explained to pass to axis labels
   percent_var_labs <- round(pca$sdev^2 / sum(pca$sdev^2) * 100, 2)
@@ -146,6 +148,8 @@ plot_pca_common <- function(expression_data,
 #' group_center is set to TRUE, this will determine the line type of drawn
 #' connections between sample points to group center. default: solid
 #' be
+#' @param geom_point_size numeric, size of the geom point for individual
+#' samples. default: 1
 #' @param palette character vector of the same length as the number of groups in
 #' the data. Custom color palette for groups. If NULL, viridis color palette
 #' will be used. default: NULL

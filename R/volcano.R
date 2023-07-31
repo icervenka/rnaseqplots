@@ -12,7 +12,8 @@
 #' expression data file values of which will determine significance,
 #' supplied as variable. default: padj
 #' @param sig_threshold double, significance threshold for filter_sig_on column
-#' @param log2fc_threshold
+#' @param log2fc_threshold double, log2 fold-change threshold for column
+#' specified in x. default 0.585, corresponds roughly to 1.5 fold-change
 #' @param label_bottom_n integer, number of labels to display for genes with
 #' highest y value. default: 5
 #' @param label_top_n integer, number of labels to display for genes with
@@ -155,5 +156,5 @@ plot_volcano <- function(diffexp_data,
 plot_volcano_cuffdiff <- function(diffexp_data, group1, group2, ...) {
   df <- diffexp_data %>%
     dplyr::filter(sample_1 == group1 & sample_2 == group2)
-  return(volcano_plot(df, ...))
+  return(plot_volcano(df, ...))
 }

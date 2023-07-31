@@ -100,7 +100,7 @@ plot_heatmap <- function(expression_data,
   p <- expression_data %>%
     pheatmap::pheatmap(
       scale = "row",
-      color = colorRampPalette(S4Vectors::rev(RColorBrewer::brewer.pal(
+      color = grDevices::colorRampPalette(S4Vectors::rev(RColorBrewer::brewer.pal(
         n = 7, name = palette
       )))(100),
       cellwidth = cell_dims[1],
@@ -245,7 +245,7 @@ plot_heatmap_fc <- function(expression_data,
       unique() %>%
       length() %>%
       gg_color_hue() %>%
-      setNames(unique(metadata[[selected_groups]]))
+      stats::setNames(unique(metadata[[selected_groups]]))
     col_list <- list(group_colname_str = col_colors)
   } else {
     selected_groups <- names(.col_annot_colors)

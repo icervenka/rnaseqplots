@@ -19,10 +19,10 @@
 #' @importFrom magrittr %>%
 #'
 #' @examples
-ggsave_fixed <- function(file, plot = last_plot(), units = "mm", margin = 1,
+ggsave_fixed <- function(file, plot = ggplot2::last_plot(), units = "mm", margin = 1,
                          panel_width = 4, panel_height = 4,
-                         width = round(dev.size()[1], digits = 1),
-                         height = round(dev.size()[1], digits = 1)) {
+                         width = round(grDevices::dev.size()[1], digits = 1),
+                         height = round(grDevices::dev.size()[1], digits = 1)) {
   pf <- egg::set_panel_size(
     p = plot,
     file = NULL,
@@ -90,7 +90,7 @@ create_gsea_normalized <- function(data,
 
   # write to file if specified
   if (!is.null(out)) {
-    write.table(out_df,
+    utils::write.table(out_df,
       out,
       sep = "\t",
       row.names = FALSE,
@@ -213,7 +213,7 @@ create_gsea_rank <- function(data,
 
   # write to file if specified
   if (!is.null(out)) {
-    write.table(out_df,
+    utils::write.table(out_df,
       out,
       sep = "\t",
       row.names = FALSE,
@@ -283,7 +283,7 @@ get_plot_params <- function(type, plot_params) {
 #' @examples
 ggsave_param <- function(output_dir,
                          plot_params,
-                         plot = last_plot(),
+                         plot = ggplot2::last_plot(),
                          filename_prefix = "",
                          filename_suffix = "",
                          date_prefix = FALSE) {
@@ -318,7 +318,7 @@ ggsave_param <- function(output_dir,
       res = plot_params$dpi
     )
     ComplexHeatmap::draw(plot)
-    dev.off()
+    grDevices::dev.off()
   } else {
     rlang::exec(ggplot2::ggsave, out_filename, plot = plot, !!!plot_params)
   }

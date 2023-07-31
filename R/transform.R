@@ -13,12 +13,12 @@
 #'
 #' @examples
 cor_test_df <- function(df, x, y) {
-  df <- cor.test(
+  df <- stats::cor.test(
     df[[deparse(substitute(x))]],
     df[[deparse(substitute(y))]],
     method = "pearson"
   ) %>%
-    tidy()
+    generics::tidy()
   return(df)
 }
 
@@ -32,6 +32,8 @@ cor_test_df <- function(df, x, y) {
 #' values in colname. default: 0.05
 #' @param rownames_to character string, name of the column that will be created
 #' from rownames of DESeq2 result object. default ensembl_gene_id
+#' @param comparison function, which comparison function to use to compare the
+#' values to threshold. default `<`
 #'
 #' @return data frame
 #' @export
@@ -52,7 +54,7 @@ filter_deseq_results <- function(res,
 
   if (!is.null(colname)) {
     res <- res %>%
-      filter(comparison(abs(colname), threshold))
+      dplyr::filter(comparison(abs(colname), threshold))
   }
   return(res)
 }
@@ -98,7 +100,7 @@ get_sig_genes <- function(diffexp_data,
                           sig_threshold = 0.05) {
   gene_vec <- diffexp_data %>%
     dplyr::filter({{ filter_sig_on }} < sig_threshold) %>%
-    pull({{ id_colname }})
+    dplyr::pull({{ id_colname }})
   return(gene_vec)
 }
 
@@ -109,7 +111,7 @@ get_sig_genes <- function(diffexp_data,
 #' @param mart biomart mart to use
 #' @param id_attribute character string, source attribute name
 #' @param mapped_attribute character vector, names of target attributes
-#' @param ... other parameters to biomart::getBM function
+#' @param ... other parameters to biomaRt getBM function
 #'
 #' @return data frame of id_attributed IDs mapped to mapped_attribute IDs
 #' @export
@@ -128,7 +130,7 @@ get_biomart_gene_mapping <- function(mart,
     stop("Id attribute or mapped attribute not present in attribute list.")
   }
 
-  mapping <- biomart::getBM(mart = mart, ...)
+  mapping <- biomaRt::getBM(mart = mart, ...)
   all_values <- data.frame(
     id = list(...)[["values"]],
     stringsAsFactors = FALSE

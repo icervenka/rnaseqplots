@@ -24,7 +24,7 @@ plot_venn <- function(l,
                       palette = viridis::viridis(2),
                       font_size = 0.6,
                       ...) {
-  if (nchar(plot_params$filename) == 0) grid.newpage()
+  if (nchar(plot_params$filename) == 0) grid::grid.newpage()
 
   out_filename <- paste0(
     output_directory,
@@ -62,7 +62,7 @@ plot_venn <- function(l,
     ...
   )
 
-  if (nchar(plot_params$filename) == 0) grid.draw(a)
+  if (nchar(plot_params$filename) == 0) grid::grid.draw(a)
 
   return(NULL)
 }

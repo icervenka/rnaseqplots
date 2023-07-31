@@ -41,7 +41,7 @@ plot_param_corr <- function(expression_data,
   # transform to a long data frame
   filtered_expression <- expression_data %>%
     dplyr::filter(tolower({{ id_colname }}) %in% tolower(gene_list)) %>%
-    dplyr::select({{ id_colname }}, matches(metadata[[sample_colname_str]])) %>%
+    dplyr::select({{ id_colname }}, dplyr::matches(metadata[[sample_colname_str]])) %>%
     tidyr::pivot_longer(-{{ id_colname }},
       names_to = sample_colname_str,
       values_to = "gene_expression"
@@ -52,7 +52,7 @@ plot_param_corr <- function(expression_data,
     dplyr::select(
       {{ sample_colname }},
       {{ group_colname }},
-      matches(params)
+      dplyr::matches(params)
     ) %>%
     tidyr::pivot_longer(-c({{ sample_colname }}, {{ group_colname }}),
       names_to = "param",
@@ -72,7 +72,7 @@ plot_param_corr <- function(expression_data,
   # create ggplot with custom palette and facet based on gene ~ param
   p <- param_df %>%
     ggplot2::ggplot(ggplot2::aes(x = param_value, y = gene_expression)) +
-    ggplot2::geom_point(aes(color = {{ group_colname }})) +
+    ggplot2::geom_point(ggplot2::aes(color = {{ group_colname }})) +
     { # nolint
       if (!is.null(palette)) ggplot2::scale_color_manual(values = palette)
     } +

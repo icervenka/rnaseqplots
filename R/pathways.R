@@ -140,7 +140,7 @@ plot_pathways_rank <- function(pathway_data,
 
   # Create graph
   p <- pathway_data %>%
-    ggplot2::ggplot(aes(x = {{ x }}, y = {{ y }})) +
+    ggplot2::ggplot(ggplot2::aes(x = {{ x }}, y = {{ y }})) +
     ggplot2::geom_bar(
       stat = "identity",
       ggplot2::aes(fill = -log10({{ bar_fill }})),

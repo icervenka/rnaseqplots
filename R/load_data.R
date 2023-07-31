@@ -71,7 +71,7 @@ load_config.environment <- function(x, into = "list", ...) {
 load_metadata <- function(path, params) {
   df <- read_data(path) %>%
     # dplyr::select(-dplyr::any_of(c("fq", "lane", "read"))) %>%
-    dplyr::select(all_of(c(params$sample_colname, params$group_colname))) %>%
+    dplyr::select(dplyr::all_of(c(params$sample_colname, params$group_colname))) %>%
     base::unique() %>%
     dplyr::mutate(!!as.symbol(params$group_colname) := factor(group,
       levels = params$group_levels
@@ -121,7 +121,7 @@ load_data_diffexp <- function(path, params) {
       read_data(x)
     }
   }) %>%
-    setNames(names(path))
+    stats::setNames(names(path))
   return(df)
 }
 
@@ -318,7 +318,7 @@ load_gene_lists <- function(path, params) {
     gene_lists_to_read,
     read_gene_list_from_file
   ) %>%
-    setNames(names(gene_lists_to_read))
+    stats::setNames(names(gene_lists_to_read))
   gene_lists[names(gene_lists_updated)] <- NULL
   gene_lists <- append(gene_lists, gene_lists_updated) %>%
     purrr::map(modify_gene_lists)
