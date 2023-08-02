@@ -4,14 +4,17 @@
 \alias{get_gsea_files_from_dir}
 \title{Recursively find GSEA result files in a directory}
 \usage{
-get_gsea_files_from_dir(dirpath, pattern, recursive = TRUE)
+get_gsea_files_from_dir(dir, pattern, recursive = TRUE)
 }
 \arguments{
-\item{dirpath}{character string, directory path where the result files are
+\item{dir}{character string, directory path where the result files are
 located.}
 
 \item{pattern}{character string, regex pattern restricting time file names
 that will be processed.}
+
+\item{recursive}{logical, whether directories should be scanned recursively
+for pathway files. default: TRUE}
 }
 \value{
 data frame containg the locations of result files and their paths

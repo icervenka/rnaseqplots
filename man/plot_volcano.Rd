@@ -42,6 +42,9 @@ supplied as variable. default: padj}
 
 \item{sig_threshold}{double, significance threshold for filter_sig_on column}
 
+\item{log2fc_threshold}{double, log2 fold-change threshold for column
+specified in x. default 0.585, corresponds roughly to 1.5 fold-change}
+
 \item{label_bottom_n}{integer, number of labels to display for genes with
 highest y value. default: 5}
 

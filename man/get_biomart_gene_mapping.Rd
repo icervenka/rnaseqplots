@@ -13,7 +13,7 @@ get_biomart_gene_mapping(mart, id_attribute, mapped_attribute, ...)
 
 \item{mapped_attribute}{character vector, names of target attributes}
 
-\item{...}{other parameters to biomart::getBM function}
+\item{...}{other parameters to biomaRt getBM function}
 }
 \value{
 data frame of id_attributed IDs mapped to mapped_attribute IDs

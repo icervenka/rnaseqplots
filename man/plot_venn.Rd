@@ -6,6 +6,7 @@
 \usage{
 plot_venn(
   l,
+  output_directory,
   plot_params,
   category_names = "",
   palette = viridis::viridis(2),
@@ -15,6 +16,9 @@ plot_venn(
 }
 \arguments{
 \item{l}{list of character vectors to plot in venn diagram.}
+
+\item{output_directory}{character string. Path to the output directory where
+the plots will be saved}
 
 \item{plot_params}{list of output parameters for plot such as size, dpi,
 units, file format, file name for export.}

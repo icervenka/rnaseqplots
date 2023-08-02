@@ -7,9 +7,10 @@
 plot_pca(
   pca_data,
   percent_var_labs,
-  group = "group",
-  plot_center = TRUE,
+  group = group,
+  group_center = TRUE,
   linetype = "solid",
+  geom_point_size = 1,
   palette = NULL
 )
 }
@@ -19,13 +20,19 @@ plot_pca(
 \item{percent_var_labs}{double vector of length 2, numeric values of
 explained variance for the PCA plot axes}
 
-\item{plot_center}{logical, whether to plot the center of group in the PCA
+\item{group}{column name of group in pca data data frame, supplied as
+variable. default: SYMBOL}
+
+\item{group_center}{logical, whether to plot the center of group in the PCA
 plot}
 
 \item{linetype}{character string, a valid linetype for ggplot2. If the
-plot_center is set to TRUE, this will determine the line type of drawn
+group_center is set to TRUE, this will determine the line type of drawn
 connections between sample points to group center. default: solid
 be}
+
+\item{geom_point_size}{numeric, size of the geom point for individual
+samples. default: 1}
 
 \item{palette}{character vector of the same length as the number of groups in
 the data. Custom color palette for groups. If NULL, viridis color palette

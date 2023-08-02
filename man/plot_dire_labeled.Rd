@@ -15,7 +15,7 @@ plot_dire_labeled(
 }
 \arguments{
 \item{df}{data frame containing column of transcription factor names,
-Occurence and Importance columns}
+Occurrence and Importance columns}
 
 \item{occurrence_threshold}{double, minimum occurrence value to plot gene
 labels}

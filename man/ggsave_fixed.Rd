@@ -6,13 +6,13 @@
 \usage{
 ggsave_fixed(
   file,
-  plot = last_plot(),
+  plot = ggplot2::last_plot(),
   units = "mm",
   margin = 1,
   panel_width = 4,
   panel_height = 4,
-  width = round(dev.size()[1], digits = 1),
-  height = round(dev.size()[1], digits = 1)
+  width = round(grDevices::dev.size()[1], digits = 1),
+  height = round(grDevices::dev.size()[1], digits = 1)
 )
 }
 \arguments{

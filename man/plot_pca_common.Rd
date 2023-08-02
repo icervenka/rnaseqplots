@@ -4,7 +4,7 @@
 \alias{plot_pca_common}
 \title{Draw PCA plot from normalized gene counts}
 \usage{
-plot_pca_common(expression_data, metadata, ...)
+plot_pca_common(expression_data, metadata, group = group, ...)
 }
 \arguments{
 \item{expression_data}{data frame of normalized gene expression with samples
@@ -12,6 +12,9 @@ as columns and an id column for gene names/symbols}
 
 \item{metadata}{data frame with column of samples names, column for group
 names and optionally other columns describing the sample features}
+
+\item{group}{column name of group in metadata data data frame, supplied as
+variable. default: group}
 
 \item{...}{other parameters to the plot_pca function, see ?plot_pca for more
 information}

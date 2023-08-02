@@ -8,7 +8,7 @@ plot_dire(df, dot_size = 2.5, color = "steelblue4")
 }
 \arguments{
 \item{df}{data frame containing column of transcription factor names,
-Occurence and Importance columns}
+Occurrence and Importance columns}
 
 \item{dot_size}{size of scatter plot symbols}
 

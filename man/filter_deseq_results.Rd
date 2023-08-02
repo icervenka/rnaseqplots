@@ -20,6 +20,9 @@ filter_deseq_results(
 \item{threshold}{double, filtering threshold. Will be applied on absolute
 values in colname. default: 0.05}
 
+\item{comparison}{function, which comparison function to use to compare the
+values to threshold. default \code{<}}
+
 \item{rownames_to}{character string, name of the column that will be created
 from rownames of DESeq2 result object. default ensembl_gene_id}
 }

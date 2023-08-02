@@ -7,7 +7,7 @@
 ggsave_param(
   output_dir,
   plot_params,
-  plot = last_plot(),
+  plot = ggplot2::last_plot(),
   filename_prefix = "",
   filename_suffix = "",
   date_prefix = FALSE

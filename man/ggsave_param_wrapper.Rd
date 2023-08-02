@@ -4,11 +4,17 @@
 \alias{ggsave_param_wrapper}
 \title{Wrapper around ggsave_param function}
 \usage{
-ggsave_param_wrapper(graph_type, ...)
+ggsave_param_wrapper(graph_type, output_directory, output_config_file, ...)
 }
 \arguments{
 \item{graph_type}{character string. Type of graph to be saved, needs to be a
 property in the config file}
+
+\item{output_directory}{character string. Path to the output directory where
+the plots will be saved}
+
+\item{output_config_file}{character string. Path to json config file containing
+graph dimensions for specified graph type}
 
 \item{...}{other parameters passed to the ggsave_param function}
 }
