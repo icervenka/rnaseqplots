@@ -1,7 +1,7 @@
 #' Creates plot from dire.dcode.com upstream transcription factor data
 #'
 #' @param df data frame containing column of transcription factor names,
-#' Occurence and Importance columns
+#' Occurrence and Importance columns
 #' @param dot_size size of scatter plot symbols
 #' @param color color of scatter plot symbols
 #'
@@ -12,6 +12,9 @@
 #'
 #' @examples
 plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
+  # fix global variable binding notes
+  Occurrence <- Importance <- NULL
+
   p <- df %>%
     ggplot2::ggplot(ggplot2::aes(x = Occurrence, y = Importance)) +
     ggplot2::geom_point(color = color, size = dot_size) +
@@ -22,7 +25,7 @@ plot_dire <- function(df, dot_size = 2.5, color = "steelblue4") {
 #' Creates labeled plot from dire.dcode.com upstream transcription factor data
 #'
 #' @param df data frame containing column of transcription factor names,
-#' Occurence and Importance columns
+#' Occurrence and Importance columns
 #' @param occurrence_threshold double, minimum occurrence value to plot gene
 #' labels
 #' @param importance_threshold double, minimum importance value to plot gene
@@ -45,6 +48,9 @@ plot_dire_labeled <- function(df,
                               gene_list = NULL,
                               combine_thresholds = `&`,
                               ...) {
+  # fix global variable binding notes
+  Occurrence <- Importance <- `Transcription Factor` <- NULL
+
   p <- df %>%
     plot_dire(...)
 

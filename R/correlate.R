@@ -35,6 +35,9 @@ plot_param_corr <- function(expression_data,
                             group_colname = group,
                             palette = NULL,
                             show_regression = TRUE) {
+  # fix global variable binding notes
+  SYMBOL <- group <- param <- gene_expression <- param_value <- NULL
+  
   sample_colname_str <- deparse(substitute(sample_colname))
 
   # filter genes supplied in an gene list and samples supplied in metadata and
@@ -67,7 +70,7 @@ plot_param_corr <- function(expression_data,
   # kept in case of future features
   cor_df <- param_df %>%
     dplyr::group_by({{ id_colname }}, param) %>%
-    do(cor_test_df((.), gene_expression, param_value))
+    dplyr::do(cor_test_df(rlang::.data, gene_expression, param_value))
 
   # create ggplot with custom palette and facet based on gene ~ param
   p <- param_df %>%
@@ -127,6 +130,9 @@ plot_lfc_scatter <- function(diffexp_data_1,
                              pvalue_threshold = 0.05,
                              color_quadrants = TRUE,
                              alpha = 1) {
+  # fix global variable binding notes
+  chi_pcomb <- quadrant <- p_chi <- err_sq <- NULL
+  
   # check if the column names for pval and log2fc are the same
   # this will be needed later as the names will get suffixes because of join
   same_lfc_colname <- data_colnames_1["log2fc"] == data_colnames_2["log2fc"]

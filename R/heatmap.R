@@ -45,6 +45,9 @@ plot_heatmap <- function(expression_data,
                          cell_dims = c(10, 1),
                          palette = "RdBu",
                          ...) {
+  # fix global variable binding notes
+  SYMBOL <- group <- NULL
+  
   # Convert column name variables to string, needed for certain functions
   sample_colname_str <- deparse(substitute(sample_colname))
   group_colname_str <- deparse(substitute(metadta_group_colname))
@@ -176,6 +179,9 @@ plot_heatmap_fc <- function(expression_data,
                             group_colname = group,
                             .col_annot_colors = NULL,
                             ...) {
+  # fix global variable binding notes
+  SYMBOL <- log2FoldChange <- padj <- group <- log_pval <- NULL
+  
   # Convert column name variables to string, needed for certain functions
   group_colname_str <- deparse(substitute(group_colname))
   ctr_id <- deparse(rlang::enexpr(id_colname))

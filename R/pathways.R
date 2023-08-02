@@ -22,6 +22,9 @@ plot_cp_pathways_bargraph <- function(pathway_data,
                                       pathway_source_pattern,
                                       top_pathways = 20,
                                       truncate_name = 80) {
+  # fix global variable binding notes
+  `GeneRatio/NES` <- Description <- p.adjust <- NULL
+  
   p <- pathway_data %>%
     dplyr::filter(grepl(pathway_source_pattern, source)) %>%
     dplyr::arrange(-abs(`GeneRatio/NES`)) %>%
@@ -32,7 +35,7 @@ plot_cp_pathways_bargraph <- function(pathway_data,
         stringr::str_trunc(Description, truncate_name)
     ) %>%
     dplyr::mutate(Description = factor(Description,
-      levels = (.) %>% dplyr::pull(Description)
+      levels = rlang::.data %>% dplyr::pull(Description)
     )) %>%
     ggplot2::ggplot(ggplot2::aes(
       x = `GeneRatio/NES`,
@@ -46,30 +49,6 @@ plot_cp_pathways_bargraph <- function(pathway_data,
   return(p)
 }
 
-# #' Title
-# #'
-# #' @param json_file
-# #' @param top_pathways
-# #'
-# #' @return
-# #' @export
-# #'
-# #' @examples
-# plot_basic_amigo = function(json_file, top_pathways = 15) {
-#   df = read_pathways_amigo(fromJSON(file = json_file))
-#   df %>%
-#     filter(level == 0) %>%
-#     arrange(fold_enrichment) %>%
-#     slice_tail(n = top_n) %>%
-#     mutate(label = tools::toTitleCase(label)) %>%
-#     mutate(label = factor(label, levels = label)) %>%
-#     ggplot(aes(x = label, y = fold_enrichment)) +
-#     geom_bar(aes(fill = -log10(pvalue)), stat = "identity") +
-#     #geom_point(aes(color = -log10(pvalue)), size = 3) +
-#     coord_flip() +
-#     theme_bw() +
-#     scale_fill_viridis()
-# }
 
 #' Create barplot for pathways with indicated rank
 #'
@@ -120,6 +99,9 @@ plot_pathways_rank <- function(pathway_data,
                                plot_legend = TRUE,
                                ylab_text = NULL,
                                label_offset = 0.4) {
+  # fix global variable binding notes
+  pathway_rank <- rank_of <- NULL
+  
   if (max(rank_include) > nrow(pathway_data)) {
     stop("Some ranks not found in filtered dataset.")
   }
@@ -128,7 +110,7 @@ plot_pathways_rank <- function(pathway_data,
   pathway_data <- pathway_data %>%
     # mutate(pathway_rank = row_number()) %>%
     dplyr::arrange(dplyr::desc({{ y }})) %>%
-    dplyr::mutate(rank_of = paste0(pathway_rank, "/", nrow(.))) %>%
+    dplyr::mutate(rank_of = paste0(pathway_rank, "/", nrow(rlang::.data))) %>%
     dplyr::filter(pathway_rank %in% rank_include) %>%
     dplyr::mutate({{ x }} := stringr::str_replace_all({{ x }}, "_", " ")) %>%
     dplyr::mutate({{ x }} := tools::toTitleCase(tolower({{ x }}))) %>%
@@ -233,6 +215,9 @@ plot_pathways_volcano <- function(pathway_data,
                                     "steelblue4",
                                     "darkred"
                                   )) {
+  # fix global variable binding notes
+  significant_x <- significant_y <- significant <- name <- pathway_rank <- NULL
+  
   # prepare the pathway data for plotting, setting thresholds
   pathway_data <- pathway_data %>%
     dplyr::mutate(significant_x = dplyr::case_when(
@@ -326,6 +311,9 @@ plot_pathways_volcano <- function(pathway_data,
 #'
 #' @examples
 plot_cp_pathways_meta <- function(pathway_data, top_pathways = 30) {
+  # fix global variable binding notes
+  `GeneRatio/NES` <- n_pathways <- NULL
+
   pathways_summary <- pathway_data %>%
     dplyr::group_by(source) %>%
     dplyr::summarise(

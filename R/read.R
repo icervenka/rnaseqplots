@@ -80,6 +80,9 @@ read_data <- function(filename) {
 #'
 #' @examples
 read_data_cuffdiff <- function(dir) {
+  # fix global variable binding notes
+  gene_id <- gene <- value_1 <- value_2 <- status <- sample_1 <- sample_2 <- NULL
+
   cuff <- cummeRbund::readCufflinks(dir)
   annot <- utils::read.delim(paste0(dir, "/gene_exp.diff"),
     sep = "\t",
@@ -121,6 +124,9 @@ read_data_cuffdiff <- function(dir) {
 read_pathways_cp <- function(filename,
                              rank_by = `GeneRatio/NES`,
                              descending = TRUE) {
+  # fix global variable binding notes
+  `GeneRatio/NES` <- ID <- SYMBOL <- ENTREZID <- log2FoldChange <- NULL
+  
   cp_unified_colnames <- c(
     "ID", "Description", "GeneRatio/NES", "pvalue",
     "p.adjust", "SYMBOL", "ENTREZID", "log2FoldChange"
@@ -155,6 +161,9 @@ collate_pathways_cp <- function(dir,
                                 pattern = "",
                                 pval_threshold = 0.05,
                                 recursive = TRUE) {
+  # fix global variable binding notes
+  p.adjust <- NULL
+
   pathway_files <- list.files(dir,
     pattern = pattern,
     full.names = FALSE,
@@ -184,6 +193,9 @@ collate_pathways_cp <- function(dir,
 #'
 #' @examples
 get_gsea_files_from_dir <- function(dir, pattern, recursive = TRUE) {
+  # fix global variable binding notes
+  full_path <- NULL
+  
   file_df <- data.frame(full_path = dir(dir,
     pattern = paste0(pattern, ".*tsv"),
     full.names = TRUE,
@@ -226,6 +238,9 @@ read_pathways_gsea <- function(filename,
                                  "nom_pval", "fdr_qval", "fwer_pval",
                                  "rank_at_max", "leading_edge"
                                )) {
+  # fix global variable binding notes
+  NES <- X <- `NOM p-val` <- `FDR q-val` <- NULL
+  
   orientation <- rank_how(descending)
 
   df <- utils::read.table(filename, header = TRUE, sep = "\t") %>%
@@ -276,6 +291,9 @@ collate_pathways_gsea <- function(dir,
                                   pvalue_threshold = 0.05,
                                   rank_by = nes,
                                   recursive = TRUE) {
+  # fix global variable binding notes
+  nes <- fdr_qval <- path <- NULL
+  
   # read the data frame of files
   files_df <- get_gsea_files_from_dir(dir, pattern, recursive = recursive)
 
@@ -311,6 +329,9 @@ collate_pathways_gsea <- function(dir,
 #'
 #' @examples
 read_pathways_ipa <- function(filename, rank_by = zscore, descending = TRUE) {
+  # fix global variable binding notes
+  zscore <- NULL
+  
   orientation <- rank_how(descending)
 
   utils::read.table(filename, header = TRUE, sep = "\t") %>%
@@ -341,6 +362,9 @@ collate_pathways_ipa <- function(dir,
                                  rank_by = zscore,
                                  descending = TRUE,
                                  recursive = TRUE) {
+  # fix global variable binding notes
+  zscore <- NULL
+  
   pathway_files <- list.files(
     dir,
     pattern = pattern,
@@ -372,6 +396,9 @@ collate_pathways_ipa <- function(dir,
 #'
 #' @examples
 read_pathways_amigo <- function(filename) {
+  # fix global variable binding notes
+  fold_enrichment <- pvalue <- level <- NULL
+
   json_list <- rjson::fromJSON(file = filename)
 
   # If the json file specification changes, this needs to be updated
@@ -430,6 +457,9 @@ collate_pathways_amigo <- function(dir,
                                    rank_by = pvalue,
                                    filter_level_up_to = 0,
                                    recursive = TRUE) {
+  # fix global variable binding notes
+  pvalue <- level <- NULL
+  
   pathway_files <- list.files(
     dir,
     pattern = pattern,
@@ -439,7 +469,9 @@ collate_pathways_amigo <- function(dir,
 
   amigo_pathways <- purrr::map_dfr(pathway_files, function(x) {
     read_pathways_amigo(x) %>%
-      dplyr::arrange(orientation(abs({{ rank_by }}))) %>%
+      # no descending parameter for orientation
+      # dplyr::arrange(orientation(abs({{ rank_by }}))) %>%
+      dplyr::arrange(abs({{ rank_by }})) %>%
       dplyr::mutate(pathway_rank = dplyr::row_number()) %>%
       dplyr::mutate(file = x)
   })
@@ -468,6 +500,9 @@ collate_pathways_amigo <- function(dir,
 #'
 #' @examples
 read_dire_xlsx <- function(filename, sheet_name = "Sheet1") {
+  # fix global variable binding notes
+  `#` <- NULL
+
   if (grepl(".xlsx", filename)) {
     df <- readxl::read_excel(filename, sheet = sheet_name) %>%
       dplyr::select(-`#`)
@@ -504,6 +539,9 @@ collate_pathways_dire <- function(dir,
                                   pattern = "",
                                   sheet_name = "Sheet1",
                                   recursive = TRUE) {
+  # fix global variable binding notes
+  `#` <- Occurrence <- NULL
+
   empty_dire_df <- data.frame(
     `Transcription Factor` = character(0),
     Occurrence = numeric(0),
@@ -521,7 +559,7 @@ collate_pathways_dire <- function(dir,
     if (endsWith(x, "xlsx")) {
       tryCatch(
         {
-          dire_df <- read_dire_xlsx(x, dire_sheet_name)
+          dire_df <- read_dire_xlsx(x, sheet_name)
         },
         error = function(cond) {
           message("There were problems dire xlsx file, please check that the
@@ -602,6 +640,9 @@ filter_pathways <- function(pathway_data,
 #'
 #' @examples
 read_gene_list_from_file <- function(filename) {
+  # fix global variable binding notes
+  SYMBOL <- NULL
+
   gene_list <- readr::read_delim(filename,
     delim = "\t",
     col_names = c("SYMBOL")

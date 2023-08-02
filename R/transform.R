@@ -46,6 +46,9 @@ filter_deseq_results <- function(res,
                                  threshold = 0.05,
                                  comparison = `<`,
                                  rownames_to = "ensembl_gene_id") {
+  # fix global variable binding notes
+  padj <- NULL
+  
   if (!(rownames_to %in% names(res))) {
     res <- res %>%
       data.frame() %>%
@@ -98,6 +101,9 @@ get_sig_genes <- function(diffexp_data,
                           id_colname = SYMBOL,
                           filter_sig_on = padj,
                           sig_threshold = 0.05) {
+  # fix global variable binding notes
+  SYMBOL <- padj <- NULL
+                            
   gene_vec <- diffexp_data %>%
     dplyr::filter({{ filter_sig_on }} < sig_threshold) %>%
     dplyr::pull({{ id_colname }})
@@ -123,6 +129,9 @@ get_biomart_gene_mapping <- function(mart,
                                      id_attribute,
                                      mapped_attribute,
                                      ...) {
+  # fix global variable binding notes
+  id <- NULL
+  
   if (!all(c(
     id_attribute %in% list(...)[["attributes"]],
     mapped_attribute %in% list(...)[["attributes"]]

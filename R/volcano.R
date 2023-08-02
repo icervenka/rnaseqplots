@@ -58,6 +58,8 @@ plot_volcano <- function(diffexp_data,
                            "steelblue",
                            "darkred"
                          )) {
+  # fix global variable binding notes
+  log2FoldChange <- pvalue <- SYMBOL <- padj <- significant <- NULL
 
   # validate function arguments
   if (length(color_palette) != 3) {
@@ -154,6 +156,9 @@ plot_volcano <- function(diffexp_data,
 #'
 #' @examples
 plot_volcano_cuffdiff <- function(diffexp_data, group1, group2, ...) {
+  # fix global variable binding notes
+  sample_1 <- sample_2 <- NULL
+  
   df <- diffexp_data %>%
     dplyr::filter(sample_1 == group1 & sample_2 == group2)
   return(plot_volcano(df, ...))

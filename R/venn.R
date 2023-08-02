@@ -5,6 +5,8 @@
 #' screen.
 #'
 #' @param l list of character vectors to plot in venn diagram.
+#' @param output_directory character string. Path to the output directory where
+#' the plots will be saved 
 #' @param plot_params list of output parameters for plot such as size, dpi,
 #' units, file format, file name for export.
 #' @param category_names character vector the same length as l containing
@@ -19,6 +21,7 @@
 #'
 #' @examples
 plot_venn <- function(l,
+                      output_directory,
                       plot_params,
                       category_names = "",
                       palette = viridis::viridis(2),

@@ -5,8 +5,10 @@ Authors@R:
     person("Igor", "Cervenka", , "igor.cervenka@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9438-5161"))
 Depends: R(>= 3.5.0)
-Description: What the package does (one paragraph).
-License: MIT License
+Description: Use data for differentially expressed genes and pathways as well as
+    normalized gene counts to easily create standard plots for RNA-Seq data
+    such as MA, PCA, Volcano, Heatmaps etc. and export them for publications.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
@@ -22,6 +24,7 @@ Imports:
     DESeq2,
     dplyr,
     egg,
+    generics,
     ggplot2,
     ggrepel,
     lazyeval,

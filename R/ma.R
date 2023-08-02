@@ -53,7 +53,9 @@ plot_ma <- function(diffexp_data,
                       "steelblue",
                       "darkred"
                     )) {
-
+  # fix global variable binding notes
+  baseMean <- log2FoldChange <- SYMBOL <- padj <- significant <- NULL
+  
   # validate function arguments
   if (length(color_palette) != 3) {
     stop("Color palette requires a vector length 3.")

@@ -32,7 +32,7 @@ load_into <- function(x, into) {
 #'
 #' @examples
 load_config <- function(x, into = "list", ...) {
-  UseMethod("load_json_config", x)
+  UseMethod("load_config", x)
 }
 
 ## S3 method for class 'character'
@@ -69,6 +69,9 @@ load_config.environment <- function(x, into = "list", ...) {
 #'
 #' @examples
 load_metadata <- function(path, params) {
+  # fix global variable binding notes
+  group <- NULL
+
   df <- read_data(path) %>%
     # dplyr::select(-dplyr::any_of(c("fq", "lane", "read"))) %>%
     dplyr::select(dplyr::all_of(c(params$sample_colname, params$group_colname))) %>%
@@ -235,7 +238,7 @@ load_pathways_ipa <- function(path, params) {
     pattern = params$ipa_pathways_pattern,
     rank_by = params$ipa_rank_by
   )
-  return(ipa_data)
+  return(pathway_data)
 }
 
 #' Load data from AmiGO analysis
@@ -383,8 +386,8 @@ load_all_data <- function(input_config,
                           into = "list") {
   match.arg(into, c("list", "env"))
 
-  paths <- load_json_config(input_config)
-  params <- load_json_config(param_config)
+  paths <- load_config(input_config)
+  params <- load_config(param_config)
 
   data <- list()
   purrr::walk2(names(input_config), input_config, function(x, y) {

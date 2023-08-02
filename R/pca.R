@@ -17,7 +17,9 @@
 plot_pca_deseq <- function(dds,
                            norm = "vst",
                            ...) {
-
+  # fix global variable binding notes
+  group <- PC1 <- PC2 <- id <- NULL
+  
   # Normalized the DESeq data
   if (norm == "vst") {
     dds_norm <- DESeq2::vst(dds, blind = FALSE)
@@ -77,6 +79,9 @@ plot_pca_common <- function(expression_data,
                             metadata,
                             group = group,
                             ...) {
+  # fix global variable binding notes
+  PC1 <- PC2 <- NULL
+  
   # calculate PCA components for samples specified in metadata
   pca <- stats::prcomp(
     t(
@@ -167,6 +172,8 @@ plot_pca <- function(pca_data,
                      linetype = "solid",
                      geom_point_size = 1,
                      palette = NULL) {
+  # fix global variable binding notes
+  PC1 <- PC2 <- xend <- yend <- NULL
 
   # get number of colors needed to display
   no_colors <- pca_data %>%

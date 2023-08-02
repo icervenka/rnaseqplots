@@ -68,6 +68,9 @@ create_gsea_normalized <- function(data,
                                    data_description_col = NULL,
                                    sample_colname = sample,
                                    out = NULL) {
+  # fix global variable binding notes
+  NAME <- DESCRIPTION <- NULL
+  
   # create string from supplied variables, needed for certain functions
   samples <- metadata[[deparse(substitute((sample_colname)))]]
   data_cols <- names(data)[names(data) %in% samples]
@@ -126,6 +129,9 @@ create_gsea_cls <- function(data,
                             out = NULL,
                             sample_colname = sample,
                             group_colname = group) {
+  # fix global variable binding notes
+  group <- NULL
+  
   metadata_filtered <- metadata %>%
     dplyr::select({{ sample_colname }}, {{ group_colname }})
 
@@ -185,6 +191,9 @@ create_gsea_rank <- function(data,
                              ranking_formula = ~ -log10(pvalue) * sign(log2FoldChange),
                              id_colname = ensembl_gene_id,
                              .inf = "replace") {
+  # fix global variable binding notes
+  ensembl_gene_id <- NULL
+
   out_df <- data %>%
     dplyr::mutate(rank = !!lazyeval::f_rhs(ranking_formula)) %>%
     dplyr::select({{ id_colname }}, rank) %>%
@@ -240,10 +249,13 @@ create_gsea_rank <- function(data,
 #'
 #' @examples
 get_plot_params <- function(type, plot_params) {
+  # fix global variable binding notes
+  graph_type <- NULL
+
   # check whether plot params are a data frame of path to config file
-  if (class(plot_params) == "data.frame") {
+  if (methods::is(plot_params, "data.frame")) {
     config_df <- plot_params
-  } else if (class(plot_params) == "character" &&
+  } else if (methods::is(plot_params, "character") &&
     endsWith(plot_params, "json")) {
     config_df <- rjson::fromJSON(file = plot_params)$plot_export_params %>%
       purrr::map_dfr(data.frame)
@@ -287,6 +299,8 @@ ggsave_param <- function(output_dir,
                          filename_prefix = "",
                          filename_suffix = "",
                          date_prefix = FALSE) {
+  
+  
   # assemble together the final file name
   if (date_prefix) {
     tp <- Sys.Date()
@@ -294,7 +308,7 @@ ggsave_param <- function(output_dir,
     tp <- ""
   }
   out_filename <- paste0(
-    output_directory,
+    output_dir,
     tp,
     filename_prefix,
     plot_params$filename,
@@ -333,16 +347,21 @@ ggsave_param <- function(output_dir,
 #'
 #' @param graph_type character string. Type of graph to be saved, needs to be a
 #' property in the config file
+#' @param output_directory character string. Path to the output directory where
+#' the plots will be saved 
+#' @param output_config_file character string. Path to json config file containing
+#' graph dimensions for specified graph type
 #' @param ... other parameters passed to the ggsave_param function
 #'
 #' @return NULL
 #' @export
 #'
 #' @examples
-ggsave_param_wrapper <- function(graph_type, ...) {
+ggsave_param_wrapper <- function(graph_type, output_directory, output_config_file, ...) {
+  # TODO fix output directory, it doesnt point to anything
   ggsave_param(
     output_directory,
-    get_plot_params(graph_type, "config.json"),
+    get_plot_params(graph_type, output_config_file),
     ...
   )
 }
